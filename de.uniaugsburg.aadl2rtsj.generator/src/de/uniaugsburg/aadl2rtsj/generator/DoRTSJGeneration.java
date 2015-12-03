@@ -129,6 +129,8 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
                         mainFolderName, false, monitor);
           
                 
+                //ajksdhfklöjasd
+                
                 mainPackageFrag.getResource().refreshLocal(IResource.DEPTH_INFINITE, monitor);
                 ICompilationUnit compilationUnit =
                     mainPackageFrag.createCompilationUnit("Thread1.java",buffer.toString(), true, monitor);
