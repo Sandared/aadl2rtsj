@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            id="org.osate.analysis.architecture.ocua"
+            objectClass="java.lang.Object">
+         <action
+               class="de.uniaugsburg.aadl2rtsj.generator.DoRTSJGeneration"
+               id="de.uniaugsburg.aadl2rtsj.generator.generateaction"
+               label="AADL2RTSJ Code Generation"
+               menubarPath="org.osate.ui.popupMenu.Analyses/org.osate.analysis.architecture.popupMenu.Arch/anal.grp">
+         </action>
+      </objectContribution>
+   </extension>
+
+</plugin>

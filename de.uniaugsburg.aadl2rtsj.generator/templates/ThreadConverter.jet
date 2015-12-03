@@ -1,0 +1,17 @@
+<%@ jet package="de.uniaugsburg.aadl2rtsj.converter" class="ThreadConverter" skeleton="ThreadConverter.skeleton" 
+imports="
+ 	org.osate.aadl2.instance.ComponentInstance 
+ 	org.osate.aadl2.instance.FeatureInstance 
+ 	" 
+%>
+
+public class <%=thread.getName()%>{
+	<%if(thread.getAllFeatureInstances().size() > 0){%>
+	/*
+	 * FEATURES
+	 */
+	<%for(FeatureInstance feature : thread.getAllFeatureInstances()){%>
+	
+	<%}%>
+	<%}%>
+}
