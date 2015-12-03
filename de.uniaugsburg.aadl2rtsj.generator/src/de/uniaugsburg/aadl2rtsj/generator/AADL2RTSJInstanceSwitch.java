@@ -1,7 +1,8 @@
 package de.uniaugsburg.aadl2rtsj.generator;
 
-import java.lang.management.ThreadInfo;
-import java.util.List;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import org.eclipse.emf.common.util.EList;
 import org.osate.aadl2.ClassifierFeature;
@@ -32,7 +33,8 @@ import org.osate.aadl2.instance.PropertyAssociationInstance;
 import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.instance.SystemOperationMode;
 import org.osate.aadl2.instance.util.InstanceSwitch;
-import org.osate.aadl2.properties.PropertyAcc;
+
+import de.uniaugsburg.aadl2rtsj.converter.ThreadConverter;
 
 public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	
@@ -53,25 +55,53 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 
 	@Override
 	public String caseComponentInstance(ComponentInstance object) {
-		System.out.println("AADL2RTSJInstanceSwitch.caseComponentInstance()" + object);
+		switch (object.getCategory()) {
+		case THREAD:
+			File file = new File("C:\\Users\\Administrator\\Desktop\\test.java");
+			if(!file.exists())
+				try {
+					if(!file.createNewFile()){
+						System.err.println("Could not create File");
+					}
+					else{
+						FileOutputStream fos = new FileOutputStream(file);
+						fos.write(ThreadConverter.create("").generate(object).getBytes());
+						fos.flush();
+						fos.close();
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			break;
+
+		default:
+			EList<FeatureInstance> features = object.getAllFeatureInstances(); // Features
+			System.out.println("features: " + features);
+			EList<ComponentInstance> subcomponents = object.getAllComponentInstances(); // Subcomponents (including the component itself at the first place of the resulting list)
+			System.out.println("subcomponents: " + subcomponents);
+			EList<PropertyAssociation> properties = object.getOwnedPropertyAssociations(); // property associations
+			System.out.println("properties: " + properties);
+			
+			for (PropertyAssociation asso : properties) {
+				Property prop = asso.getProperty(); // the actual property
+				String name = prop.getName(); // name of the property
+				PropertyExpression valueExpression = object.getSimplePropertyValue(prop); // easiest way to get the value of single-valued, non-modal properties like Period
+				Long value = null;
+				if(valueExpression instanceof IntegerLiteral)
+					value = ((IntegerLiteral)valueExpression).getValue();
+				System.out.println("name: " + name);
+				System.out.println("value: " + value);
+			}
+			System.out.println(object.getNamespace()); // returns null -> nutzlos?
+			System.out.println(object.getName()); // entspricht variablenname oder wenn der erste Buchstabe groﬂ geschrieben wird, der Klasse 
+			System.out.println(object.getComponentInstancePath()); // entspricht dem package name, ohne den systemnamen
+			System.out.println(object.getComponentClassifier());
+			System.out.println(object.getSystemInstance()); // system.getName() ohne die Endung "_impl_Instance" ist der Anfang jedes packagenamens
+			break;
+		}
 		
-//		EList<FeatureInstance> features = object.getAllFeatureInstances(); // Features
-//		System.out.println("features: " + features);
-//		EList<ComponentInstance> subcomponents = object.getAllComponentInstances(); // Subcomponents (including the component itself at the first place of the resulting list)
-//		System.out.println("subcomponents: " + subcomponents);
-//		EList<PropertyAssociation> properties = object.getOwnedPropertyAssociations(); // property associations
-//		System.out.println("properties: " + properties);
-//		
-//		for (PropertyAssociation asso : properties) {
-//			Property prop = asso.getProperty(); // the actual property
-//			String name = prop.getName(); // name of the property
-//			PropertyExpression valueExpression = object.getSimplePropertyValue(prop); // easiest way to get the value of single-valued, non-modal properties like Period
-//			Long value = null;
-//			if(valueExpression instanceof IntegerLiteral)
-//				value = ((IntegerLiteral)valueExpression).getValue();
-//			System.out.println("name: " + name);
-//			System.out.println("value: " + value);
-//		}
+		
 		
 		
 		return DONE;

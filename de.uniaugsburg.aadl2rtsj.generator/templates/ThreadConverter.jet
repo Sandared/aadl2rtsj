@@ -5,13 +5,27 @@ imports="
  	" 
 %>
 
+import javax.realtime.Timer;
+import javax.realtime.AsynchronousEventHandler;
+
+<%if(thread.getAllFeatureInstances().size() > 0){%>
+// Import all needed features
+<%for(FeatureInstance feature : thread.getAllFeatureInstances()){%>
+import <%=thread.getNamespace() + "." + feature.getName()%>
+<%}%>
+<%}%>
+
+
+
 public class <%=thread.getName()%>{
 	<%if(thread.getAllFeatureInstances().size() > 0){%>
 	/*
 	 * FEATURES
 	 */
-	<%for(FeatureInstance feature : thread.getAllFeatureInstances()){%>
+		<%for(FeatureInstance feature : thread.getAllFeatureInstances()){%>
+	<%=className(feature.getName())%> <%=feature.getName()%> = new <%=className(feature.getName())%>();
 	
-	<%}%>
+	
+		<%}%>
 	<%}%>
 }
