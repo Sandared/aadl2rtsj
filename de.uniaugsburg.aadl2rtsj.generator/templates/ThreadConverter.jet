@@ -1,31 +1,24 @@
-<%@ jet package="de.uniaugsburg.aadl2rtsj.converter" class="ThreadConverter" skeleton="ThreadConverter.skeleton" 
+<%@ jet package="de.uniaugsburg.aadl2rtsj.converter" class="ThreadConverter" skeleton="ComponentInstance.skeleton" 
 imports="
+	de.uniaugsburg.aadl2rtsj.utils.Utils
  	org.osate.aadl2.instance.ComponentInstance 
  	org.osate.aadl2.instance.FeatureInstance 
  	" 
 %>
 
-import javax.realtime.Timer;
-import javax.realtime.AsynchronousEventHandler;
-
-<%if(thread.getAllFeatureInstances().size() > 0){%>
-// Import all needed features
-<%for(FeatureInstance feature : thread.getAllFeatureInstances()){%>
-import <%=thread.getNamespace() + "." + feature.getName()%>
-<%}%>
-<%}%>
-
-
-
-public class <%=thread.getName()%>{
-	<%if(thread.getAllFeatureInstances().size() > 0){%>
+public class <%=Utils.className(component.getName())%>{
+	<%if(component.getAllComponentInstances().size() > 1)/*the component itself is always in this list*/{%>
+	/*
+	 * Subcomponents
+	 */ <%for(ComponentInstance subcomponent : component.getAllComponentInstances()){%>
+	<%=Utils.className(subcomponent.getName())%> <%=subcomponent.getName()%> = new <%=Utils.className(subcomponent.getName())%>();
+		<%}%>
+	<%}%>
+	<%if(component.getAllFeatureInstances().size() > 0){%>
 	/*
 	 * FEATURES
-	 */
-		<%for(FeatureInstance feature : thread.getAllFeatureInstances()){%>
-	<%=className(feature.getName())%> <%=feature.getName()%> = new <%=className(feature.getName())%>();
-	
-	
+	 */	<%for(FeatureInstance feature : component.getAllFeatureInstances()){%>
+	<%=Utils.className(feature.getName())%> <%=feature.getName()%> = new <%=Utils.className(feature.getName())%>();
 		<%}%>
 	<%}%>
 }

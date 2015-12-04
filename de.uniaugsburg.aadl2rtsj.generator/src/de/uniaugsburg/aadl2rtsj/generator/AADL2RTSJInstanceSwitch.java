@@ -1,10 +1,11 @@
 package de.uniaugsburg.aadl2rtsj.generator;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
 import org.osate.aadl2.ClassifierFeature;
 import org.osate.aadl2.Element;
 import org.osate.aadl2.IntegerLiteral;
@@ -34,12 +35,78 @@ import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.instance.SystemOperationMode;
 import org.osate.aadl2.instance.util.InstanceSwitch;
 
+import de.uniaugsburg.aadl2rtsj.converter.DataPortConverter;
 import de.uniaugsburg.aadl2rtsj.converter.ThreadConverter;
 
 public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	
+	private IPackageFragmentRoot root;
+	private IProgressMonitor monitor;
+
+	public AADL2RTSJInstanceSwitch(IPackageFragmentRoot root, IProgressMonitor monitor){
+		super();
+		this.root = root;
+		this.monitor = monitor;
+	}
+	
 	// we just need something to abort switch execution for a given object. Otherwise the switch would traverse up the whole inheritance tree
 	private static final String DONE = "";
+	
+	/**
+	 * Turns strings into a form that is expected in Java to be a class name, e.g. first letter upper cased
+	 * @param name the (probably lowercased) String 
+	 * @return a string that hopefully looks like a class name
+	 */
+	private String getClassName(InstanceObject object){
+		StringBuilder b = new StringBuilder(object.getName());
+		b.replace(0, 1, b.substring(0,1).toUpperCase());
+		b.append(".java");
+		return b.toString();
+	}
+	
+	private String getPackageName(InstanceObject object){
+		StringBuffer buffer = new StringBuffer(object.getInstanceObjectPath());
+		// if its a feature instance we have to omit the last part of the path as we want the feature in the same package as its parent component
+		if(object instanceof FeatureInstance){
+			buffer.delete(buffer.lastIndexOf("."), buffer.length());
+		}
+		
+		int pkgEnd = buffer.indexOf(".");
+		StringBuffer pkg = new StringBuffer(buffer.substring(0, pkgEnd));//get the part that represents the package
+		buffer.delete(0, pkgEnd); // remove the part that represents the package
+		
+		int implPos;
+		if((implPos = pkg.indexOf("_impl_")) != -1){//if the package part contains an _impl_section start deletion here
+			pkg = pkg.delete(implPos, pkg.length());
+		}
+		else{//else start deletion at the _Instance position
+			pkg = pkg.delete(pkg.indexOf("_Instance"), pkg.length());
+		}
+		buffer.insert(0, pkg);//insert package in front of the rest again
+		return buffer.toString().toLowerCase();
+	}
+	
+	private boolean createJavaClass(String packageName, String className, String sourceCode) {
+		IPackageFragment fragment = null;
+		try {
+			// get or create the package
+			fragment = root.createPackageFragment(packageName, false, monitor);
+			
+			// create sourcecode
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("package " + fragment.getElementName() + ";\n");
+			buffer.append("\n");
+			buffer.append(sourceCode);
+			
+			// create class
+			ICompilationUnit cu = fragment.createCompilationUnit(className, buffer.toString(), false, null);
+			cu.save(monitor, true);
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
 
 	@Override
 	public String caseAnnexInstance(AnnexInstance object) {
@@ -57,56 +124,37 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	public String caseComponentInstance(ComponentInstance object) {
 		switch (object.getCategory()) {
 		case THREAD:
-			File file = new File("C:\\Users\\Administrator\\Desktop\\test.java");
-			if(!file.exists())
-				try {
-					if(!file.createNewFile()){
-						System.err.println("Could not create File");
-					}
-					else{
-						FileOutputStream fos = new FileOutputStream(file);
-						fos.write(ThreadConverter.create("").generate(object).getBytes());
-						fos.flush();
-						fos.close();
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			String sourceCode = new ThreadConverter().generate(object);
+			createJavaClass(getPackageName(object), getClassName(object), sourceCode);
 			break;
-
 		default:
-			EList<FeatureInstance> features = object.getAllFeatureInstances(); // Features
-			System.out.println("features: " + features);
-			EList<ComponentInstance> subcomponents = object.getAllComponentInstances(); // Subcomponents (including the component itself at the first place of the resulting list)
-			System.out.println("subcomponents: " + subcomponents);
-			EList<PropertyAssociation> properties = object.getOwnedPropertyAssociations(); // property associations
-			System.out.println("properties: " + properties);
-			
-			for (PropertyAssociation asso : properties) {
-				Property prop = asso.getProperty(); // the actual property
-				String name = prop.getName(); // name of the property
-				PropertyExpression valueExpression = object.getSimplePropertyValue(prop); // easiest way to get the value of single-valued, non-modal properties like Period
-				Long value = null;
-				if(valueExpression instanceof IntegerLiteral)
-					value = ((IntegerLiteral)valueExpression).getValue();
-				System.out.println("name: " + name);
-				System.out.println("value: " + value);
-			}
-			System.out.println(object.getNamespace()); // returns null -> nutzlos?
+//			EList<FeatureInstance> features = object.getAllFeatureInstances(); // Features
+//			System.out.println("features: " + features);
+//			EList<ComponentInstance> subcomponents = object.getAllComponentInstances(); // Subcomponents (including the component itself at the first place of the resulting list)
+//			System.out.println("subcomponents: " + subcomponents);
+//			EList<PropertyAssociation> properties = object.getOwnedPropertyAssociations(); // property associations
+//			System.out.println("properties: " + properties);
+//			
+//			for (PropertyAssociation asso : properties) {
+//				Property prop = asso.getProperty(); // the actual property
+//				String name = prop.getName(); // name of the property
+//				PropertyExpression valueExpression = object.getSimplePropertyValue(prop); // easiest way to get the value of single-valued, non-modal properties like Period
+//				Long value = null;
+//				if(valueExpression instanceof IntegerLiteral)
+//					value = ((IntegerLiteral)valueExpression).getValue();
+//				System.out.println("name: " + name);
+//				System.out.println("value: " + value);
+//			}
+//			System.out.println(object.getNamespace()); // returns null -> nutzlos?
 			System.out.println(object.getName()); // entspricht variablenname oder wenn der erste Buchstabe groﬂ geschrieben wird, der Klasse 
-			System.out.println(object.getComponentInstancePath()); // entspricht dem package name, ohne den systemnamen
-			System.out.println(object.getComponentClassifier());
-			System.out.println(object.getSystemInstance()); // system.getName() ohne die Endung "_impl_Instance" ist der Anfang jedes packagenamens
+//			System.out.println(object.getComponentInstancePath()); // entspricht dem package name, ohne den systemnamen
+//			System.out.println(object.getComponentClassifier());
+//			System.out.println(object.getSystemInstance()); // system.getName() ohne die Endung "_impl_Instance" ist der Anfang jedes packagenamens
 			break;
 		}
-		
-		
-		
-		
 		return DONE;
 	}
-
+	
 	@Override
 	public String caseConnectionInstance(ConnectionInstance object) {
 		System.out.println("AADL2RTSJInstanceSwitch.caseConnectionInstance()" + object);
@@ -139,7 +187,16 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 
 	@Override
 	public String caseFeatureInstance(FeatureInstance object) {
-		System.out.println("AADL2RTSJInstanceSwitch.caseFeatureInstance()" + object);
+		switch (object.getCategory()) {
+		case DATA_PORT:
+			String sourceCode = new DataPortConverter().generate(object);
+			createJavaClass(getPackageName(object), getClassName(object), sourceCode);
+			break;
+
+		default:
+			System.out.println("AADL2RTSJInstanceSwitch.caseFeatureInstance()");
+			break;
+		}
 		return DONE;
 	}
 
