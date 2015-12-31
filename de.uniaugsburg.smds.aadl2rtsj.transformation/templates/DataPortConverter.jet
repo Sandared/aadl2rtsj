@@ -1,0 +1,10 @@
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="DataPortConverter" skeleton="FeatureInstance.skeleton" 
+imports="
+	de.uniaugsburg.smds.aadl2rtsj.utils.Utils
+ 	org.osate.aadl2.instance.ComponentInstance 
+ 	org.osate.aadl2.instance.FeatureInstance 
+ 	" 
+%>
+public class <%=Utils.getClassName(feature)%>{
+	
+}

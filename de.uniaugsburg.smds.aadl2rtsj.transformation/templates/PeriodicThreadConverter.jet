@@ -1,0 +1,51 @@
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="PeriodicThreadConverter" skeleton="ComponentInstance.skeleton" 
+imports="
+
+" 
+%>
+
+import javax.realtime.AsyncEventHandler;
+import javax.realtime.Timer;
+import javax.realtime.PeriodicTimer;
+import javax.realtime.RelativeTime;
+import javax.realtime.PriorityParameters;
+
+<%=getSubcomponentImportStatements(component)%>
+
+public class <%=Utils.getClassName(component)%> extends AsyncEventHandler{
+	<%=getSubcomponentMemberStatements(component)%>
+	<%=getFeatureMemberStatements(component)%>
+	
+	private Timer timer;
+	
+	public <%=Utils.getClassName(component)%>(){
+		super();
+		setSchedulingParametersIfFeasible(new PriorityParameters(<%=getPriority(component)%>));
+		timer = new PeriodicTimer(new RelativeTime(), new RelativeTime(<%=getPeriodMilliSeconds(component)%>, <%=getPeriodNanoSeconds(component)%>), this);
+	}
+	
+	public void start(){
+		timer.start();
+	}
+	
+	@Override
+	public void handleAsyncEvent() {
+		doDispatch();
+		doCompute();
+		doFinalize();
+	}
+
+	private final void doFinalize() {
+		
+	}
+
+	private final void doCompute() {
+		
+	}
+
+	private final void doDispatch() {
+		<%=getDispatchStatements(component)%>
+	}
+	
+	
+}
