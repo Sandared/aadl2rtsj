@@ -1,0 +1,44 @@
+package aadl2rtsj_test1
+public
+system a_system
+	end a_system;
+
+	process a_process
+	end a_process;
+
+	thread thread_one
+	features
+			dataout: out data port a_data;
+			datainout: in out data port a_data;
+	end thread_one;
+
+	thread thread_two
+	features
+			datain: in data port a_data;
+			datainout: in out data port a_data;
+	end thread_two;
+
+	system implementation a_system.impl
+		subcomponents
+			process1: process a_process.impl;
+	end a_system.impl;
+
+	process implementation a_process.impl
+		subcomponents
+			thread1: thread thread_one.impl {Dispatch_Protocol => Periodic; Period => 30ms; Priority => 10;};
+			thread2: thread thread_two.impl {Dispatch_Protocol => Periodic; Period => 30sec; Priority => 15;};
+	connections
+		con1: port thread1.dataout -> thread2.datain {Timing => immediate;};
+		con2: port thread1.datainout <-> thread2.datainout;
+	end a_process.impl;
+
+	thread implementation thread_one.impl
+	end thread_one.impl;
+
+	thread implementation thread_two.impl
+	end thread_two.impl;
+
+data a_data
+	end a_data;
+
+end aadl2rtsj_test1;

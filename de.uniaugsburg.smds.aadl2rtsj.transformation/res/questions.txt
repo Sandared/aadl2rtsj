@@ -1,0 +1,13 @@
+Input_Time/Output_Time at Immediate/Delayed Connections:
+
+9.2.5 (50)
+For immediate connections the Input_Time is assumed to be start time with zero offset and any other specified
+time is ignored. The Output_Time is assumed to be completion time or must be specified as a single output time
+value.
+
+9.2.5 (51)
+For delayed connections the Input_Time is assumed to be dispatch time and Output_Time is assumed to be
+deadline.
+-> what about other specified Input/Output Times? Are those ignored as input time at immmediate connections?
+
+DataType for Ports: Is it intended that there is no datatype stored in the instance model? had to go to the aadl Feature not the FeatureInstance

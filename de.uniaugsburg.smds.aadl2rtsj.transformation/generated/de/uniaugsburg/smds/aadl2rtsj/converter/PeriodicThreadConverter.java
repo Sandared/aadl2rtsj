@@ -5,14 +5,18 @@ import org.osate.aadl2.instance.InstanceObject;
 import org.osate.aadl2.instance.FeatureInstance;
 import de.uniaugsburg.smds.aadl2rtsj.utils.Utils;
 
+import org.osate.aadl2.AbstractNamedValue;
+import org.osate.aadl2.BasicPropertyAssociation;
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.DirectionType;
+import org.osate.aadl2.Element;
 import org.osate.aadl2.EnumerationLiteral;
 import org.osate.aadl2.Feature;
 import org.osate.aadl2.FeatureClassifier;
 import org.osate.aadl2.IntegerLiteral;
 import org.osate.aadl2.NamedValue;
 import org.osate.aadl2.PropertyExpression;
+import org.osate.aadl2.RecordValue;
 import org.osate.aadl2.UnitLiteral;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
@@ -201,27 +205,71 @@ public class PeriodicThreadConverter{
 				switch (feature.getCategory()) {
 					case DATA_PORT:
 						
-						// TODO: how to distinguish between in and inout port? and IF it is an inout port, 
-						// then how to distinguish between the connections? which one is incoming and which one is ougoing?
-						
 						// we need information about the type of connection (immediate/delayed/sampled) and how many are there
-						List<ConnectionInstance> connections = feature.getAllEnclosingConnectionInstances();
+//						List<ConnectionInstance> connections = feature.getAllEnclosingConnectionInstances();
 						
-						// if immediate/delayed, then ignore input/output times?
-						
-						// if NOT immediate/delayed consider Time part of input/output time
-						List<PropertyExpression> inputTimeProperties = feature.getPropertyValues("Communication_Properties", "Input_Time");
-						
-						// read a value if it is incoming
+						// which direction is the feature? in, out, inout
 						DirectionType direction = feature.getDirection();
-						//we need the datatype of the port
-						Feature feature2 = feature.getFeature();
-						Classifier var1 = feature2.getClassifier();
-						FeatureClassifier var2 = feature2.getFeatureClassifier();
+						
+						//we need the datatype of the port in order to know what we are reading/writing
+//						Feature feature2 = feature.getFeature();
+//						Classifier var1 = feature2.getClassifier();
+						
 						if(direction.incoming()){
+							// get all connections, where this feature is the destination
+							List<ConnectionInstance> ingoingConnections = feature.getDstConnectionInstances();
+							
+							if(ingoingConnections.size() > 0){
+								for (ConnectionInstance connection : ingoingConnections) {
+									// if immediate/delayed, then ignore input/output times?
+									List<PropertyExpression> timingProperties = connection.getPropertyValues("Communication_Properties", "Timing");
+									//default for reading time is dispatch
+									String inputAt = "Dispatch";
+									
+									if(timingProperties.size() > 0){
+										EnumerationLiteral timingProperty = (EnumerationLiteral)((NamedValue)timingProperties.get(0)).getNamedValue();
+										String timing = timingProperty.getName(); // sampled, immediate, delayed
+										if(timing.equals("immediate"))
+											inputAt = "Start"; // see AADL Standard 9.2.5 (50)
+											// delayed has no special semantic meaning for input timing, as it assumes input to be at dispatch, see AADL Standard 9.2.5 (51)
+											// sampled has no special semantic meaning for input and output timing
+										else{
+											// if NOT immediate/delayed consider Time part of input/output time and IGNORE offset
+											List<PropertyExpression> inputTimeProperties = feature.getPropertyValues("Communication_Properties", "Input_Time");
+											if(inputTimeProperties.size() > 0){
+												//Input_Time consists of a Time Part, which is an EnumerationLiteral and an Offset, which is a RangeValue
+												RecordValue inputTimeProperty = (RecordValue)inputTimeProperties.get(0);
+												// we ignor offset and are only interested in the Time part (Dispatch, Start, Completion, Deadline, NoIO)
+												NamedValue timePart = (NamedValue)inputTimeProperty.getOwnedFieldValues().get(0).getOwnedValue();
+												inputAt = ((EnumerationLiteral)timePart.getNamedValue()).getName();
+											}
+										}
+									}
+									
+									//if inputAt equals Dispatch we have to create a reading statement for this port-connection combination
+									if(inputAt.equals("Dispatch")){
+										// TODO: create reading statement regarding the datatype of the port.
+									}
+								}
+							}
+							else{
+								//use default values for incoming data ports input time(dispatch, zero offset)
+							}
+							
 							
 						}
+						
+						if(direction.outgoing()){
+							//get all connections where this feature is the source
+							List<ConnectionInstance> outgoingConnections = feature.getSrcConnectionInstances();
+							// if immediate/delayed, then ignore input/output times?
+							
+							// if NOT immediate/delayed consider Time part of input/output time
+							List<PropertyExpression> inputTimeProperties = feature.getPropertyValues("Communication_Properties", "Input_Time");
+							List<PropertyExpression> outputTimeProperties = feature.getPropertyValues("Communication_Properties", "Output_Time");
+						}
 						break;
+					
 	
 					default:
 						break;
@@ -230,8 +278,6 @@ public class PeriodicThreadConverter{
 		}
 		return "";
 	}
-	
-	
 	
 	/*
 	 * (non-javadoc)
