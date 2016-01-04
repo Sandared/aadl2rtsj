@@ -7,4 +7,9 @@ imports="
 %>
 public class <%=Utils.getClassName(feature)%>{
 	
+	public <%=Utils.getDataType(feature.getFeature().getClassifier())%> getValue(){
+		//TODO: generate logic for freezing etc.
+		return null;
+	}
+	
 }

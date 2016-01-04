@@ -1,11 +1,13 @@
 package de.uniaugsburg.smds.aadl2rtsj.utils;
 
+import org.osate.aadl2.Classifier;
+import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
 
 public class Utils {
 	
-	public static String getClassName(InstanceObject object){
+	public static String getClassName(NamedElement object){
 		String name = object.getName();
 		StringBuilder b = new StringBuilder(name);
 		b.replace(0, 1, b.substring(0,1).toUpperCase());
@@ -32,5 +34,12 @@ public class Utils {
 		}
 		buffer.insert(0, pkg);//insert package in front of the rest again
 		return buffer.toString().toLowerCase();
+	}
+	
+	public static String getDataType(Classifier classifier){
+		// cases: primitive type(integer, double, etc.)
+		// custom type like data? can it be anything else?
+		//TODO: other datatypes
+		return "Object";
 	}
 }

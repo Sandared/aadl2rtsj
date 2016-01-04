@@ -1,0 +1,37 @@
+DATAPORT
+
+8.3 (2)
+The content of incoming ports are frozen at a specified time, by default at dispatch time. This means that the
+content of the port that is accessible to the recipient does not change during the execution of a dispatch even
+though the sender may send new values. Properties specify the input and output timing characteristics of ports.
+Actual event and data transfer may be initiated by the runtime system of the execution platform or by
+Send_Output runtime service calls in the application source text
+
+8.3 (3)
+[...] Data ports are event data
+ports with a queue size of one in which the newest arrival is kept. By default arrival of data at data ports does not
+trigger a dispatch. Data ports effectively represent unqueued ports that communicate state information, such as
+signal streams that are sampled and processed in control loops. [...]
+
+8.3.1 (4)
+[...] Ports that pass data are typed by
+naming a data component classifier reference. 
+
+8.3.1 (5)
+A data or event data port maps to a static variable in the source text that represents the data buffer or queue. By
+default the variable is accessible by the same name as the port name. A different name mapping can be specified
+with the Source_Name and Source_Text properties.
+The Allowed_Memory_Binding and
+Allowed_Memory_Binding_Class properties indicate the memory (or device) hardware the port resources
+reside on.
+
+8.3.1 (12)
+Data ports are intended for transmission of state data such as sensor data streams. Therefore, no queuing is
+supported for data ports. A thread can determine whether the input buffer of an in data port has new data at this
+dispatch by checking the port status through a Get_Count service call, which is accessible through the port
+variable through a Get_Value service call. If no new data value has been received the old value is made
+available.
+
+8.3.2 (17)
+By default, port input is frozen at dispatch time. For periodic threads or devices this means that input is sampled at
+fixed time intervals.

@@ -16,7 +16,8 @@ public class DataPortConverter{
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
   protected final String TEXT_1 = "public class ";
-  protected final String TEXT_2 = "{" + NL + "\t" + NL + "}";
+  protected final String TEXT_2 = "{" + NL + "\t" + NL + "\tpublic ";
+  protected final String TEXT_3 = " getValue(){" + NL + "\t\t//TODO: generate logic for freezing etc." + NL + "\t\treturn null;" + NL + "\t}" + NL + "\t" + NL + "}";
 
 	/*
 	 * (non-javadoc)
@@ -29,6 +30,8 @@ public class DataPortConverter{
     stringBuffer.append(TEXT_1);
     stringBuffer.append(Utils.getClassName(feature));
     stringBuffer.append(TEXT_2);
+    stringBuffer.append(Utils.getDataType(feature.getFeature().getClassifier()));
+    stringBuffer.append(TEXT_3);
     return stringBuffer.toString();
   }
 }
