@@ -1,5 +1,3 @@
-package de.uniaugsburg.smds.aadl2rtsj.converter;
-
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -26,34 +24,8 @@ import org.osate.aadl2.UnitLiteral;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
 
-public class PeriodicThreadConverter{
+public class CLASS{
 	
-  protected static String nl;
-  public static synchronized PeriodicThreadConverter create(String lineSeparator)
-  {
-    nl = lineSeparator;
-    PeriodicThreadConverter result = new PeriodicThreadConverter();
-    nl = null;
-    return result;
-  }
-
-  public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
-  protected final String TEXT_1 = "package ";
-  protected final String TEXT_2 = ";" + NL + "" + NL + "import javax.realtime.AsyncEventHandler;" + NL + "import javax.realtime.Timer;" + NL + "import javax.realtime.PeriodicTimer;" + NL + "import javax.realtime.RelativeTime;" + NL + "import javax.realtime.PriorityParameters;" + NL;
-  protected final String TEXT_3 = NL;
-  protected final String TEXT_4 = NL + NL + "public class ";
-  protected final String TEXT_5 = " extends AsyncEventHandler{" + NL + "\t";
-  protected final String TEXT_6 = NL + "\t";
-  protected final String TEXT_7 = NL + "\t" + NL + "\tprivate Timer timer;" + NL + "\t" + NL + "\tpublic ";
-  protected final String TEXT_8 = "(){" + NL + "\t\tsuper();" + NL + "\t\tsetSchedulingParametersIfFeasible(new PriorityParameters(";
-  protected final String TEXT_9 = "));" + NL + "\t\ttimer = new PeriodicTimer(new RelativeTime(), new RelativeTime(";
-  protected final String TEXT_10 = ", ";
-  protected final String TEXT_11 = "), this);" + NL + "\t}" + NL + "\t" + NL + "\tpublic void startExecution(){" + NL + "\t\ttimer.start();" + NL + "\t}" + NL + "\t" + NL + "\t@Override" + NL + "\tpublic void handleAsyncEvent() {" + NL + "\t\tdispatch();" + NL + "\t\tstart();" + NL + "\t\tcompute();" + NL + "\t\tcompletion();" + NL + "\t}" + NL + "" + NL + "\tprivate final void dispatch() {" + NL + "\t\t";
-  protected final String TEXT_12 = NL + "\t}" + NL + "\t" + NL + "\tprivate final void start() {" + NL + "\t\t";
-  protected final String TEXT_13 = NL + "\t}" + NL + "" + NL + "\tprivate final void compute() {" + NL + "\t\t" + NL + "\t}" + NL + "\t" + NL + "\tprivate final void completion() {" + NL + "\t\t";
-  protected final String TEXT_14 = NL + "\t}" + NL + "}";
-  protected final String TEXT_15 = NL;
-
 	private static final Logger log = Logger.getLogger( PeriodicThreadConverter.class.getName() );
 	
 	private static String getSubcomponentImportStatements(ComponentInstance component){
@@ -235,36 +207,7 @@ public class PeriodicThreadConverter{
 	 * 
 	 * @see IGenerator#generate(Object)
 	 */
-	public String generate(ComponentInstance component)
-  {
-    final StringBuffer stringBuffer = new StringBuffer();
-    stringBuffer.append(TEXT_1);
-    stringBuffer.append(getPackageName(component));
-    stringBuffer.append(TEXT_2);
-    stringBuffer.append(TEXT_3);
-    stringBuffer.append(getSubcomponentImportStatements(component));
-    stringBuffer.append(TEXT_4);
-    stringBuffer.append(getClassName(component));
-    stringBuffer.append(TEXT_5);
-    stringBuffer.append(getSubcomponentMemberStatements(component));
-    stringBuffer.append(TEXT_6);
-    stringBuffer.append(getFeatureMemberStatements(component));
-    stringBuffer.append(TEXT_7);
-    stringBuffer.append(getClassName(component));
-    stringBuffer.append(TEXT_8);
-    stringBuffer.append(getPriority(component));
-    stringBuffer.append(TEXT_9);
-    stringBuffer.append(getPeriodMilliSeconds(component));
-    stringBuffer.append(TEXT_10);
-    stringBuffer.append(getPeriodNanoSeconds(component));
-    stringBuffer.append(TEXT_11);
-    stringBuffer.append(getDispatchStatements(component));
-    stringBuffer.append(TEXT_12);
-    stringBuffer.append(getStartStatements(component));
-    stringBuffer.append(TEXT_13);
-    stringBuffer.append(getCompletionStatements(component));
-    stringBuffer.append(TEXT_14);
-    stringBuffer.append(TEXT_15);
-    return stringBuffer.toString();
-  }
+	public String generate(ComponentInstance component) {
+		return "";
+	}
 }

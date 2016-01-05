@@ -1,13 +1,15 @@
-Input_Time/Output_Time at Immediate/Delayed Connections:
-
 9.2.5 (50)
 For immediate connections the Input_Time is assumed to be start time with zero offset and any other specified
 time is ignored. The Output_Time is assumed to be completion time or must be specified as a single output time
-value.
-
+value. 
 9.2.5 (51)
 For delayed connections the Input_Time is assumed to be dispatch time and Output_Time is assumed to be
-deadline.
--> what about other specified Input/Output Times? Are those ignored as input time at immmediate connections?
+deadline. 
+
+-> Bedeutet assumed "muss so sein"? Oder kann das durch inputtime/outputtime überschrieben werden?
 
 DataType for Ports: Is it intended that there is no datatype stored in the instance model? had to go to the aadl Feature not the FeatureInstance
+
+The offset of Input_time/Output_Time: Is it intended to be checked, if the reading occured during this timerange? Or should this offset be enforced by "delaying" the reading?
+
+8.3.1.(12) sagt dass der status eines data ports durch getCount gecheckt werden kann. macht das Sinn, wenn es nur einen datenwert geben kann? Wäre sowas wie isDirty nicht besser?

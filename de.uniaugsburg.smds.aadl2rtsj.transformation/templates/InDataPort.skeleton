@@ -1,0 +1,18 @@
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+
+import java.util.logging.Logger;
+
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
+
+public class CLASS{
+	private static final Logger log = Logger.getLogger( DataPortConverter.class.getName() );
+	/*
+	 * (non-javadoc)
+	 * 
+	 * @see IGenerator#generate(Object)
+	 */
+	public String generate(FeatureInstance feature) {
+		return "";
+	}
+	
+}

@@ -6,7 +6,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
-import org.osate.aadl2.AbstractNamedValue;
 import org.osate.aadl2.ClassifierFeature;
 import org.osate.aadl2.Element;
 import org.osate.aadl2.EnumerationLiteral;
@@ -37,6 +36,9 @@ import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.instance.SystemOperationMode;
 import org.osate.aadl2.instance.util.InstanceSwitch;
 
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
+
 import de.uniaugsburg.smds.aadl2rtsj.converter.DataPortConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.PeriodicThreadConverter;
 
@@ -54,55 +56,14 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	// we just need something to abort switch execution for a given object. Otherwise the switch would traverse up the whole inheritance tree
 	private static final String DONE = "";
 	
-	/**
-	 * Turns strings into a form that is expected in Java to be a class name, e.g. first letter upper cased
-	 * @param name the (probably lowercased) String 
-	 * @return a string that hopefully looks like a class name
-	 */
-	private String getClassName(InstanceObject object){
-		StringBuilder b = new StringBuilder(object.getName());
-		b.replace(0, 1, b.substring(0,1).toUpperCase());
-		b.append(".java");
-		return b.toString();
-	}
-	
-	private String getPackageName(InstanceObject object){
-		
-		StringBuffer buffer = new StringBuffer(object.getInstanceObjectPath());
-		// if its a feature instance we have to omit the last part of the path as we want the feature in the same package as its parent component
-		if(object instanceof FeatureInstance){
-			buffer.delete(buffer.lastIndexOf("."), buffer.length());
-		}
-		
-		int pkgEnd = buffer.indexOf(".");
-		StringBuffer pkg = new StringBuffer(buffer.substring(0, pkgEnd));//get the part that represents the package
-		buffer.delete(0, pkgEnd); // remove the part that represents the package
-		
-		int implPos;
-		if((implPos = pkg.indexOf("_impl_")) != -1){//if the package part contains an _impl_section start deletion here
-			pkg = pkg.delete(implPos, pkg.length());
-		}
-		else{//else start deletion at the _Instance position
-			pkg = pkg.delete(pkg.indexOf("_Instance"), pkg.length());
-		}
-		buffer.insert(0, pkg);//insert package in front of the rest again
-		return buffer.toString().toLowerCase();
-	}
-	
 	private boolean createJavaClass(String packageName, String className, String sourceCode) {
 		IPackageFragment fragment = null;
 		try {
 			// get or create the package
 			fragment = root.createPackageFragment(packageName, false, monitor);
 			
-			// create sourcecode
-			StringBuffer buffer = new StringBuffer();
-			buffer.append("package " + fragment.getElementName() + ";\n");
-			buffer.append("\n");
-			buffer.append(sourceCode);
-			
 			// create class
-			ICompilationUnit cu = fragment.createCompilationUnit(className, buffer.toString(), false, null);
+			ICompilationUnit cu = fragment.createCompilationUnit(className+".java", sourceCode, false, null);
 			cu.save(monitor, true);
 		} catch (JavaModelException e) {
 			e.printStackTrace();

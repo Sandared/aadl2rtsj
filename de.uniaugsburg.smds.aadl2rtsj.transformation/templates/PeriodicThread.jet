@@ -1,8 +1,9 @@
-<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="PeriodicThreadConverter" skeleton="ComponentInstance.skeleton" 
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="PeriodicThreadConverter" skeleton="PeriodicThread.skeleton" 
 imports="
 
 " 
 %>
+package <%=getPackageName(component)%>;
 
 import javax.realtime.AsyncEventHandler;
 import javax.realtime.Timer;
@@ -12,40 +13,43 @@ import javax.realtime.PriorityParameters;
 
 <%=getSubcomponentImportStatements(component)%>
 
-public class <%=Utils.getClassName(component)%> extends AsyncEventHandler{
+public class <%=getClassName(component)%> extends AsyncEventHandler{
 	<%=getSubcomponentMemberStatements(component)%>
 	<%=getFeatureMemberStatements(component)%>
 	
 	private Timer timer;
 	
-	public <%=Utils.getClassName(component)%>(){
+	public <%=getClassName(component)%>(){
 		super();
 		setSchedulingParametersIfFeasible(new PriorityParameters(<%=getPriority(component)%>));
 		timer = new PeriodicTimer(new RelativeTime(), new RelativeTime(<%=getPeriodMilliSeconds(component)%>, <%=getPeriodNanoSeconds(component)%>), this);
 	}
 	
-	public void start(){
+	public void startExecution(){
 		timer.start();
 	}
 	
 	@Override
 	public void handleAsyncEvent() {
-		doDispatch();
-		doCompute();
-		doFinalize();
+		dispatch();
+		start();
+		compute();
+		completion();
 	}
 
-	private final void doFinalize() {
-		
-	}
-
-	private final void doCompute() {
-		
-	}
-
-	private final void doDispatch() {
+	private final void dispatch() {
 		<%=getDispatchStatements(component)%>
 	}
 	
+	private final void start() {
+		<%=getStartStatements(component)%>
+	}
+
+	private final void compute() {
+		
+	}
 	
+	private final void completion() {
+		<%=getCompletionStatements(component)%>
+	}
 }

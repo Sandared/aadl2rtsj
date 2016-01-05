@@ -1,0 +1,3 @@
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="ReceiveInputStatement" skeleton="InstanceObject.skeleton" %>
+	<%=object.getName()%>.receiveInput();
+	
