@@ -17,6 +17,7 @@ public class Constants {
 	public static final String Communication_Properties_Timing_Sampled = "sampled";
 	
 	public static final String Communication_Properties_Input_Time = "Input_Time";
+	public static final String Communication_Properties_Output_Time = "Output_Time";
 	
 	public static final String Communication_Properties_IO_Reference_Time_Dispatch = "Dispatch";
 	public static final String Communication_Properties_IO_Reference_Time_Start = "Start";

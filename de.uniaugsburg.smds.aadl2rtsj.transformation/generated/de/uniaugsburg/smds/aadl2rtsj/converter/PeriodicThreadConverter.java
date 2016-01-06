@@ -131,9 +131,14 @@ public class PeriodicThreadConverter{
 		if(features.size() > 0){
 			StringBuilder sb = new StringBuilder();
 			for (FeatureInstance feature : features) {
+				// which direction is the feature? in, out, inout
+				DirectionType direction = feature.getDirection();
 				switch (feature.getCategory()) {
 					case DATA_PORT:
-						getDataPortStatementsForReferenceTime(feature, sb, IOReferenceTime);
+						if(direction.incoming())
+							sb.append(getDataPortInputStatementsForReferenceTime(feature, IOReferenceTime));
+						if(direction.outgoing())
+							sb.append(getDataPortOutputStatementsForReferenceTime(feature, IOReferenceTime));
 						break;
 					case EVENT_PORT:
 						// TODO: Event Port Statements
@@ -148,86 +153,125 @@ public class PeriodicThreadConverter{
 			}
 			return sb.toString().trim();
 		}
+		log.info("No features found for " + component.getName());
 		return "";
 	}
 
-
 	
-	private static void getDataPortStatementsForReferenceTime(FeatureInstance feature, StringBuilder sb, final String IOReferenceTime){
-		// which direction is the feature? in, out, inout
-		DirectionType direction = feature.getDirection();
-		
-		if(direction.incoming()){
-			// get all connections, where this feature is the destination
-			List<ConnectionInstance> ingoingConnections = feature.getDstConnectionInstances();
-			String inputAt = null;
-			
-			// if immediate/delayed connections are present, then ignore Input_Time
-			if(ingoingConnections.size() > 0){
-				// in DataPorts may have only one connection per mode. We don't consider modes at the moment, so there may only be one connection. 
-				ConnectionInstance connection = ingoingConnections.get(0);
-				inputAt = getInputTimeForConnection(connection);
-			}
-			
-			// if NOT immediate/delayed consider Time part of Input_Time and IGNORE offset
-			if(inputAt == null)
-               inputAt = getInputTimeForReferenceTime(feature, IOReferenceTime);
-            else{
-        	   // if there has been not Input_Time on the feature, check for Input_Time on thread, see AADL Standard 8.3.2 (18)
-        	   ComponentInstance component = feature.getContainingComponentInstance();
-        	   inputAt = getInputTimeForReferenceTime(component, IOReferenceTime);
-            }
-			
-			//if inputAt is still null, then default is Dispatch, see AADL Standard 8.3.2 (17)). 
-			if(inputAt == null)
-				inputAt = Communication_Properties_IO_Reference_Time_Dispatch;
-			//if inputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)
-			if(inputAt.equals(IOReferenceTime)){
-				//freeze input
-				sb.append(new ReceiveInputStatement().generate(feature));// see AADL Standard 8.3.2 (21)
-			}
-		}
-		
+	private static String getDataPortOutputStatementsForReferenceTime(FeatureInstance feature, final String IOReferenceTime){
 		// an Output_Time with Dispatch is not valid so we don't need to consider those
 		if(IOReferenceTime.equals(Communication_Properties_IO_Reference_Time_Dispatch))
-			return;
+			return "";
 		
-		if(direction.outgoing()){
-			// TODO: special treatment?
+		StringBuilder sb = new StringBuilder();
+		// get all connections, where this feature is the destination
+		List<ConnectionInstance> connections = feature.getSrcConnectionInstances();
+		String outputAt = null;
+		
+		// if immediate/delayed connections are present, then ignore Input_Time
+		if(connections.size() > 0){
+			// out DataPorts may have multiple connections per mode. 
+			// those might have different timings
+			// if there are more than one wwe also have to consider the fanout policy if ther's given one
+			for (ConnectionInstance connection : connections) {
+				//TODO: für JEDE connection ein outputstatement schreiben das zur referencetime stattfinden soll. 
+				//TODO: fan out policy beachten
+			}
 		}
+		
+		return sb.toString().trim();
+	}
+
+	
+	private static String getDataPortInputStatementsForReferenceTime(FeatureInstance feature, final String IOReferenceTime){
+		// an Input_Time with Deadline is not valid so we don't need to consider those
+		if(IOReferenceTime.equals(Communication_Properties_IO_Reference_Time_Deadline))
+			return "";
+		
+		StringBuilder sb = new StringBuilder();
+		// get all connections, where this feature is the destination
+		List<ConnectionInstance> connections = feature.getDstConnectionInstances();
+		String inputAt = null;
+		
+		// if immediate/delayed connections are present, then ignore Input_Time
+		if(connections.size() > 0){
+			// in DataPorts may have only one connection per mode. We don't consider modes at the moment, so there may only be one connection. 
+			ConnectionInstance connection = connections.get(0);
+			inputAt = getTimeForConnection(feature, connection, true);
+		}
+		
+		// if NOT immediate/delayed consider Time part of Input_Time and IGNORE offset
+		if(inputAt == null)
+           inputAt = getTimeForReferenceTime(feature, IOReferenceTime, false, true);
+        else{
+    	   // if there has been not Input_Time on the feature, check for Input_Time on thread, see AADL Standard 8.3.2 (18)
+    	   ComponentInstance component = feature.getContainingComponentInstance();
+    	   inputAt = getTimeForReferenceTime(component, IOReferenceTime, false, true);
+        }
+		
+		//if inputAt is still null, then default is Dispatch, see AADL Standard 8.3.2 (17)). 
+		if(inputAt == null)
+			inputAt = Communication_Properties_IO_Reference_Time_Dispatch;
+		//if inputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)
+		if(inputAt.equals(IOReferenceTime)){
+			//freeze input
+			sb.append(new ReceiveInputStatement().generate(feature));// see AADL Standard 8.3.2 (21)
+		}
+		
+		return sb.toString().trim();
 	}
 	
-	private static String getInputTimeForConnection(ConnectionInstance connection){
+	private static String getTimeForConnection(NamedElement element, ConnectionInstance connection, boolean isInput){
 		List<PropertyExpression> timingProperties = connection.getPropertyValues(Communication_Properties, Communication_Properties_Timing);
-		String inputAt = null;
+		String time = null;
 		if(timingProperties.size() > 0){
 			EnumerationLiteral timingProperty = (EnumerationLiteral)((NamedValue)timingProperties.get(0)).getNamedValue();
 			String timing = timingProperty.getName(); // sampled, immediate, delayed
 			if(timing.equals(Communication_Properties_Timing_Immediate))
-				inputAt = Communication_Properties_IO_Reference_Time_Start; // see AADL Standard 9.2.5 (50)
+				if(isInput)
+					time = Communication_Properties_IO_Reference_Time_Start; // see AADL Standard 9.2.5 (50)
+				else{
+					// if there is a single valued Output_Time, then take it, otherwise the time is assumed to be Completion, 
+					// see AADL Standard 9.2.5 (50)
+					time = getTimeForReferenceTime(element, null, true, false);
+					if(time == null)
+						time = Communication_Properties_IO_Reference_Time_Completion; 
+				}
 			if(timing.equals(Communication_Properties_Timing_Delayed))
-				inputAt = Communication_Properties_IO_Reference_Time_Dispatch;// see AADL Standard 9.2.5 (51)
+				if(isInput)
+					time = Communication_Properties_IO_Reference_Time_Dispatch;// see AADL Standard 9.2.5 (51)
+				else
+					time = Communication_Properties_IO_Reference_Time_Deadline;// see AADL Standard 9.2.5 (51)
 			// sampled has no special semantic meaning for input and output timing
 		}
-		return inputAt;
+		return time;
 	}
 	
-	private static String getInputTimeForReferenceTime(NamedElement element, final String IOReferenceTime){
-		List<PropertyExpression> inputTimeProperties = element.getPropertyValues(Communication_Properties, Communication_Properties_Input_Time);
-		String inputAt = null;
-        if(inputTimeProperties.size() > 0){
+	private static String getTimeForReferenceTime(NamedElement element, final String IOReferenceTime, boolean forceSingleValued, boolean isInput){
+		List<PropertyExpression> timeProperties = null;
+		if(isInput)
+			timeProperties = element.getPropertyValues(Communication_Properties, Communication_Properties_Input_Time);
+		else
+			timeProperties = element.getPropertyValues(Communication_Properties, Communication_Properties_Output_Time);
+		
+		String time = null;
+		
+        if(timeProperties.size() > 0){
+        	if(forceSingleValued)
+        		if(timeProperties.size() != 1)
+        			return time;
      	   // Input_Time might be a list, so Input can be frozen multiple times during a dispatch, see AADL Standard 8.3.2 (20)
-     	   for (PropertyExpression inputTimeProperty : inputTimeProperties) {
+     	   for (PropertyExpression timeProperty : timeProperties) {
      		   // Input_Time consists of a Time Part, which is an EnumerationLiteral and an Offset, which is a RangeValue
      		   // we ignor Offset and are only interested in the Time part (Dispatch, Start, Completion, Deadline, NoIO)
-     		   NamedValue timePart = (NamedValue)((RecordValue)inputTimeProperty).getOwnedFieldValues().get(0).getOwnedValue();
-     		   inputAt = ((EnumerationLiteral)timePart.getNamedValue()).getName();
-     		   if(inputAt.equals(IOReferenceTime)){
+     		   NamedValue timePart = (NamedValue)((RecordValue)timeProperty).getOwnedFieldValues().get(0).getOwnedValue();
+     		   time = ((EnumerationLiteral)timePart.getNamedValue()).getName();
+     		   if(time.equals(IOReferenceTime)){
      			   break;
      		   }
      	   }
         }
-        return inputAt;
+        return time;
 	}
 	
 	/*
