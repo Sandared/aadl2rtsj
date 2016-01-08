@@ -1,0 +1,8 @@
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="SendOutputMethod" skeleton="InstanceAndConnectionObject.skeleton" %>
+	/**
+	 * sends the currently available value (putValue) to the connection <%=connection.getName()%>
+	 */
+	public void sendOutputOn<%=getClassName(getConnection(connection))%>(){
+		<%=getObjectName(connection)%>.putValueFor<%=getClassName(object)%>(this.value);
+	}
+

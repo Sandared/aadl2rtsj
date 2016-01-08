@@ -1,17 +1,21 @@
 package de.uniaugsburg.smds.aadl2rtsj.utils;
 
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
+
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.osate.aadl2.Classifier;
+import org.osate.aadl2.Connection;
+import org.osate.aadl2.EnumerationLiteral;
 import org.osate.aadl2.IntegerLiteral;
 import org.osate.aadl2.NamedElement;
+import org.osate.aadl2.NamedValue;
 import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.instance.ComponentInstance;
+import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
-
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
 
 public class Utils {
 	private static final Logger log = Logger.getLogger( Utils.class.getName() );
@@ -22,10 +26,50 @@ public class Utils {
 	 * @return the result of object.getName() with its first letter in upper case
 	 */
 	public static String getClassName(NamedElement object){
+		if(object instanceof ConnectionInstance)
+			object = getConnection((ConnectionInstance) object);
 		String name = object.getName();
 		StringBuilder b = new StringBuilder(name);
 		b.replace(0, 1, b.substring(0,1).toUpperCase());
 		return b.toString();
+	}
+	
+	public static String getObjectName(NamedElement object){
+		if(object instanceof ConnectionInstance)
+			object = getConnection((ConnectionInstance) object);
+		return object.getName();
+	}
+	
+	public static String getPackageName(NamedElement element){
+		StringBuffer pkg = new StringBuffer();
+		if(element instanceof Classifier){
+			pkg.append(getNameSpace((Classifier)element));
+		}else{
+			if(element instanceof FeatureInstance){
+				pkg.append(getNameSpace(((FeatureInstance)element).getFeature().getClassifier()));
+			}
+			if(element instanceof ComponentInstance){
+				pkg.append(getNameSpace(((ComponentInstance)element).getComponentClassifier()));
+			}
+			if(element instanceof ConnectionInstance){
+				pkg.append(getConnection((ConnectionInstance) element).getNamespace().getFullName());
+			}
+			pkg.append(".");
+			pkg.append(getHierarchyName((InstanceObject) element));
+		}
+		return pkg.toString().toLowerCase();
+	}
+	
+	private static String getNameSpace(Classifier classifier){
+		StringBuffer namespace = new StringBuffer(classifier.getNamespace().getFullName());
+		int visibilityPos;
+		if((visibilityPos = namespace.indexOf("_public")) != -1)
+			namespace.delete(visibilityPos, visibilityPos + "_public".length());
+		else{
+			if((visibilityPos = namespace.indexOf("_private")) != -1)
+				namespace.delete(visibilityPos, visibilityPos + "_private".length());
+		}
+		return namespace.toString();
 	}
 	
 	/**
@@ -37,8 +81,10 @@ public class Utils {
 	 * @param object the object the packagename is created for
 	 * @return a String that represents a package name, e.g. path.to.some.package
 	 */
-	public static String getPackageName(InstanceObject object){
-		StringBuffer buffer = new StringBuffer(object.getInstanceObjectPath());
+	private static String getHierarchyName(InstanceObject object){
+		//TODO: ConnectionInstance
+		StringBuffer buffer = null;
+		buffer = new StringBuffer(object.getInstanceObjectPath());
 		// if its a feature instance we have to omit the last part of the path as we want the feature in the same package as its parent component
 		if(object instanceof FeatureInstance){
 			buffer.delete(buffer.lastIndexOf("."), buffer.length());
@@ -56,8 +102,9 @@ public class Utils {
 			pkg = pkg.delete(pkg.indexOf("_Instance"), pkg.length());
 		}
 		buffer.insert(0, pkg);//insert package in front of the rest again
-		return buffer.toString().toLowerCase();
+		return buffer.toString();
 	}
+	
 	
 	public static String getDataType(FeatureInstance feature){
 		// cases: primitive type(integer, double, etc.)
@@ -107,5 +154,26 @@ public class Utils {
 		log.warning("No Thread_Properties::Priority was given for " + component.getName());
 		// TODO: default value?
 		return "";
+	}
+	
+	public static String getDataPortTransmissionType(FeatureInstance feature){
+		List<PropertyExpression> transmissionTypeProperties = null;
+		transmissionTypeProperties = feature.getPropertyValues(Communication_Properties, Communication_Properties_Transmission_Type);
+		
+		String transmissionType = null;
+		
+        if(transmissionTypeProperties.size() > 0){
+        	EnumerationLiteral transmissionTypeProperty = (EnumerationLiteral)((NamedValue)transmissionTypeProperties.get(0)).getNamedValue();// we don't consider modes at the moment
+ 		   	transmissionType = transmissionTypeProperty.getName();
+        }
+        else{
+        	//default value is push
+        	transmissionType = Communication_Properties_Transmission_Type_Push;
+        }
+        return transmissionType;
+	}
+	
+	public static Connection getConnection(ConnectionInstance connection){
+		return connection.getConnectionReferences().get(0).getConnection();
 	}
 }

@@ -1,5 +1,6 @@
 import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.InstanceObject;
+
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 
 public class CLASS{

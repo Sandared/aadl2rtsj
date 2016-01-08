@@ -1,4 +1,4 @@
-import org.osate.aadl2.instance.InstanceObject;
+import org.osate.aadl2.NamedElement;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 
 public class CLASS{
@@ -7,7 +7,7 @@ public class CLASS{
 	 * 
 	 * @see IGenerator#generate(Object)
 	 */
-	public String generate(InstanceObject object) {
+	public String generate(NamedElement object) {
 		return "";
 	}
 }

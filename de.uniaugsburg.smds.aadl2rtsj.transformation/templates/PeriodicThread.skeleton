@@ -148,23 +148,20 @@ public class CLASS{
 		if(connections.size() > 0){
 			// out DataPorts may have multiple connections per mode. 
 			// those might have different timings
-			// if there are more than one we also have to consider the fanout policy if there's given one
 			for (ConnectionInstance connection : connections) {
 				// determine actual timing for this feature-connection-combination 
 				outputAt = getTime(feature, connection, IOReferenceTime, false);
 
-				//TODO: fan out policy beachten, oder findet die nur im port statt?
-				
 				//if outputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)
 				if(outputAt.equals(IOReferenceTime)){
 					//send output, but only for this specific connection
 					sb.append(new SendOutputStatement().generate(feature, connection));// see AADL Standard 8.3.2 (29)
 				}
 			}
-			return sb.toString().trim();
+			return sb.toString();
 		}
 		
-		return sb.toString().trim();
+		return sb.toString();
 	}
 	
 	// ASSUMPTIONS (Maybe correct them later with OneShotTimers)
@@ -197,7 +194,7 @@ public class CLASS{
 			sb.append(new ReceiveInputStatement().generate(feature));// see AADL Standard 8.3.2 (21)
 		}
 		
-		return sb.toString().trim();
+		return sb.toString();
 	}
 	
 	private static String getTime(FeatureInstance feature, ConnectionInstance connection, final String IOReferenceTime, boolean isInput){
@@ -222,7 +219,7 @@ public class CLASS{
 				//if time is still null, then default is Dispatch for Input, see AADL Standard 8.3.2 (17)). 
 				time = Communication_Properties_IO_Reference_Time_Dispatch;
 			else
-				//if time is still null, then default is Completion for Output, see AADL Standard8.3.2 (25)
+				//if time is still null, then default is Completion for Output, see AADL Standard 8.3.2 (25)
 				time = Communication_Properties_IO_Reference_Time_Completion;
 		return time;
 	}

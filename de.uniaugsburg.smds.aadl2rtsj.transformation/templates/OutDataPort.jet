@@ -4,15 +4,15 @@ package <%=getPackageName(feature)%>;
 // some imports 
 // DataType of "value"
 <%=getDataTypeImportStatement(feature)%>
-// Receiver if any
-<%=getReceiverImportStatements(feature)%>
+// Connections is any
+<%=getConnectionImportStatements(feature)%>
 
 public class <%=getClassName(feature)%>{
-	<%=getPortVariableMemberStatements(feature)%>
-	<%=getReceiverMemberStatements(feature)%>
+	<%=getDataType(feature)%> value = null;
+	<%=getConnectionMemberStatements(feature)%>
 	
 	public void putValue(<%=getDataType(feature)%> value){
-		
+		this.value = value;
 	}
 	
 	<%=getSendOuputMethods(feature)%>

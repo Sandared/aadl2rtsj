@@ -9,6 +9,7 @@ public class Constants {
 	public static final String AADL_Project_Time_Units_Minutes = "min";
 	public static final String AADL_Project_Time_Units_Hour = "hr";
 	
+	
 	public static final String Communication_Properties = "Communication_Properties";
 	
 	public static final String Communication_Properties_Timing = "Timing";
@@ -24,6 +25,10 @@ public class Constants {
 	public static final String Communication_Properties_IO_Reference_Time_Completion = "Completion";
 	public static final String Communication_Properties_IO_Reference_Time_Deadline = "Deadline";
 	public static final String Communication_Properties_IO_Reference_Time_NoIO = "NoIO";
+	
+	public static final String Communication_Properties_Transmission_Type = "Transmission_Type";
+	public static final String Communication_Properties_Transmission_Type_Push = "push";
+	public static final String Communication_Properties_Transmission_Type_Pull = "pull";
 	
 	
 	public static final String Thread_Properties = "Thread_Properties";

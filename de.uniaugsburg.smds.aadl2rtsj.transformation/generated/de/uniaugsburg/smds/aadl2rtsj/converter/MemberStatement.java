@@ -1,6 +1,6 @@
 package de.uniaugsburg.smds.aadl2rtsj.converter;
 
-import org.osate.aadl2.instance.InstanceObject;
+import org.osate.aadl2.NamedElement;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 
 public class MemberStatement{
@@ -25,13 +25,13 @@ public class MemberStatement{
 	 * 
 	 * @see IGenerator#generate(Object)
 	 */
-	public String generate(InstanceObject object)
+	public String generate(NamedElement object)
   {
     final StringBuffer stringBuffer = new StringBuffer();
     stringBuffer.append(TEXT_1);
     stringBuffer.append(getClassName(object));
     stringBuffer.append(TEXT_2);
-    stringBuffer.append(object.getName());
+    stringBuffer.append(getObjectName(object));
     stringBuffer.append(TEXT_3);
     stringBuffer.append(getClassName(object));
     stringBuffer.append(TEXT_4);

@@ -7,6 +7,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.osate.aadl2.ClassifierFeature;
+import org.osate.aadl2.DirectionType;
 import org.osate.aadl2.Element;
 import org.osate.aadl2.EnumerationLiteral;
 import org.osate.aadl2.Mode;
@@ -40,6 +41,7 @@ import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
 
 import de.uniaugsburg.smds.aadl2rtsj.converter.DataPortConverter;
+import de.uniaugsburg.smds.aadl2rtsj.converter.OutDataPortConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.PeriodicThreadConverter;
 
 public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
@@ -182,7 +184,13 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	public String caseFeatureInstance(FeatureInstance object) {
 		switch (object.getCategory()) {
 		case DATA_PORT:
-			String sourceCode = new DataPortConverter().generate(object);
+			String sourceCode = null;
+			DirectionType direction = object.getDirection();
+			if(direction.incoming() && !direction.outgoing())
+				sourceCode = new DataPortConverter().generate(object);
+			if(!direction.incoming() && direction.outgoing())
+				sourceCode = new OutDataPortConverter().generate(object);
+			//TODO: in out port
 			createJavaClass(getPackageName(object), getClassName(object), sourceCode);
 			break;
 
