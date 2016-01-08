@@ -1,8 +1,4 @@
-<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="PeriodicThreadConverter" skeleton="PeriodicThread.skeleton" 
-imports="
-
-" 
-%>
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="PeriodicThreadConverter" skeleton="PeriodicThread.skeleton"%>
 package <%=getPackageName(component)%>;
 
 import javax.realtime.AsyncEventHandler;

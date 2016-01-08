@@ -9,7 +9,7 @@ package <%=getPackageName(feature)%>;
 
 public class <%=getClassName(feature)%>{
 	
-	public <%=getDataType(feature.getFeature().getClassifier())%> getValue(){
+	public <%=getDataType(feature)%> getValue(){
 		//TODO: generate logic for freezing etc.
 		return null;
 	}

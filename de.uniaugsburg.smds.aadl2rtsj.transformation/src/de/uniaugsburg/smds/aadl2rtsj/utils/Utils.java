@@ -59,10 +59,11 @@ public class Utils {
 		return buffer.toString().toLowerCase();
 	}
 	
-	public static String getDataType(Classifier classifier){
+	public static String getDataType(FeatureInstance feature){
 		// cases: primitive type(integer, double, etc.)
 		// custom type like data? can it be anything else?
 		//TODO: other datatypes
+		Classifier classifier = feature.getFeature().getClassifier();
 		return "Object";
 	}
 	

@@ -40,7 +40,7 @@ public class DataPortConverter{
     stringBuffer.append(TEXT_2);
     stringBuffer.append(getClassName(feature));
     stringBuffer.append(TEXT_3);
-    stringBuffer.append(getDataType(feature.getFeature().getClassifier()));
+    stringBuffer.append(getDataType(feature));
     stringBuffer.append(TEXT_4);
     return stringBuffer.toString();
   }

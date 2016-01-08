@@ -1,0 +1,19 @@
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="OutDataPortConverter" skeleton="OutDataPort.skeleton" %>
+package <%=getPackageName(feature)%>;
+
+// some imports 
+// DataType of "value"
+<%=getDataTypeImportStatement(feature)%>
+// Receiver if any
+<%=getReceiverImportStatements(feature)%>
+
+public class <%=getClassName(feature)%>{
+	<%=getPortVariableMemberStatements(feature)%>
+	<%=getReceiverMemberStatements(feature)%>
+	
+	public void putValue(<%=getDataType(feature)%> value){
+		
+	}
+	
+	<%=getSendOuputMethods(feature)%>
+}

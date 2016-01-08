@@ -1,0 +1,44 @@
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
+
+import java.util.logging.Logger;
+import org.osate.aadl2.instance.FeatureInstance ;
+
+public class CLASS{
+	private static final Logger log = Logger.getLogger( OutDataPortConverter.class.getName() );
+	
+	private static String getDataTypeImportStatement(FeatureInstance feature){
+		
+		return null;
+	}
+	
+	private static String getReceiverImportStatements(FeatureInstance feature){
+		
+		return null;
+	}
+	
+	private static String getPortVariableMemberStatements(FeatureInstance feature){
+		// TODO: pro connection zwei port variablen? Alter und neuer wert?
+		
+		return null;
+	}
+
+	private static String getReceiverMemberStatements(FeatureInstance feature){
+		
+		return null;
+	}
+	
+	private static String getSendOuputMethods(FeatureInstance feature){
+		return null;
+	}
+	
+	/*
+	 * (non-javadoc)
+	 * 
+	 * @see IGenerator#generate(Object)
+	 */
+	public String generate(FeatureInstance feature) {
+		return "";
+	}
+	
+}
