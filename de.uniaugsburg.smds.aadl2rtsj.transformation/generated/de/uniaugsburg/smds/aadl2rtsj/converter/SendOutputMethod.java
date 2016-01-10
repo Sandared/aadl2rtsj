@@ -16,11 +16,11 @@ public class SendOutputMethod{
   }
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
-  protected final String TEXT_1 = "\t/**" + NL + "\t * sends the currently available value (putValue) to the connection ";
+  protected final String TEXT_1 = "\t/**" + NL + "\t * Sends the currently available value, which was made available through putValue(), to the connection ";
   protected final String TEXT_2 = NL + "\t */" + NL + "\tpublic void sendOutputOn";
   protected final String TEXT_3 = "(){" + NL + "\t\t";
   protected final String TEXT_4 = ".putValueFor";
-  protected final String TEXT_5 = "(this.value);" + NL + "\t}" + NL;
+  protected final String TEXT_5 = "(value);" + NL + "\t}" + NL;
   protected final String TEXT_6 = NL;
 
 	/*
@@ -32,7 +32,7 @@ public class SendOutputMethod{
   {
     final StringBuffer stringBuffer = new StringBuffer();
     stringBuffer.append(TEXT_1);
-    stringBuffer.append(connection.getName());
+    stringBuffer.append(getObjectName(connection));
     stringBuffer.append(TEXT_2);
     stringBuffer.append(getClassName(getConnection(connection)));
     stringBuffer.append(TEXT_3);

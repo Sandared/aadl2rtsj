@@ -40,6 +40,7 @@ import org.osate.aadl2.instance.util.InstanceSwitch;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
 
+import de.uniaugsburg.smds.aadl2rtsj.converter.DataConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.DataPortConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.OutDataPortConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.PeriodicThreadConverter;
@@ -88,6 +89,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 
 	@Override
 	public String caseComponentInstance(ComponentInstance object) {
+		String sourceCode = null;
 		switch (object.getCategory()) {
 		case THREAD:
 			// get Thread Type: Periodic, Aperiodic, Sporadic, Hybrid, Timed or Background
@@ -101,7 +103,6 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 					dispatchProtocol = namedValue.getName();// should be "Periodic" or "Aperiodic" or one of the others
 				}
 				
-				String sourceCode = null;
 				switch (dispatchProtocol) {
 				case "Periodic":
 					sourceCode = new PeriodicThreadConverter().generate(object);
@@ -116,37 +117,16 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 				default:
 					break;
 				}
-				createJavaClass(getPackageName(object), getClassName(object), sourceCode);
 				break;
 			}
 			else{
 				System.err.println("No Disptach_Protocol was given for " + object.getName());
 			}
+			
 		default:
-//			EList<FeatureInstance> features = object.getAllFeatureInstances(); // Features
-//			System.out.println("features: " + features);
-//			EList<ComponentInstance> subcomponents = object.getAllComponentInstances(); // Subcomponents (including the component itself at the first place of the resulting list)
-//			System.out.println("subcomponents: " + subcomponents);
-//			EList<PropertyAssociation> properties = object.getOwnedPropertyAssociations(); // property associations
-//			System.out.println("properties: " + properties);
-//			
-//			for (PropertyAssociation asso : properties) {
-//				Property prop = asso.getProperty(); // the actual property
-//				String name = prop.getName(); // name of the property
-//				PropertyExpression valueExpression = object.getSimplePropertyValue(prop); // easiest way to get the value of single-valued, non-modal properties like Period
-//				Long value = null;
-//				if(valueExpression instanceof IntegerLiteral)
-//					value = ((IntegerLiteral)valueExpression).getValue();
-//				System.out.println("name: " + name);
-//				System.out.println("value: " + value);
-//			}
-//			System.out.println(object.getNamespace()); // returns null -> nutzlos?
-			System.out.println(object.getName()); // entspricht variablenname oder wenn der erste Buchstabe groß geschrieben wird, der Klasse 
-//			System.out.println(object.getComponentInstancePath()); // entspricht dem package name, ohne den systemnamen
-//			System.out.println(object.getComponentClassifier());
-//			System.out.println(object.getSystemInstance()); // system.getName() ohne die Endung "_impl_Instance" ist der Anfang jedes packagenamens
 			break;
 		}
+		createJavaClass(getPackageName(object), getClassName(object), sourceCode);
 		return DONE;
 	}
 	

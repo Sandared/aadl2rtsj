@@ -49,6 +49,7 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 			@Override
 			protected void initSwitches() {
 
+				aadl2Switch = new AADL2RTSJAADLSwitch(rootPackage, monitor);
 				instanceSwitch = new AADL2RTSJInstanceSwitch(rootPackage, monitor);
 			}
 		};

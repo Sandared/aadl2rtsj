@@ -1,0 +1,7 @@
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="DataConverter" skeleton="Data.skeleton" %>
+package <%=getPackageName(component)%>;
+
+public class <%=getClassName(component)%>{
+	
+	<%=getSubcomponentMemberStatements(component)%>
+}

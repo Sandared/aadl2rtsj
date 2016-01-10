@@ -24,7 +24,7 @@ public class OutDataPortConverter{
   protected final String TEXT_1 = "package ";
   protected final String TEXT_2 = ";" + NL + "" + NL + "// some imports " + NL + "// DataType of \"value\"";
   protected final String TEXT_3 = NL;
-  protected final String TEXT_4 = NL + "// Connections is any";
+  protected final String TEXT_4 = NL + "// Connections if any";
   protected final String TEXT_5 = NL;
   protected final String TEXT_6 = NL + NL + "public class ";
   protected final String TEXT_7 = "{" + NL + "\t";
@@ -37,6 +37,9 @@ public class OutDataPortConverter{
 	
 	private static String getDataTypeImportStatement(FeatureInstance feature){
 		Classifier classifier = feature.getFeature().getClassifier();
+		// if it is a base type, then we don't have to import anything, as Integer, Boolean etc are part of java.lang
+		if(isBaseType(classifier))
+			return "";
 		return new ImportStatement().generate(classifier);
 	}
 	

@@ -11,6 +11,7 @@ import org.osate.aadl2.EnumerationLiteral;
 import org.osate.aadl2.IntegerLiteral;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.NamedValue;
+import org.osate.aadl2.Namespace;
 import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
@@ -35,7 +36,7 @@ public class Utils {
 	}
 	
 	public static String getObjectName(NamedElement object){
-		if(object instanceof ConnectionInstance)
+		if(object instanceof ConnectionInstance)//
 			object = getConnection((ConnectionInstance) object);
 		return object.getName();
 	}
@@ -46,13 +47,13 @@ public class Utils {
 			pkg.append(getNameSpace((Classifier)element));
 		}else{
 			if(element instanceof FeatureInstance){
-				pkg.append(getNameSpace(((FeatureInstance)element).getFeature().getClassifier()));
+				pkg.append(getNameSpace(((FeatureInstance)element).getFeature().getContainingClassifier()));
 			}
 			if(element instanceof ComponentInstance){
 				pkg.append(getNameSpace(((ComponentInstance)element).getComponentClassifier()));
 			}
 			if(element instanceof ConnectionInstance){
-				pkg.append(getConnection((ConnectionInstance) element).getNamespace().getFullName());
+				pkg.append(getNameSpace(getConnection((ConnectionInstance) element).getContainingClassifier()));
 			}
 			pkg.append(".");
 			pkg.append(getHierarchyName((InstanceObject) element));
@@ -82,12 +83,15 @@ public class Utils {
 	 * @return a String that represents a package name, e.g. path.to.some.package
 	 */
 	private static String getHierarchyName(InstanceObject object){
-		//TODO: ConnectionInstance
 		StringBuffer buffer = null;
 		buffer = new StringBuffer(object.getInstanceObjectPath());
 		// if its a feature instance we have to omit the last part of the path as we want the feature in the same package as its parent component
 		if(object instanceof FeatureInstance){
 			buffer.delete(buffer.lastIndexOf("."), buffer.length());
+		}
+		//if it is a ConnectionInstance we have to omit the name part of the path, as it is not the name, but xxx.port -> yyy.port
+		if(object instanceof ConnectionInstance){
+			buffer.delete(buffer.indexOf(object.getName())-1, buffer.length()); // -1 because otherwise we would have an extra dot at the end
 		}
 		
 		int pkgEnd = buffer.indexOf(".");
@@ -107,11 +111,39 @@ public class Utils {
 	
 	
 	public static String getDataType(FeatureInstance feature){
-		// cases: primitive type(integer, double, etc.)
-		// custom type like data? can it be anything else?
-		//TODO: other datatypes
 		Classifier classifier = feature.getFeature().getClassifier();
-		return "Object";
+		//if no classifier is given, then return default type object
+		if(classifier == null)
+			return "Object";
+		
+		String type = null;
+		type = getBaseType(classifier);
+		
+		//if it is not a base type, then return the class name of this datatype
+		if(type == null)
+			type = getClassName(classifier);
+		
+		return type;
+	}
+	
+	private static String getBaseType(Classifier classifier){
+		String type = null;
+		// determine if it is one of the predefined AADL Base_Types
+		if(isBaseType(classifier)){
+			Classifier currentSuperType = classifier;
+			Classifier superType = classifier;
+			while(currentSuperType != null){
+				// go up the inheritance tree if any
+				superType = currentSuperType;
+				currentSuperType = currentSuperType.getExtended();
+			}
+			type = superType.getName();
+		}
+		return type;
+	}
+	
+	public static boolean isBaseType(Classifier classifier){
+		return getNameSpace(classifier).equals("Base_Types");
 	}
 	
 	public static String getPeriodMilliSeconds(ComponentInstance component){

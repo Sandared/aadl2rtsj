@@ -1,0 +1,35 @@
+import org.osate.aadl2.DataImplementation;
+import org.osate.aadl2.Subcomponent;
+
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+
+import java.util.List;
+
+public class CLASS{
+	
+	private static String getSubcomponentMemberStatements(DataImplementation component){
+		List<Subcomponent> subcomponents = component.getAllSubcomponents();
+		if(subcomponents.size() > 0){
+			StringBuilder sb = new StringBuilder();
+			sb.append("\t/*\n");
+			sb.append("\t* SUBCOMPONENTS\n");
+			sb.append("\t*/\n");
+			//skip the first one as it is the component itself
+			for(int i = 0; i < subcomponents.size(); i++){
+				sb.append(new MemberStatement().generate(subcomponents.get(i)));
+			}
+			return sb.toString();
+		}
+		else{
+			return "";
+		}
+	}
+	/*
+	 * (non-javadoc)
+	 * 
+	 * @see IGenerator#generate(Object)
+	 */
+	public String generate(DataImplementation component) {
+		return "";
+	}
+}
