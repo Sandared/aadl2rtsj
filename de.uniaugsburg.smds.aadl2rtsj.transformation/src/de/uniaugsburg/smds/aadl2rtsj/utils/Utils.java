@@ -1,17 +1,26 @@
 package de.uniaugsburg.smds.aadl2rtsj.utils;
 
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.AADL_Project_Time_Units_Milli_Seconds;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.AADL_Project_Time_Units_Nano_Seconds;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Communication_Properties;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Communication_Properties_Transmission_Type;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Communication_Properties_Transmission_Type_Push;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Priority;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Timing_Properties;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Timing_Properties_Period;
 
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.osate.aadl2.Classifier;
+import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.EnumerationLiteral;
 import org.osate.aadl2.IntegerLiteral;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.NamedValue;
-import org.osate.aadl2.Namespace;
 import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
@@ -29,8 +38,16 @@ public class Utils {
 	public static String getClassName(NamedElement object){
 		if(object instanceof ConnectionInstance)
 			object = getConnection((ConnectionInstance) object);
-		String name = object.getName();
-		StringBuilder b = new StringBuilder(name);
+		StringBuilder b = new StringBuilder(object.getName());
+		if(object instanceof ComponentImplementation){
+			//replace the ".impl" part with "Impl"
+			b.replace(b.lastIndexOf(".impl"), b.length(), "Impl");
+		}
+		//generally we replace "_xxx" with "Xxx"
+		int index;
+		while((index = b.indexOf("_")) != -1){
+			b.replace(index, index+2, b.substring(index+1, index+2).toUpperCase());
+		}
 		b.replace(0, 1, b.substring(0,1).toUpperCase());
 		return b.toString();
 	}
@@ -43,34 +60,16 @@ public class Utils {
 	
 	public static String getPackageName(NamedElement element){
 		StringBuffer pkg = new StringBuffer();
-		if(element instanceof Classifier){
-			pkg.append(getNameSpace((Classifier)element));
-		}else{
-			if(element instanceof FeatureInstance){
-				pkg.append(getNameSpace(((FeatureInstance)element).getFeature().getContainingClassifier()));
-			}
-			if(element instanceof ComponentInstance){
-				pkg.append(getNameSpace(((ComponentInstance)element).getComponentClassifier()));
-			}
-			if(element instanceof ConnectionInstance){
-				pkg.append(getNameSpace(getConnection((ConnectionInstance) element).getContainingClassifier()));
-			}
-			pkg.append(".");
+		
+		if(element instanceof InstanceObject){
+			//in case of an instanceobject we need its path within the model
+			pkg.append("instance.");
 			pkg.append(getHierarchyName((InstanceObject) element));
+		}else{
+			// in case of a type we merely need the types package
+			pkg.append("types");
 		}
 		return pkg.toString().toLowerCase();
-	}
-	
-	private static String getNameSpace(Classifier classifier){
-		StringBuffer namespace = new StringBuffer(classifier.getNamespace().getFullName());
-		int visibilityPos;
-		if((visibilityPos = namespace.indexOf("_public")) != -1)
-			namespace.delete(visibilityPos, visibilityPos + "_public".length());
-		else{
-			if((visibilityPos = namespace.indexOf("_private")) != -1)
-				namespace.delete(visibilityPos, visibilityPos + "_private".length());
-		}
-		return namespace.toString();
 	}
 	
 	/**
@@ -146,6 +145,18 @@ public class Utils {
 		return getNameSpace(classifier).equals("Base_Types");
 	}
 	
+	private static String getNameSpace(Classifier classifier){
+		StringBuffer namespace = new StringBuffer(classifier.getNamespace().getFullName());
+		int visibilityPos;
+		if((visibilityPos = namespace.indexOf("_public")) != -1)
+			namespace.delete(visibilityPos, visibilityPos + "_public".length());
+		else{
+			if((visibilityPos = namespace.indexOf("_private")) != -1)
+				namespace.delete(visibilityPos, visibilityPos + "_private".length());
+		}
+		return namespace.toString();
+	}
+	
 	public static String getPeriodMilliSeconds(ComponentInstance component){
 		// get period
 		List<PropertyExpression> periodPropertyList = component.getPropertyValues(Timing_Properties, Timing_Properties_Period);
@@ -203,6 +214,21 @@ public class Utils {
         	transmissionType = Communication_Properties_Transmission_Type_Push;
         }
         return transmissionType;
+	}
+	
+	public static String getDispatchProtocol(ComponentInstance object){
+		String dispatchProtocol = null;
+		// get Thread Type: Periodic, Aperiodic, Sporadic, Hybrid, Timed or Background
+		List<PropertyExpression> dispatchProtocolPropertyList = object.getPropertyValues(Thread_Properties, Thread_Properties_Dispatch_Protocol);
+		// only do something if the type of thread was defined
+		if(dispatchProtocolPropertyList.size() > 0){
+			PropertyExpression dispatchProtocolProperty = dispatchProtocolPropertyList.get(0); // we don't consider modes at the moment
+			if(dispatchProtocolProperty instanceof NamedValue){
+				EnumerationLiteral namedValue = (EnumerationLiteral)((NamedValue)dispatchProtocolProperty).getNamedValue();
+				dispatchProtocol = namedValue.getName();// should be "Periodic" or "Aperiodic" or one of the others
+			}
+		}
+		return dispatchProtocol;
 	}
 	
 	public static Connection getConnection(ConnectionInstance connection){

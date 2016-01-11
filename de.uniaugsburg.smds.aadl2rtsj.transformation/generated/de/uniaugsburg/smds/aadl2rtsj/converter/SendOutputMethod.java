@@ -19,9 +19,8 @@ public class SendOutputMethod{
   protected final String TEXT_1 = "\t/**" + NL + "\t * Sends the currently available value, which was made available through putValue(), to the connection ";
   protected final String TEXT_2 = NL + "\t */" + NL + "\tpublic void sendOutputOn";
   protected final String TEXT_3 = "(){" + NL + "\t\t";
-  protected final String TEXT_4 = ".putValueFor";
-  protected final String TEXT_5 = "(value);" + NL + "\t}" + NL;
-  protected final String TEXT_6 = NL;
+  protected final String TEXT_4 = ".putValue(value);" + NL + "\t}" + NL;
+  protected final String TEXT_5 = NL;
 
 	/*
 	 * (non-javadoc)
@@ -38,9 +37,7 @@ public class SendOutputMethod{
     stringBuffer.append(TEXT_3);
     stringBuffer.append(getObjectName(connection));
     stringBuffer.append(TEXT_4);
-    stringBuffer.append(getClassName(object));
     stringBuffer.append(TEXT_5);
-    stringBuffer.append(TEXT_6);
     return stringBuffer.toString();
   }
 }

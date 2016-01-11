@@ -48,9 +48,9 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 		AadlProcessingSwitchWithProgress mySwitch = new AadlProcessingSwitchWithProgress(monitor, errManager) {
 			@Override
 			protected void initSwitches() {
-
-				aadl2Switch = new AADL2RTSJAADLSwitch(rootPackage, monitor);
-				instanceSwitch = new AADL2RTSJInstanceSwitch(rootPackage, monitor);
+				AADL2RTSJInstanceSwitch myInstanceSwitch = new AADL2RTSJInstanceSwitch(rootPackage, monitor);
+				instanceSwitch = myInstanceSwitch;
+				aadl2Switch = new AADL2RTSJAADLSwitch(rootPackage, monitor, myInstanceSwitch.getUsedClassifer());
 			}
 		};
 
@@ -60,6 +60,7 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 		// run traversal which does the actual generation
 		if (si != null) {
 			mySwitch.defaultTraversal(si);
+			mySwitch.defaultTraversalAllDeclarativeModels();
 		} else {
 			System.err.println("Not an InstanceObject!");
 		}

@@ -1,0 +1,2 @@
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="SendOutputStatement" skeleton="SendOutputStatement.skeleton" %>
+	<%=getObjectName(object)%>.sendOutputOn<%=getClassName(getConnection(connection))%>();

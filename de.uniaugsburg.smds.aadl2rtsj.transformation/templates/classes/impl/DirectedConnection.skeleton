@@ -1,0 +1,39 @@
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+
+import java.util.logging.Logger;
+
+import org.osate.aadl2.Classifier;
+import org.osate.aadl2.instance.ConnectionInstance;
+import org.osate.aadl2.instance.ConnectionInstanceEnd;
+import org.osate.aadl2.instance.FeatureInstance;
+
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
+
+public class CLASS{
+	
+	private static String getDataTypeImportStatement(ConnectionInstance connection){
+		// we don't consider splitting or aggregation of data types currently, so it's sufficient to check one connectionend for its datatype
+		// the end must be a FeatureInstance as we only consider data ports at the moment
+		FeatureInstance feature = (FeatureInstance) connection.getSource();
+		Classifier classifier = feature.getFeature().getClassifier();
+		// if it is a base type, then we don't have to import anything, as Integer, Boolean etc are part of java.lang
+		if(isBaseType(classifier))
+			return "";
+		return new ImportStatement().generate(classifier);
+	}
+	
+	private static String getConnectionDataType(ConnectionInstance connection){
+		// we don't consider splitting or aggregation of data types currently, so it's sufficient to check one connectionend for its datatype
+		// the end must be a FeatureInstance as we only consider data ports at the moment
+		return getDataType((FeatureInstance)connection.getSource());
+	}
+	/*
+	 * (non-javadoc)
+	 * 
+	 * @see IGenerator#generate(Object)
+	 */
+	public String generate(ConnectionInstance connection) {
+		return "";
+	}
+	
+}

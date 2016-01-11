@@ -1,19 +1,23 @@
 package de.uniaugsburg.smds.aadl2rtsj.transformation;
 
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.osate.aadl2.Classifier;
 import org.osate.aadl2.ClassifierFeature;
 import org.osate.aadl2.DirectionType;
 import org.osate.aadl2.Element;
-import org.osate.aadl2.EnumerationLiteral;
 import org.osate.aadl2.Mode;
 import org.osate.aadl2.ModeFeature;
 import org.osate.aadl2.NamedElement;
-import org.osate.aadl2.NamedValue;
 import org.osate.aadl2.Property;
 import org.osate.aadl2.PropertyAssociation;
 import org.osate.aadl2.PropertyExpression;
@@ -37,11 +41,8 @@ import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.instance.SystemOperationMode;
 import org.osate.aadl2.instance.util.InstanceSwitch;
 
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
-
-import de.uniaugsburg.smds.aadl2rtsj.converter.DataConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.DataPortConverter;
+import de.uniaugsburg.smds.aadl2rtsj.converter.DirectedConnectionConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.OutDataPortConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.PeriodicThreadConverter;
 
@@ -54,6 +55,12 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 		super();
 		this.root = root;
 		this.monitor = monitor;
+	}
+	
+	private Set<Classifier> usedClassifier = new HashSet<Classifier>();
+	
+	public Set<Classifier> getUsedClassifer(){
+		return usedClassifier;
 	}
 	
 	// we just need something to abort switch execution for a given object. Otherwise the switch would traverse up the whole inheritance tree
@@ -92,47 +99,45 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 		String sourceCode = null;
 		switch (object.getCategory()) {
 		case THREAD:
-			// get Thread Type: Periodic, Aperiodic, Sporadic, Hybrid, Timed or Background
-			EList<PropertyExpression> dispatchProtocolPropertyList = object.getPropertyValues("Thread_Properties", "Dispatch_Protocol");
-			// only do something if the type of thread was defined
-			if(dispatchProtocolPropertyList.size() > 0){
-				String dispatchProtocol = null;
-				PropertyExpression dispatchProtocolProperty = dispatchProtocolPropertyList.get(0); // we don't consider modes at the moment
-				if(dispatchProtocolProperty instanceof NamedValue){
-					EnumerationLiteral namedValue = (EnumerationLiteral)((NamedValue)dispatchProtocolProperty).getNamedValue();
-					dispatchProtocol = namedValue.getName();// should be "Periodic" or "Aperiodic" or one of the others
-				}
-				
+			
+			String dispatchProtocol = getDispatchProtocol(object);
+			if(dispatchProtocol != null)	
 				switch (dispatchProtocol) {
-				case "Periodic":
+				case Thread_Properties_Dispatch_Protocol_Periodic:
 					sourceCode = new PeriodicThreadConverter().generate(object);
 					break;
-				case "Aperiodic":
-					
+				case Thread_Properties_Dispatch_Protocol_Aperiodic:
+					//TODO: implement
 					break;
-				case "Sporadic":
-					
+				case Thread_Properties_Dispatch_Protocol_Sporadic:
+					//TODO: implement
 					break;
-					//TODO: implement other cases
+				case Thread_Properties_Dispatch_Protocol_Timed:
+					//TODO: implement
+					break;
+				case Thread_Properties_Dispatch_Protocol_Hybrid:
+					//TODO: implement
+					break;
+				case Thread_Properties_Dispatch_Protocol_Background:
+					//TODO: implement
+					break;
 				default:
 					break;
 				}
-				break;
-			}
-			else{
-				System.err.println("No Disptach_Protocol was given for " + object.getName());
-			}
+			break;
 			
 		default:
 			break;
 		}
-		createJavaClass(getPackageName(object), getClassName(object), sourceCode);
+		if(sourceCode != null)
+			createJavaClass(getPackageName(object), getClassName(object), sourceCode);
 		return DONE;
 	}
 	
 	@Override
 	public String caseConnectionInstance(ConnectionInstance object) {
-		System.out.println("AADL2RTSJInstanceSwitch.caseConnectionInstance()" + object);
+		String sourceCode = new DirectedConnectionConverter().generate(object);;
+		createJavaClass(getPackageName(object), getClassName(object), sourceCode);
 		return DONE;
 	}
 
@@ -162,22 +167,30 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 
 	@Override
 	public String caseFeatureInstance(FeatureInstance object) {
+		String sourceCode = null;
 		switch (object.getCategory()) {
 		case DATA_PORT:
-			String sourceCode = null;
+			// store classifier for datatype generation
+			Classifier classifier = object.getFeature().getClassifier();
+			if(classifier != null)
+				usedClassifier.add(classifier);
+			
 			DirectionType direction = object.getDirection();
+			// in port
 			if(direction.incoming() && !direction.outgoing())
 				sourceCode = new DataPortConverter().generate(object);
+			// out port
 			if(!direction.incoming() && direction.outgoing())
 				sourceCode = new OutDataPortConverter().generate(object);
 			//TODO: in out port
-			createJavaClass(getPackageName(object), getClassName(object), sourceCode);
 			break;
 
 		default:
 			System.out.println("AADL2RTSJInstanceSwitch.caseFeatureInstance()");
 			break;
 		}
+		if(sourceCode != null)
+			createJavaClass(getPackageName(object), getClassName(object), sourceCode);
 		return DONE;
 	}
 
