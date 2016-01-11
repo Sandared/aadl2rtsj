@@ -16,8 +16,8 @@ public class SendOutputMethod{
   }
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
-  protected final String TEXT_1 = "\t/**" + NL + "\t * Sends the currently available value, which was made available through putValue(), to the connection ";
-  protected final String TEXT_2 = NL + "\t */" + NL + "\tpublic void sendOutputOn";
+  protected final String TEXT_1 = "\t/**" + NL + "\t * Sends the currently available value to connection <code>";
+  protected final String TEXT_2 = "</code><br>" + NL + "\t * The value has to be made available by calling <code>putValue()</code> before" + NL + "\t */" + NL + "\tpublic void sendOutputOn";
   protected final String TEXT_3 = "(){" + NL + "\t\t";
   protected final String TEXT_4 = ".putValue(value);" + NL + "\t}" + NL;
   protected final String TEXT_5 = NL;

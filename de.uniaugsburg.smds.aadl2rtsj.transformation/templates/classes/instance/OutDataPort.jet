@@ -1,16 +1,19 @@
 <%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="OutDataPortConverter" skeleton="OutDataPort.skeleton" %>
 package <%=getPackageName(feature)%>;
 
-// some imports 
-// DataType of "value"
 <%=getDataTypeImportStatement(feature)%>
-// Connections if any
 <%=getConnectionImportStatements(feature)%>
 
 public class <%=getClassName(feature)%>{
-	<%=getDataType(feature)%> value = null;
+	
+	private <%=getDataType(feature)%> value = null;
 	<%=getConnectionMemberStatements(feature)%>
 	
+	/**
+	 * This method stores the given value and everytime a <code>sendOutputOnXXX()</code> occurs,<br>
+	 * then this value is written to the respective connection
+	 * @param the value that shall be written to a connection, the next time <code>sendOuntuptOnXXX()</code> is called
+	 */
 	public void putValue(<%=getDataType(feature)%> value){
 		this.value = value;
 	}

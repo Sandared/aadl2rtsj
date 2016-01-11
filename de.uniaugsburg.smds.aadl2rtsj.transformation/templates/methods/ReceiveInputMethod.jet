@@ -1,0 +1,10 @@
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="ReceiveInputMethod" skeleton="ReceiveInputMethod.skeleton" %>
+	/**
+	 * Freezes the currently available input on this Data Port.<br>
+	 * Afterwards the frozen value can be retrieved by calling <code>getValue()</code>
+	 */
+	public void receiveInput(){
+		value = <%=getObjectName(connection)%>.getValue();
+		isNew = true;
+	}
+	

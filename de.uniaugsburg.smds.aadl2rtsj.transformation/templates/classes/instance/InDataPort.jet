@@ -1,0 +1,43 @@
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="InDataPortConverter" skeleton="InDataPort.skeleton" 
+imports="
+	de.uniaugsburg.smds.aadl2rtsj.utils.Utils
+ 	org.osate.aadl2.instance.ComponentInstance 
+ 	org.osate.aadl2.instance.FeatureInstance 
+ 	" 
+%>
+package <%=getPackageName(feature)%>;
+
+<%=getDataTypeImportStatement(feature)%>
+
+<%=getConnectionImportStatements(feature)%>
+
+public class <%=getClassName(feature)%>{
+	
+	private <%=getDataType(feature)%> value = null;
+	private boolean isNew = false;
+	<%=getConnectionMemberStatements(feature)%>
+	
+	/**
+	 * This method returns the data that was made available by calling <code>receiveInput()</code><br>
+	 * If there has been no call to <code>receiveInput()</code> since the last call, then the old value <br>
+	 * of this data port is returned
+	 * @return the currently available data for this port
+	 */
+	public <%=getDataType(feature)%> getValue(){
+		isNew = false;
+		return value;
+	}
+
+	<%=getReceiveInputMethods(feature)%>
+	
+	/**
+	 * As a Data Port only can have one data at one time, a return value of 1<br>
+	 * can be considered as "new data available", as well as a return value of 0 can be considered as <br>
+	 * "no new data available"
+	 * @return number of data received at this port since the last call to <code>getValue()</code>
+	 */
+	public int getCount(){
+		return (isNew)? 1:0;
+	}
+	
+}

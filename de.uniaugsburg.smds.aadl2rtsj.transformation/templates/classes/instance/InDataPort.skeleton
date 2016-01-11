@@ -1,0 +1,58 @@
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+
+import java.util.logging.Logger;
+
+import org.osate.aadl2.Classifier;
+import org.osate.aadl2.instance.ConnectionInstance;
+
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
+
+public class CLASS{
+	
+	private static String getDataTypeImportStatement(FeatureInstance feature){
+		Classifier classifier = feature.getFeature().getClassifier();
+		// if it is a base type, then we don't have to import anything, as Integer, Boolean etc are part of java.lang
+		if(isBaseType(classifier))
+			return "";
+		return new ImportStatement().generate(classifier);
+	}
+	
+	private static String getConnectionImportStatements(FeatureInstance feature){
+		StringBuilder sb = new StringBuilder();
+		//for all connections we have to create an import statement
+		// actually this should only be one, as we don't consider modes
+		for (ConnectionInstance connection : feature.getDstConnectionInstances()) {
+			sb.append(new ImportStatement().generate(connection));
+		}
+		return sb.toString().trim();
+	}
+	
+	private static String getConnectionMemberStatements(FeatureInstance feature){
+		StringBuilder sb = new StringBuilder();
+		//for all connections we have to create an import statement
+		// actually this should only be one, as we don't consider modes
+		for (ConnectionInstance connection : feature.getDstConnectionInstances()) {
+			sb.append(new MemberStatement().generate(connection));
+		}
+		return sb.toString().trim();
+	}
+	
+	private static String getReceiveInputMethods(FeatureInstance feature){
+		StringBuilder sb = new StringBuilder();
+		//for all connections we have to create an import statement
+		// actually this should only be one, as we don't consider modes 
+		for (ConnectionInstance connection : feature.getDstConnectionInstances()) {
+			sb.append(new ReceiveInputMethod().generate(feature, connection));
+		}
+		return sb.toString().trim();
+	}
+	/*
+	 * (non-javadoc)
+	 * 
+	 * @see IGenerator#generate(Object)
+	 */
+	public String generate(FeatureInstance feature) {
+		return "";
+	}
+	
+}

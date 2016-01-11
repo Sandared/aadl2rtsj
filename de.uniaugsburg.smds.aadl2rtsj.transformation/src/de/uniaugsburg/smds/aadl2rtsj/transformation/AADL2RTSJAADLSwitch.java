@@ -14,9 +14,11 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.DataImplementation;
 import org.osate.aadl2.Subcomponent;
+import org.osate.aadl2.ThreadImplementation;
 import org.osate.aadl2.util.Aadl2Switch;
 
 import de.uniaugsburg.smds.aadl2rtsj.converter.DataConverter;
+import de.uniaugsburg.smds.aadl2rtsj.converter.DataImplConverter;
 
 public class AADL2RTSJAADLSwitch extends Aadl2Switch<String>{
 	
@@ -53,7 +55,7 @@ public class AADL2RTSJAADLSwitch extends Aadl2Switch<String>{
 	@Override
 	public String caseDataImplementation(DataImplementation object) {
 		if(usedClassifier.contains(object)){
-			String sourceCode = new DataConverter().generate(object);
+			String sourceCode = new DataImplConverter().generate(object);
 			createJavaClass(getPackageName(object), getClassName(object), sourceCode);
 		}
 		return DONE;

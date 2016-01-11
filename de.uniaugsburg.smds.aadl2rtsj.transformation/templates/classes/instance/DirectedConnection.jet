@@ -5,15 +5,21 @@ package <%=getPackageName(connection)%>;
 
 public class <%=getClassName(connection)%>{
 	
-	<%=getConnectionDataType(connection)%> value = null;
+	private volatile <%=getConnectionDataType(connection)%> value = null;
 	
+	/**
+	 * Write the value which can then be read be the target of this connection
+	 * @param value the new value for this connection
+	 */
 	public void putValue(<%=getConnectionDataType(connection)%> value){
-		//TODO: locking?
 		this.value = value;
 	}
 	
+	/**
+	 * Read the value which was written by the source of this connection.
+	 * @return the value which was set by <code>putValue</code>
+	 */
 	public <%=getConnectionDataType(connection)%> getValue(){
-		//TODO: locking?
 		return value;
 	}
 }

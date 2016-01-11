@@ -22,16 +22,15 @@ public class OutDataPortConverter{
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
   protected final String TEXT_1 = "package ";
-  protected final String TEXT_2 = ";" + NL + "" + NL + "// some imports " + NL + "// DataType of \"value\"";
+  protected final String TEXT_2 = ";" + NL;
   protected final String TEXT_3 = NL;
-  protected final String TEXT_4 = NL + "// Connections if any";
-  protected final String TEXT_5 = NL;
-  protected final String TEXT_6 = NL + NL + "public class ";
-  protected final String TEXT_7 = "{" + NL + "\t";
-  protected final String TEXT_8 = " value = null;" + NL + "\t";
-  protected final String TEXT_9 = NL + "\t" + NL + "\tpublic void putValue(";
-  protected final String TEXT_10 = " value){" + NL + "\t\tthis.value = value;" + NL + "\t}" + NL + "\t" + NL + "\t";
-  protected final String TEXT_11 = NL + "}";
+  protected final String TEXT_4 = NL;
+  protected final String TEXT_5 = NL + NL + "public class ";
+  protected final String TEXT_6 = "{" + NL + "\t" + NL + "\tprivate ";
+  protected final String TEXT_7 = " value = null;" + NL + "\t";
+  protected final String TEXT_8 = NL + "\t" + NL + "\t/**" + NL + "\t * This method stores the given value and everytime a <code>sendOutputOnXXX()</code> occurs,<br>" + NL + "\t * then this value is written to the respective connection" + NL + "\t * @param the value that shall be written to a connection, the next time <code>sendOuntuptOnXXX()</code> is called" + NL + "\t */" + NL + "\tpublic void putValue(";
+  protected final String TEXT_9 = " value){" + NL + "\t\tthis.value = value;" + NL + "\t}" + NL + "\t" + NL + "\t";
+  protected final String TEXT_10 = NL + "}";
 
 	private static final Logger log = Logger.getLogger( OutDataPortConverter.class.getName() );
 	
@@ -84,19 +83,18 @@ public class OutDataPortConverter{
     stringBuffer.append(TEXT_3);
     stringBuffer.append(getDataTypeImportStatement(feature));
     stringBuffer.append(TEXT_4);
-    stringBuffer.append(TEXT_5);
     stringBuffer.append(getConnectionImportStatements(feature));
-    stringBuffer.append(TEXT_6);
+    stringBuffer.append(TEXT_5);
     stringBuffer.append(getClassName(feature));
+    stringBuffer.append(TEXT_6);
+    stringBuffer.append(getDataType(feature));
     stringBuffer.append(TEXT_7);
-    stringBuffer.append(getDataType(feature));
-    stringBuffer.append(TEXT_8);
     stringBuffer.append(getConnectionMemberStatements(feature));
-    stringBuffer.append(TEXT_9);
+    stringBuffer.append(TEXT_8);
     stringBuffer.append(getDataType(feature));
-    stringBuffer.append(TEXT_10);
+    stringBuffer.append(TEXT_9);
     stringBuffer.append(getSendOuputMethods(feature));
-    stringBuffer.append(TEXT_11);
+    stringBuffer.append(TEXT_10);
     return stringBuffer.toString();
   }
 }

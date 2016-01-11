@@ -1,10 +1,18 @@
 package de.uniaugsburg.smds.aadl2rtsj.transformation;
 
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Aperiodic;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Background;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Hybrid;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Periodic;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Sporadic;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Timed;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.getClassName;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.getDispatchProtocol;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.getPackageName;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -41,8 +49,8 @@ import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.instance.SystemOperationMode;
 import org.osate.aadl2.instance.util.InstanceSwitch;
 
-import de.uniaugsburg.smds.aadl2rtsj.converter.DataPortConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.DirectedConnectionConverter;
+import de.uniaugsburg.smds.aadl2rtsj.converter.InDataPortConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.OutDataPortConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.PeriodicThreadConverter;
 
@@ -57,7 +65,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 		this.monitor = monitor;
 	}
 	
-	private Set<Classifier> usedClassifier = new HashSet<Classifier>();
+	private Set<Classifier> usedClassifier = new TreeSet<Classifier>(new ClassifierComparator());
 	
 	public Set<Classifier> getUsedClassifer(){
 		return usedClassifier;
@@ -99,7 +107,6 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 		String sourceCode = null;
 		switch (object.getCategory()) {
 		case THREAD:
-			
 			String dispatchProtocol = getDispatchProtocol(object);
 			if(dispatchProtocol != null)	
 				switch (dispatchProtocol) {
@@ -125,7 +132,9 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 					break;
 				}
 			break;
-			
+		case DATA:
+			usedClassifier.add(object.getComponentClassifier());
+			break;
 		default:
 			break;
 		}
@@ -178,7 +187,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 			DirectionType direction = object.getDirection();
 			// in port
 			if(direction.incoming() && !direction.outgoing())
-				sourceCode = new DataPortConverter().generate(object);
+				sourceCode = new InDataPortConverter().generate(object);
 			// out port
 			if(!direction.incoming() && direction.outgoing())
 				sourceCode = new OutDataPortConverter().generate(object);
