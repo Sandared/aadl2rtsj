@@ -60,7 +60,7 @@ public class InDataPortConverter{
 		//for all connections we have to create an import statement
 		// actually this should only be one, as we don't consider modes
 		for (ConnectionInstance connection : feature.getDstConnectionInstances()) {
-			sb.append(new MemberStatement().generate(connection));
+			sb.append(new DeclarationMemberStatement().generate(connection));
 		}
 		return sb.toString().trim();
 	}

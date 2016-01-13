@@ -9,6 +9,10 @@ public class <%=getClassName(feature)%>{
 	private <%=getDataType(feature)%> value = null;
 	<%=getConnectionMemberStatements(feature)%>
 	
+	public <%=getClassName(feature)%>(<%=getConstructorParameters(feature)%>){
+		<%=getConstructorMemberAssignments(feature)%>
+	}
+	
 	/**
 	 * This method stores the given value and everytime a <code>sendOutputOnXXX()</code> occurs,<br>
 	 * then this value is written to the respective connection

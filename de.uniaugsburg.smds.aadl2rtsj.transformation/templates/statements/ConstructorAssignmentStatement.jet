@@ -1,0 +1,2 @@
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="ConstructorAssignmentStatement" skeleton="NamedElement.skeleton" %>
+		this.<%=getObjectName(object)%> = <%=getObjectName(object)%>;

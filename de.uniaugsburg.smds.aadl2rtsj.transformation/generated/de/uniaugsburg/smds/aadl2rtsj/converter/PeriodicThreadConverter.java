@@ -9,6 +9,7 @@ import org.osate.aadl2.instance.FeatureInstance;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
 
+import org.eclipse.jdt.internal.core.util.MethodParametersAttribute;
 import org.osate.aadl2.AbstractNamedValue;
 import org.osate.aadl2.BasicPropertyAssociation;
 import org.osate.aadl2.Classifier;
@@ -45,14 +46,16 @@ public class PeriodicThreadConverter{
   protected final String TEXT_5 = " extends AsyncEventHandler{" + NL + "\t";
   protected final String TEXT_6 = NL + "\t";
   protected final String TEXT_7 = NL + "\t" + NL + "\tprivate Timer timer;" + NL + "\t" + NL + "\tpublic ";
-  protected final String TEXT_8 = "(){" + NL + "\t\tsuper();" + NL + "\t\tsetSchedulingParametersIfFeasible(new PriorityParameters(";
-  protected final String TEXT_9 = "));" + NL + "\t\ttimer = new PeriodicTimer(new RelativeTime(), new RelativeTime(";
-  protected final String TEXT_10 = ", ";
-  protected final String TEXT_11 = "), this);" + NL + "\t}" + NL + "\t" + NL + "\tpublic void startExecution(){" + NL + "\t\ttimer.start();" + NL + "\t}" + NL + "\t" + NL + "\t@Override" + NL + "\tpublic void handleAsyncEvent() {" + NL + "\t\tdispatch();" + NL + "\t\tstart();" + NL + "\t\tcompute();" + NL + "\t\tcompletion();" + NL + "\t}" + NL + "" + NL + "\tprivate final void dispatch() {" + NL + "\t\t";
-  protected final String TEXT_12 = NL + "\t}" + NL + "\t" + NL + "\tprivate final void start() {" + NL + "\t\t";
-  protected final String TEXT_13 = NL + "\t}" + NL + "" + NL + "\tprivate final void compute() {" + NL + "\t\t" + NL + "\t}" + NL + "\t" + NL + "\tprivate final void completion() {" + NL + "\t\t";
-  protected final String TEXT_14 = NL + "\t}" + NL + "}";
-  protected final String TEXT_15 = NL;
+  protected final String TEXT_8 = "(";
+  protected final String TEXT_9 = "){" + NL + "\t\tsuper();" + NL + "\t\tsetSchedulingParametersIfFeasible(new PriorityParameters(";
+  protected final String TEXT_10 = "));" + NL + "\t\ttimer = new PeriodicTimer(new RelativeTime(), new RelativeTime(";
+  protected final String TEXT_11 = ", ";
+  protected final String TEXT_12 = "), this);" + NL + "\t\t";
+  protected final String TEXT_13 = NL + "\t}" + NL + "\t" + NL + "\tpublic void startExecution(){" + NL + "\t\ttimer.start();" + NL + "\t}" + NL + "\t" + NL + "\t@Override" + NL + "\tpublic void handleAsyncEvent() {" + NL + "\t\tdispatch();" + NL + "\t\tstart();" + NL + "\t\tcompute();" + NL + "\t\tcompletion();" + NL + "\t}" + NL + "" + NL + "\tprivate final void dispatch() {" + NL + "\t\t";
+  protected final String TEXT_14 = NL + "\t}" + NL + "\t" + NL + "\tprivate final void start() {" + NL + "\t\t";
+  protected final String TEXT_15 = NL + "\t}" + NL + "" + NL + "\tprivate final void compute() {" + NL + "\t\t" + NL + "\t}" + NL + "\t" + NL + "\tprivate final void completion() {" + NL + "\t\t";
+  protected final String TEXT_16 = NL + "\t}" + NL + "}";
+  protected final String TEXT_17 = NL;
 
 	private static final Logger log = Logger.getLogger( PeriodicThreadConverter.class.getName() );
 	
@@ -60,12 +63,12 @@ public class PeriodicThreadConverter{
 		List<ComponentInstance> subcomponents = component.getAllComponentInstances();
 		if(subcomponents.size() > 1){
 			StringBuilder sb = new StringBuilder();
-			sb.append("/*\n");
-			sb.append("* IMPORT SUBCOMPONENTS\n");
-			sb.append("*/\n");
+//			sb.append("/*\n");
+//			sb.append("* IMPORT SUBCOMPONENTS\n");
+//			sb.append("*/\n");
 			//skip the first one as it is the component itself
-			for(int i = 1; i < subcomponents.size(); i++){
-				sb.append(new ImportStatement().generate(subcomponents.get(i)));
+			for(ComponentInstance cmp: subcomponents){
+				sb.append(new ImportStatement().generate(cmp));
 			}
 			return sb.toString();
 		}
@@ -78,12 +81,12 @@ public class PeriodicThreadConverter{
 		List<ComponentInstance> subcomponents = component.getAllComponentInstances();
 		if(subcomponents.size() > 1){
 			StringBuilder sb = new StringBuilder();
-			sb.append("\t/*\n");
-			sb.append("\t* SUBCOMPONENTS\n");
-			sb.append("\t*/\n");
+//			sb.append("\t/*\n");
+//			sb.append("\t* SUBCOMPONENTS\n");
+//			sb.append("\t*/\n");
 			//skip the first one as it is the component itself
-			for(int i = 1; i < subcomponents.size(); i++){
-				sb.append(new MemberStatement().generate(subcomponents.get(i)));
+			for(ComponentInstance cmp: subcomponents){
+				sb.append(new MemberStatement().generate(cmp));
 			}
 			return sb.toString();
 		}
@@ -96,11 +99,11 @@ public class PeriodicThreadConverter{
 		List<FeatureInstance> features = component.getAllFeatureInstances();
 		if(features.size() > 0){
 			StringBuilder sb = new StringBuilder();
-			sb.append("\t/*\n");
-			sb.append("\t* FEATURES\n");
-			sb.append("\t*/\n");
-			for(int i = 0; i < features.size(); i++){
-				sb.append(new MemberStatement().generate(features.get(i)));
+//			sb.append("\t/*\n");
+//			sb.append("\t* FEATURES\n");
+//			sb.append("\t*/\n");
+			for(FeatureInstance feature: features){
+				sb.append(new DeclarationMemberStatement().generate(feature));
 			}
 			return sb.toString().trim();
 		}
@@ -305,6 +308,34 @@ public class PeriodicThreadConverter{
         return time;
 	}
 	
+	private static String getConstructorParameters(ComponentInstance component){
+		List<FeatureInstance> features = component.getFeatureInstances();
+		// for each feature we have to create a parameter
+		if(features.size() > 0){
+			StringBuilder sb = new StringBuilder();
+			for(FeatureInstance feature : features){
+				sb.append(new MethodParameterStatement().generate(feature));
+			}
+			// delete pending commata ", "
+			sb.delete(sb.length()-2, sb.length());
+			return sb.toString().trim();
+		}
+		return "";
+	}
+	
+	private static String getConstructorMemberAssignments(ComponentInstance component){
+		List<FeatureInstance> features = component.getFeatureInstances();
+		// for each feature we have to create an assignment
+		if(features.size() > 0){
+			StringBuilder sb = new StringBuilder();
+			for (FeatureInstance feature : features) {
+				sb.append(new ConstructorAssignmentStatement().generate(feature));
+			}
+			return sb.toString().trim();
+		}
+		return "";
+	}
+	
 	/*
 	 * (non-javadoc)
 	 * 
@@ -327,19 +358,23 @@ public class PeriodicThreadConverter{
     stringBuffer.append(TEXT_7);
     stringBuffer.append(getClassName(component));
     stringBuffer.append(TEXT_8);
-    stringBuffer.append(getPriority(component));
+    stringBuffer.append(getConstructorParameters(component));
     stringBuffer.append(TEXT_9);
-    stringBuffer.append(getPeriodMilliSeconds(component));
+    stringBuffer.append(getPriority(component));
     stringBuffer.append(TEXT_10);
-    stringBuffer.append(getPeriodNanoSeconds(component));
+    stringBuffer.append(getPeriodMilliSeconds(component));
     stringBuffer.append(TEXT_11);
-    stringBuffer.append(getDispatchStatements(component));
+    stringBuffer.append(getPeriodNanoSeconds(component));
     stringBuffer.append(TEXT_12);
-    stringBuffer.append(getStartStatements(component));
+    stringBuffer.append(getConstructorMemberAssignments(component));
     stringBuffer.append(TEXT_13);
-    stringBuffer.append(getCompletionStatements(component));
+    stringBuffer.append(getDispatchStatements(component));
     stringBuffer.append(TEXT_14);
+    stringBuffer.append(getStartStatements(component));
     stringBuffer.append(TEXT_15);
+    stringBuffer.append(getCompletionStatements(component));
+    stringBuffer.append(TEXT_16);
+    stringBuffer.append(TEXT_17);
     return stringBuffer.toString();
   }
 }

@@ -28,9 +28,12 @@ public class OutDataPortConverter{
   protected final String TEXT_5 = NL + NL + "public class ";
   protected final String TEXT_6 = "{" + NL + "\t" + NL + "\tprivate ";
   protected final String TEXT_7 = " value = null;" + NL + "\t";
-  protected final String TEXT_8 = NL + "\t" + NL + "\t/**" + NL + "\t * This method stores the given value and everytime a <code>sendOutputOnXXX()</code> occurs,<br>" + NL + "\t * then this value is written to the respective connection" + NL + "\t * @param the value that shall be written to a connection, the next time <code>sendOuntuptOnXXX()</code> is called" + NL + "\t */" + NL + "\tpublic void putValue(";
-  protected final String TEXT_9 = " value){" + NL + "\t\tthis.value = value;" + NL + "\t}" + NL + "\t" + NL + "\t";
-  protected final String TEXT_10 = NL + "}";
+  protected final String TEXT_8 = NL + "\t" + NL + "\tpublic ";
+  protected final String TEXT_9 = "(";
+  protected final String TEXT_10 = "){" + NL + "\t\t";
+  protected final String TEXT_11 = NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * This method stores the given value and everytime a <code>sendOutputOnXXX()</code> occurs,<br>" + NL + "\t * then this value is written to the respective connection" + NL + "\t * @param the value that shall be written to a connection, the next time <code>sendOuntuptOnXXX()</code> is called" + NL + "\t */" + NL + "\tpublic void putValue(";
+  protected final String TEXT_12 = " value){" + NL + "\t\tthis.value = value;" + NL + "\t}" + NL + "\t" + NL + "\t";
+  protected final String TEXT_13 = NL + "}";
 
 	private static final Logger log = Logger.getLogger( OutDataPortConverter.class.getName() );
 	
@@ -55,7 +58,7 @@ public class OutDataPortConverter{
 		StringBuilder sb = new StringBuilder();
 		//for all connections we have to create an import statement
 		for (ConnectionInstance connection : feature.getSrcConnectionInstances()) {
-			sb.append(new MemberStatement().generate(connection));
+			sb.append(new DeclarationMemberStatement().generate(connection));
 		}
 		return sb.toString().trim();
 	}
@@ -67,6 +70,34 @@ public class OutDataPortConverter{
 			sb.append(new SendOutputMethod().generate(feature, connection));
 		}
 		return sb.toString().trim();
+	}
+	
+	private static String getConstructorParameters(FeatureInstance feature){
+		List<ConnectionInstance> connections = feature.getSrcConnectionInstances();
+		// for each connection we have to create a parameter
+		if(connections.size() > 0){
+			StringBuilder sb = new StringBuilder();
+			for(ConnectionInstance connection : connections){
+				sb.append(new MethodParameterStatement().generate(connection));
+			}
+			// delete pending commata ", "
+			sb.delete(sb.length()-2, sb.length());
+			return sb.toString().trim();
+		}
+		return "";
+	}
+	
+	private static String getConstructorMemberAssignments(FeatureInstance feature){
+		List<ConnectionInstance> connections = feature.getSrcConnectionInstances();
+		// for each connection we have to create an assignment
+		if(connections.size() > 0){
+			StringBuilder sb = new StringBuilder();
+			for(ConnectionInstance connection : connections){
+				sb.append(new ConstructorAssignmentStatement().generate(connection));
+			}
+			return sb.toString().trim();
+		}
+		return "";
 	}
 	
 	/*
@@ -91,10 +122,16 @@ public class OutDataPortConverter{
     stringBuffer.append(TEXT_7);
     stringBuffer.append(getConnectionMemberStatements(feature));
     stringBuffer.append(TEXT_8);
-    stringBuffer.append(getDataType(feature));
+    stringBuffer.append(getClassName(feature));
     stringBuffer.append(TEXT_9);
-    stringBuffer.append(getSendOuputMethods(feature));
+    stringBuffer.append(getConstructorParameters(feature));
     stringBuffer.append(TEXT_10);
+    stringBuffer.append(getConstructorMemberAssignments(feature));
+    stringBuffer.append(TEXT_11);
+    stringBuffer.append(getDataType(feature));
+    stringBuffer.append(TEXT_12);
+    stringBuffer.append(getSendOuputMethods(feature));
+    stringBuffer.append(TEXT_13);
     return stringBuffer.toString();
   }
 }

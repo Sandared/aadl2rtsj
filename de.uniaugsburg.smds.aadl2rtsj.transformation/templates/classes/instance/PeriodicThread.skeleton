@@ -7,6 +7,7 @@ import org.osate.aadl2.instance.FeatureInstance;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
 
+import org.eclipse.jdt.internal.core.util.MethodParametersAttribute;
 import org.osate.aadl2.AbstractNamedValue;
 import org.osate.aadl2.BasicPropertyAssociation;
 import org.osate.aadl2.Classifier;
@@ -32,12 +33,12 @@ public class CLASS{
 		List<ComponentInstance> subcomponents = component.getAllComponentInstances();
 		if(subcomponents.size() > 1){
 			StringBuilder sb = new StringBuilder();
-			sb.append("/*\n");
-			sb.append("* IMPORT SUBCOMPONENTS\n");
-			sb.append("*/\n");
+//			sb.append("/*\n");
+//			sb.append("* IMPORT SUBCOMPONENTS\n");
+//			sb.append("*/\n");
 			//skip the first one as it is the component itself
-			for(int i = 1; i < subcomponents.size(); i++){
-				sb.append(new ImportStatement().generate(subcomponents.get(i)));
+			for(ComponentInstance cmp: subcomponents){
+				sb.append(new ImportStatement().generate(cmp));
 			}
 			return sb.toString();
 		}
@@ -50,12 +51,12 @@ public class CLASS{
 		List<ComponentInstance> subcomponents = component.getAllComponentInstances();
 		if(subcomponents.size() > 1){
 			StringBuilder sb = new StringBuilder();
-			sb.append("\t/*\n");
-			sb.append("\t* SUBCOMPONENTS\n");
-			sb.append("\t*/\n");
+//			sb.append("\t/*\n");
+//			sb.append("\t* SUBCOMPONENTS\n");
+//			sb.append("\t*/\n");
 			//skip the first one as it is the component itself
-			for(int i = 1; i < subcomponents.size(); i++){
-				sb.append(new MemberStatement().generate(subcomponents.get(i)));
+			for(ComponentInstance cmp: subcomponents){
+				sb.append(new MemberStatement().generate(cmp));
 			}
 			return sb.toString();
 		}
@@ -68,11 +69,11 @@ public class CLASS{
 		List<FeatureInstance> features = component.getAllFeatureInstances();
 		if(features.size() > 0){
 			StringBuilder sb = new StringBuilder();
-			sb.append("\t/*\n");
-			sb.append("\t* FEATURES\n");
-			sb.append("\t*/\n");
-			for(int i = 0; i < features.size(); i++){
-				sb.append(new MemberStatement().generate(features.get(i)));
+//			sb.append("\t/*\n");
+//			sb.append("\t* FEATURES\n");
+//			sb.append("\t*/\n");
+			for(FeatureInstance feature: features){
+				sb.append(new DeclarationMemberStatement().generate(feature));
 			}
 			return sb.toString().trim();
 		}
@@ -275,6 +276,34 @@ public class CLASS{
      	   }
         }
         return time;
+	}
+	
+	private static String getConstructorParameters(ComponentInstance component){
+		List<FeatureInstance> features = component.getFeatureInstances();
+		// for each feature we have to create a parameter
+		if(features.size() > 0){
+			StringBuilder sb = new StringBuilder();
+			for(FeatureInstance feature : features){
+				sb.append(new MethodParameterStatement().generate(feature));
+			}
+			// delete pending commata ", "
+			sb.delete(sb.length()-2, sb.length());
+			return sb.toString().trim();
+		}
+		return "";
+	}
+	
+	private static String getConstructorMemberAssignments(ComponentInstance component){
+		List<FeatureInstance> features = component.getFeatureInstances();
+		// for each feature we have to create an assignment
+		if(features.size() > 0){
+			StringBuilder sb = new StringBuilder();
+			for (FeatureInstance feature : features) {
+				sb.append(new ConstructorAssignmentStatement().generate(feature));
+			}
+			return sb.toString().trim();
+		}
+		return "";
 	}
 	
 	/*

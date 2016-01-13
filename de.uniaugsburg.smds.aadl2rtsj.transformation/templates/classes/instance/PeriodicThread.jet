@@ -15,10 +15,11 @@ public class <%=getClassName(component)%> extends AsyncEventHandler{
 	
 	private Timer timer;
 	
-	public <%=getClassName(component)%>(){
+	public <%=getClassName(component)%>(<%=getConstructorParameters(component)%>){
 		super();
 		setSchedulingParametersIfFeasible(new PriorityParameters(<%=getPriority(component)%>));
 		timer = new PeriodicTimer(new RelativeTime(), new RelativeTime(<%=getPeriodMilliSeconds(component)%>, <%=getPeriodNanoSeconds(component)%>), this);
+		<%=getConstructorMemberAssignments(component)%>
 	}
 	
 	public void startExecution(){
