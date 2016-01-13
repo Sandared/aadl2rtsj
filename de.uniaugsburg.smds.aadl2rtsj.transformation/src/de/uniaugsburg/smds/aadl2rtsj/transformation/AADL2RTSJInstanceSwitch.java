@@ -66,9 +66,14 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	}
 	
 	private Set<Classifier> usedClassifier = new TreeSet<Classifier>(new ClassifierComparator());
+	private Set<InstanceObject> visitedObjects = new TreeSet<InstanceObject>();
 	
 	public Set<Classifier> getUsedClassifer(){
 		return usedClassifier;
+	}
+	
+	public Set<InstanceObject> getVisitedObjects(){
+		return visitedObjects;
 	}
 	
 	// we just need something to abort switch execution for a given object. Otherwise the switch would traverse up the whole inheritance tree
@@ -112,6 +117,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 				switch (dispatchProtocol) {
 				case Thread_Properties_Dispatch_Protocol_Periodic:
 					sourceCode = new PeriodicThreadConverter().generate(object);
+					visitedObjects.add(object);
 					break;
 				case Thread_Properties_Dispatch_Protocol_Aperiodic:
 					//TODO: implement
@@ -134,19 +140,23 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 			break;
 		case DATA:
 			usedClassifier.add(object.getComponentClassifier());
+			visitedObjects.add(object);
 			break;
 		default:
 			break;
 		}
 		if(sourceCode != null)
 			createJavaClass(getPackageName(object), getClassName(object), sourceCode);
+		System.out.println("AADL2RTSJInstanceSwitch.caseComponentInstance()" + object);
 		return DONE;
 	}
 	
 	@Override
 	public String caseConnectionInstance(ConnectionInstance object) {
-		String sourceCode = new DirectedConnectionConverter().generate(object);;
+		String sourceCode = new DirectedConnectionConverter().generate(object);
 		createJavaClass(getPackageName(object), getClassName(object), sourceCode);
+		visitedObjects.add(object);
+		System.out.println("AADL2RTSJInstanceSwitch.caseConnectionInstance()" + object);
 		return DONE;
 	}
 
@@ -192,6 +202,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 			if(!direction.incoming() && direction.outgoing())
 				sourceCode = new OutDataPortConverter().generate(object);
 			//TODO: in out port
+			visitedObjects.add(object);
 			break;
 
 		default:
@@ -200,6 +211,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 		}
 		if(sourceCode != null)
 			createJavaClass(getPackageName(object), getClassName(object), sourceCode);
+		System.out.println("AADL2RTSJInstanceSwitch.caseFeatureInstance()" + object);
 		return DONE;
 	}
 
@@ -266,8 +278,6 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	@Override
 	public String casePropertyAssociationInstance(PropertyAssociationInstance object) {
 		System.out.println("AADL2RTSJInstanceSwitch.casePropertyAssociationInstance()" + object);
-		Property prop = object.getProperty();
-		Type proptype = prop.getType();
 		return DONE;
 	}
 
