@@ -1,0 +1,43 @@
+import org.osate.aadl2.instance.ComponentInstance;
+import org.osate.aadl2.instance.FeatureInstance;
+import org.osate.aadl2.instance.InstanceObject;
+
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+
+import java.util.List;
+import java.util.Map;
+
+public class CLASS{
+	
+	private static String getParameters(ComponentInstance object, Map<InstanceObject, String> names){
+		StringBuilder sb = new StringBuilder();
+		
+		List<FeatureInstance> features = object.getFeatureInstances();
+		List<ComponentInstance> subcomponents = object.getAllComponentInstances();
+		
+		// remove first one, because this is always the component itself
+		subcomponents.remove(0);
+		
+		for (FeatureInstance feature : features) {
+			sb.append(names.get(feature) + ", ");
+		}
+		
+		for (ComponentInstance subcomponent : subcomponents) {
+			sb.append(names.get(subcomponent) + ", ");
+		}
+		
+		if(sb.length() != 0)
+			sb.delete(sb.length() - 2, sb.length()); // delete pending commata
+		
+		return sb.toString().trim();
+	}
+	
+	/*
+	 * (non-javadoc)
+	 * 
+	 * @see IGenerator#generate(Object)
+	 */
+	public String generate(ComponentInstance object, long counter, Map<InstanceObject, String> names) {
+		return "";
+	}
+}

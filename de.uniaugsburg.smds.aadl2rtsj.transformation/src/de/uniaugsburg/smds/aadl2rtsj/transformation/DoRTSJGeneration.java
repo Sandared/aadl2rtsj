@@ -21,6 +21,9 @@ import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.modelsupport.modeltraversal.AadlProcessingSwitchWithProgress;
 import org.osate.ui.actions.AaxlReadOnlyActionAsJob;
 
+import de.uniaugsburg.smds.aadl2rtsj.converter.MainConverter;
+import de.uniaugsburg.smds.aadl2rtsj.utils.Utils;
+
 public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 
 	private IPackageFragmentRoot rootPackage = null;
@@ -46,6 +49,8 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 		// create instance switch, aadl switch is not needed so we use the
 		// default
 		AadlProcessingSwitchWithProgress mySwitch = new AadlProcessingSwitchWithProgress(monitor, errManager) {
+			
+
 			@Override
 			protected void initSwitches() {
 				AADL2RTSJInstanceSwitch myInstanceSwitch = new AADL2RTSJInstanceSwitch(rootPackage, monitor);
@@ -53,6 +58,7 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 				aadl2Switch = new AADL2RTSJAADLSwitch(rootPackage, monitor, myInstanceSwitch.getUsedClassifer());
 			}
 		};
+		
 
 		// Setup a new Java project
 		setupJavaProject(monitor);
@@ -61,10 +67,20 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 		if (si != null) {
 			mySwitch.defaultTraversal(si);
 			mySwitch.defaultTraversalAllDeclarativeModels();
+			createMainClass(((AADL2RTSJInstanceSwitch)mySwitch.getInstanceSwitch()).getVisitedObjects(), monitor);
 		} else {
 			System.err.println("Not an InstanceObject!");
 		}
+		
+		
 
+	}
+
+	private void createMainClass(List<InstanceObject> visitedObjects, IProgressMonitor monitor) {
+		if(visitedObjects != null){
+			String sourceCode = new MainConverter().generate(visitedObjects);
+			Utils.createJavaClass("main", "Main", sourceCode, monitor, rootPackage);
+		}
 	}
 
 	// based on

@@ -2,6 +2,7 @@ package de.uniaugsburg.smds.aadl2rtsj.converter;
 
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.osate.aadl2.Classifier;
@@ -33,9 +34,12 @@ public class InDataPortConverter{
   protected final String TEXT_6 = NL + NL + "public class ";
   protected final String TEXT_7 = "{" + NL + "\t" + NL + "\tprivate ";
   protected final String TEXT_8 = " value = null;" + NL + "\tprivate boolean isNew = false;" + NL + "\t";
-  protected final String TEXT_9 = NL + "\t" + NL + "\t/**" + NL + "\t * This method returns the data that was made available by calling <code>receiveInput()</code><br>" + NL + "\t * If there has been no call to <code>receiveInput()</code> since the last call, then the old value <br>" + NL + "\t * of this data port is returned" + NL + "\t * @return the currently available data for this port" + NL + "\t */" + NL + "\tpublic ";
-  protected final String TEXT_10 = " getValue(){" + NL + "\t\tisNew = false;" + NL + "\t\treturn value;" + NL + "\t}" + NL + "" + NL + "\t";
-  protected final String TEXT_11 = NL + "\t" + NL + "\t/**" + NL + "\t * As a Data Port only can have one data at one time, a return value of 1<br>" + NL + "\t * can be considered as \"new data available\", as well as a return value of 0 can be considered as <br>" + NL + "\t * \"no new data available\"" + NL + "\t * @return number of data received at this port since the last call to <code>getValue()</code>" + NL + "\t */" + NL + "\tpublic int getCount(){" + NL + "\t\treturn (isNew)? 1:0;" + NL + "\t}" + NL + "\t" + NL + "}";
+  protected final String TEXT_9 = NL + "\t" + NL + "\tpublic ";
+  protected final String TEXT_10 = "(";
+  protected final String TEXT_11 = "){" + NL + "\t\t";
+  protected final String TEXT_12 = NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * This method returns the data that was made available by calling <code>receiveInput()</code><br>" + NL + "\t * If there has been no call to <code>receiveInput()</code> since the last call, then the old value <br>" + NL + "\t * of this data port is returned" + NL + "\t * @return the currently available data for this port" + NL + "\t */" + NL + "\tpublic ";
+  protected final String TEXT_13 = " getValue(){" + NL + "\t\tisNew = false;" + NL + "\t\treturn value;" + NL + "\t}" + NL + "" + NL + "\t";
+  protected final String TEXT_14 = NL + "\t" + NL + "\t/**" + NL + "\t * As a Data Port only can have one data at one time, a return value of 1<br>" + NL + "\t * can be considered as \"new data available\", as well as a return value of 0 can be considered as <br>" + NL + "\t * \"no new data available\"" + NL + "\t * @return number of data received at this port since the last call to <code>getValue()</code>" + NL + "\t */" + NL + "\tpublic int getCount(){" + NL + "\t\treturn (isNew)? 1:0;" + NL + "\t}" + NL + "\t" + NL + "}";
 
 	private static String getDataTypeImportStatement(FeatureInstance feature){
 		Classifier classifier = feature.getFeature().getClassifier();
@@ -74,6 +78,35 @@ public class InDataPortConverter{
 		}
 		return sb.toString().trim();
 	}
+	
+	private static String getConstructorParameters(FeatureInstance feature){
+		List<ConnectionInstance> connections = feature.getDstConnectionInstances();
+		// for each connection we have to create a parameter
+		if(connections.size() > 0){
+			StringBuilder sb = new StringBuilder();
+			for(ConnectionInstance connection : connections){
+				sb.append(new MethodParameterStatement().generate(connection));
+			}
+			// delete pending commata ", "
+			sb.delete(sb.length()-2, sb.length());
+			return sb.toString().trim();
+		}
+		return "";
+	}
+	
+	private static String getConstructorMemberAssignments(FeatureInstance feature){
+		List<ConnectionInstance> connections = feature.getDstConnectionInstances();
+		// for each connection we have to create an assignment
+		if(connections.size() > 0){
+			StringBuilder sb = new StringBuilder();
+			for(ConnectionInstance connection : connections){
+				sb.append(new ConstructorAssignmentStatement().generate(connection));
+			}
+			return sb.toString().trim();
+		}
+		return "";
+	}
+	
 	/*
 	 * (non-javadoc)
 	 * 
@@ -97,10 +130,16 @@ public class InDataPortConverter{
     stringBuffer.append(TEXT_8);
     stringBuffer.append(getConnectionMemberStatements(feature));
     stringBuffer.append(TEXT_9);
-    stringBuffer.append(getDataType(feature));
+    stringBuffer.append(getClassName(feature));
     stringBuffer.append(TEXT_10);
-    stringBuffer.append(getReceiveInputMethods(feature));
+    stringBuffer.append(getConstructorParameters(feature));
     stringBuffer.append(TEXT_11);
+    stringBuffer.append(getConstructorMemberAssignments(feature));
+    stringBuffer.append(TEXT_12);
+    stringBuffer.append(getDataType(feature));
+    stringBuffer.append(TEXT_13);
+    stringBuffer.append(getReceiveInputMethods(feature));
+    stringBuffer.append(TEXT_14);
     return stringBuffer.toString();
   }
 }

@@ -1,5 +1,6 @@
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.osate.aadl2.Classifier;
@@ -46,6 +47,35 @@ public class CLASS{
 		}
 		return sb.toString().trim();
 	}
+	
+	private static String getConstructorParameters(FeatureInstance feature){
+		List<ConnectionInstance> connections = feature.getDstConnectionInstances();
+		// for each connection we have to create a parameter
+		if(connections.size() > 0){
+			StringBuilder sb = new StringBuilder();
+			for(ConnectionInstance connection : connections){
+				sb.append(new MethodParameterStatement().generate(connection));
+			}
+			// delete pending commata ", "
+			sb.delete(sb.length()-2, sb.length());
+			return sb.toString().trim();
+		}
+		return "";
+	}
+	
+	private static String getConstructorMemberAssignments(FeatureInstance feature){
+		List<ConnectionInstance> connections = feature.getDstConnectionInstances();
+		// for each connection we have to create an assignment
+		if(connections.size() > 0){
+			StringBuilder sb = new StringBuilder();
+			for(ConnectionInstance connection : connections){
+				sb.append(new ConstructorAssignmentStatement().generate(connection));
+			}
+			return sb.toString().trim();
+		}
+		return "";
+	}
+	
 	/*
 	 * (non-javadoc)
 	 * 

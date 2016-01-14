@@ -14,7 +14,13 @@ import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Timing_Properties_Pe
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
 import org.osate.aadl2.Classifier;
+import org.osate.aadl2.ComponentCategory;
 import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.EnumerationLiteral;
@@ -22,6 +28,7 @@ import org.osate.aadl2.IntegerLiteral;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.NamedValue;
 import org.osate.aadl2.PropertyExpression;
+import org.osate.aadl2.impl.DataTypeImpl;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.FeatureInstance;
@@ -38,11 +45,19 @@ public class Utils {
 	public static String getClassName(NamedElement object){
 		if(object instanceof ConnectionInstance)
 			object = getConnection((ConnectionInstance) object);
+		// Data is a special case, as its "class" is always determined by the classifier
+		if(object instanceof ComponentInstance){
+			ComponentInstance component = (ComponentInstance)object;
+			if(component.getCategory().equals(ComponentCategory.DATA)){
+				object = (DataTypeImpl)component.getComponentClassifier();
+			}
+		}
 		StringBuilder b = new StringBuilder(object.getName());
 		if(object instanceof ComponentImplementation){
 			//replace the ".impl" part with "Impl"
 			b.replace(b.lastIndexOf(".impl"), b.length(), "Impl");
 		}
+		
 		//generally we replace "_xxx" with "Xxx"
 		int index;
 		while((index = b.indexOf("_")) != -1){
@@ -62,12 +77,17 @@ public class Utils {
 		StringBuffer pkg = new StringBuffer();
 		
 		if(element instanceof InstanceObject){
-			//in case of an instanceobject we need its path within the model
-			pkg.append("instance.");
-			pkg.append(getHierarchyName((InstanceObject) element));
+			// special case: Data- InstanceObject: we need just the data package
+			if(element instanceof ComponentInstance && ((ComponentInstance)element).getCategory().equals(ComponentCategory.DATA))
+				pkg.append("data");
+			else{
+				//in case of an instanceobject we need its path within the model
+				pkg.append("instance.");
+				pkg.append(getHierarchyName((InstanceObject) element));
+			}
 		}else{
-			// in case of a type we merely need the types package
-			pkg.append("types");
+			// in case of a type we merely need the data package
+			pkg.append("data");
 		}
 		return pkg.toString().toLowerCase();
 	}
@@ -233,5 +253,21 @@ public class Utils {
 	
 	public static Connection getConnection(ConnectionInstance connection){
 		return connection.getConnectionReferences().get(0).getConnection();
+	}
+	
+	public static boolean createJavaClass(String packageName, String className, String sourceCode, IProgressMonitor monitor, IPackageFragmentRoot root) {
+		IPackageFragment fragment = null;
+		try {
+			// get or create the package
+			fragment = root.createPackageFragment(packageName, false, monitor);
+			
+			// create class
+			ICompilationUnit cu = fragment.createCompilationUnit(className+".java", sourceCode, false, null);
+			cu.save(monitor, true);
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 }

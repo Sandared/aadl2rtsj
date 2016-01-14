@@ -310,17 +310,22 @@ public class PeriodicThreadConverter{
 	
 	private static String getConstructorParameters(ComponentInstance component){
 		List<FeatureInstance> features = component.getFeatureInstances();
+		List<ComponentInstance> subcomponents = component.getAllComponentInstances();
+		// remove the first element, because this is always the component itself
+		subcomponents.remove(0);
 		// for each feature we have to create a parameter
-		if(features.size() > 0){
-			StringBuilder sb = new StringBuilder();
-			for(FeatureInstance feature : features){
-				sb.append(new MethodParameterStatement().generate(feature));
-			}
-			// delete pending commata ", "
-			sb.delete(sb.length()-2, sb.length());
-			return sb.toString().trim();
+		StringBuilder sb = new StringBuilder();
+		MethodParameterStatement statement = new MethodParameterStatement();
+		for(FeatureInstance feature : features){
+			sb.append(statement.generate(feature));
 		}
-		return "";
+		//for each subcomponent we have to create a Parameter
+		for (ComponentInstance subcomponent : subcomponents) {
+			sb.append(statement.generate(subcomponent));
+		}
+		// delete pending commata ", "
+		sb.delete(sb.length()-2, sb.length());
+		return sb.toString().trim();
 	}
 	
 	private static String getConstructorMemberAssignments(ComponentInstance component){

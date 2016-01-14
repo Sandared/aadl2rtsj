@@ -1,0 +1,46 @@
+import org.osate.aadl2.DirectionType;
+import org.osate.aadl2.instance.ConnectionInstance;
+import org.osate.aadl2.instance.FeatureInstance;
+import org.osate.aadl2.instance.InstanceObject;
+
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+
+import java.util.List;
+import java.util.Map;
+
+public class CLASS{
+	
+	private static String getParameters(FeatureInstance object, Map<InstanceObject, String> names){
+		StringBuilder sb = new StringBuilder();
+		
+		List<ConnectionInstance> connections = null;
+		
+		// decide if it is an ingoing or outgoing dataport
+		DirectionType direction = object.getDirection();
+		if(direction.incoming() && !direction.outgoing()){
+			connections = object.getDstConnectionInstances();
+		}
+		if(direction.outgoing() && !direction.incoming()){
+			connections = object.getSrcConnectionInstances();
+		}
+		
+		for (ConnectionInstance connection : connections) {
+			sb.append(names.get(connection) + ", ");
+		}
+		
+		if(sb.length() != 0)
+			sb.delete(sb.length() - 2, sb.length()); // delete pending commata
+		
+		// TODO: in out port
+		return sb.toString().trim();
+	}
+	
+	/*
+	 * (non-javadoc)
+	 * 
+	 * @see IGenerator#generate(Object)
+	 */
+	public String generate(FeatureInstance object, long counter, Map<InstanceObject, String> names) {
+		return "";
+	}
+}

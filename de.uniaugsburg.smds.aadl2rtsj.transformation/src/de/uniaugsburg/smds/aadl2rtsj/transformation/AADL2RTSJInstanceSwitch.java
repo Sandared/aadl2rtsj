@@ -6,19 +6,18 @@ import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Di
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Periodic;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Sporadic;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Timed;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.createJavaClass;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.getClassName;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.getDispatchProtocol;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.getPackageName;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaModelException;
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.ClassifierFeature;
 import org.osate.aadl2.DirectionType;
@@ -26,11 +25,9 @@ import org.osate.aadl2.Element;
 import org.osate.aadl2.Mode;
 import org.osate.aadl2.ModeFeature;
 import org.osate.aadl2.NamedElement;
-import org.osate.aadl2.Property;
 import org.osate.aadl2.PropertyAssociation;
 import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.PropertyValue;
-import org.osate.aadl2.Type;
 import org.osate.aadl2.instance.AnnexInstance;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
@@ -66,35 +63,19 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	}
 	
 	private Set<Classifier> usedClassifier = new TreeSet<Classifier>(new ClassifierComparator());
-	private Set<InstanceObject> visitedObjects = new TreeSet<InstanceObject>();
+	private List<InstanceObject> visitedObjects = new ArrayList<InstanceObject>();
 	
 	public Set<Classifier> getUsedClassifer(){
 		return usedClassifier;
 	}
 	
-	public Set<InstanceObject> getVisitedObjects(){
+	public List<InstanceObject> getVisitedObjects(){
 		return visitedObjects;
 	}
 	
 	// we just need something to abort switch execution for a given object. Otherwise the switch would traverse up the whole inheritance tree
 	private static final String DONE = "";
 	
-	private boolean createJavaClass(String packageName, String className, String sourceCode) {
-		IPackageFragment fragment = null;
-		try {
-			// get or create the package
-			fragment = root.createPackageFragment(packageName, false, monitor);
-			
-			// create class
-			ICompilationUnit cu = fragment.createCompilationUnit(className+".java", sourceCode, false, null);
-			cu.save(monitor, true);
-		} catch (JavaModelException e) {
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	}
-
 	@Override
 	public String caseAnnexInstance(AnnexInstance object) {
 		System.out.println("AADL2RTSJInstanceSwitch.caseAnnexInstance()" + object);
@@ -146,7 +127,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 			break;
 		}
 		if(sourceCode != null)
-			createJavaClass(getPackageName(object), getClassName(object), sourceCode);
+			createJavaClass(getPackageName(object), getClassName(object), sourceCode, monitor, root);
 		System.out.println("AADL2RTSJInstanceSwitch.caseComponentInstance()" + object);
 		return DONE;
 	}
@@ -154,7 +135,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	@Override
 	public String caseConnectionInstance(ConnectionInstance object) {
 		String sourceCode = new DirectedConnectionConverter().generate(object);
-		createJavaClass(getPackageName(object), getClassName(object), sourceCode);
+		createJavaClass(getPackageName(object), getClassName(object), sourceCode, monitor, root);
 		visitedObjects.add(object);
 		System.out.println("AADL2RTSJInstanceSwitch.caseConnectionInstance()" + object);
 		return DONE;
@@ -210,7 +191,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 			break;
 		}
 		if(sourceCode != null)
-			createJavaClass(getPackageName(object), getClassName(object), sourceCode);
+			createJavaClass(getPackageName(object), getClassName(object), sourceCode, monitor, root);
 		System.out.println("AADL2RTSJInstanceSwitch.caseFeatureInstance()" + object);
 		return DONE;
 	}

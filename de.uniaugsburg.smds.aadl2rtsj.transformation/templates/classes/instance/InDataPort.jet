@@ -17,6 +17,10 @@ public class <%=getClassName(feature)%>{
 	private boolean isNew = false;
 	<%=getConnectionMemberStatements(feature)%>
 	
+	public <%=getClassName(feature)%>(<%=getConstructorParameters(feature)%>){
+		<%=getConstructorMemberAssignments(feature)%>
+	}
+	
 	/**
 	 * This method returns the data that was made available by calling <code>receiveInput()</code><br>
 	 * If there has been no call to <code>receiveInput()</code> since the last call, then the old value <br>
