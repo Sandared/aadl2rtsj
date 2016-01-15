@@ -23,12 +23,12 @@ import org.osate.aadl2.Classifier;
 import org.osate.aadl2.ComponentCategory;
 import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.Connection;
+import org.osate.aadl2.DataImplementation;
 import org.osate.aadl2.EnumerationLiteral;
 import org.osate.aadl2.IntegerLiteral;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.NamedValue;
 import org.osate.aadl2.PropertyExpression;
-import org.osate.aadl2.impl.DataTypeImpl;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.FeatureInstance;
@@ -49,7 +49,9 @@ public class Utils {
 		if(object instanceof ComponentInstance){
 			ComponentInstance component = (ComponentInstance)object;
 			if(component.getCategory().equals(ComponentCategory.DATA)){
-				object = (DataTypeImpl)component.getComponentClassifier();
+				object = component.getComponentClassifier(); // we assume, that it is a DataImplementation, not a DataType
+				// if it's a DataType the aadl model was not specific enough and this will result in an error
+				//TODO: log warning?
 			}
 		}
 		StringBuilder b = new StringBuilder(object.getName());
@@ -77,9 +79,15 @@ public class Utils {
 		StringBuffer pkg = new StringBuffer();
 		
 		if(element instanceof InstanceObject){
-			// special case: Data- InstanceObject: we need just the data package
-			if(element instanceof ComponentInstance && ((ComponentInstance)element).getCategory().equals(ComponentCategory.DATA))
-				pkg.append("data");
+			// special case: Data- InstanceObject: we need just the data package 
+			if(element instanceof ComponentInstance && ((ComponentInstance)element).getCategory().equals(ComponentCategory.DATA)){
+				Classifier classifier = ((ComponentInstance)element).getComponentClassifier();
+				if(classifier instanceof DataImplementation)
+					pkg.append("data");
+				//else: do nothing, because the aadl model was not specific enough and we just use Object, where no package is needed
+				//TODO: log warning?
+			}
+				
 			else{
 				//in case of an instanceobject we need its path within the model
 				pkg.append("instance.");
