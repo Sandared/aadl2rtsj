@@ -1,0 +1,20 @@
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="InputHandlerConverter" skeleton="InputHandler.skeleton"%>
+package <%=getPackageName(component)%>;
+
+import javax.realtime.BoundAsyncEventHandler;
+import <%=getPackageName(feature)%>.<%=getClassName(feature)%>;
+
+private class <%=getHandlerClassName(feature, time)%> extends BoundAsyncEventHandler{
+	private <%=getClassName(feature)%> <%=getObjectName(feature)%>;
+	
+	public <%=getHandlerClassName(feature, time)%>(<%=getClassName(feature)%> <%=getObjectName(feature)%>){
+		this.<%=getObjectName(feature)%> = <%=getObjectName(feature)%>;
+		setSchedulingParameters(new PriorityParameters(<%=getPriority(component)%>));
+		// TODO: AperiodicParameters for deadline/cost/misshandler/overrunhandler?
+	}
+	
+	@Override
+	public void handleAsyncEvent() {
+		<%=getIOStatement(feature)%>
+	}
+}

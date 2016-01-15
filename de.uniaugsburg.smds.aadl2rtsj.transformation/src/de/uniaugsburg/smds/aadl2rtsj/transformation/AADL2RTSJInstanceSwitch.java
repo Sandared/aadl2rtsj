@@ -1,15 +1,7 @@
 package de.uniaugsburg.smds.aadl2rtsj.transformation;
 
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Aperiodic;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Background;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Hybrid;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Periodic;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Sporadic;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol_Timed;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.createJavaClass;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.getClassName;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.getDispatchProtocol;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.getPackageName;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,9 +39,13 @@ import org.osate.aadl2.instance.SystemOperationMode;
 import org.osate.aadl2.instance.util.InstanceSwitch;
 
 import de.uniaugsburg.smds.aadl2rtsj.converter.DirectedConnectionConverter;
+import de.uniaugsburg.smds.aadl2rtsj.converter.IOHandlerConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.InDataPortConverter;
+import de.uniaugsburg.smds.aadl2rtsj.converter.InputHandlerConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.OutDataPortConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.PeriodicThreadConverter;
+import de.uniaugsburg.smds.aadl2rtsj.utils.OffsetTime;
+import de.uniaugsburg.smds.aadl2rtsj.utils.Utils;
 
 public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	
@@ -98,6 +94,13 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 				switch (dispatchProtocol) {
 				case Thread_Properties_Dispatch_Protocol_Periodic:
 					sourceCode = new PeriodicThreadConverter().generate(object);
+					// create all handlers needed by this thread
+					for (FeatureInstance feature : object.getAllFeatureInstances()) {
+						// TODO: decide between input/output
+						// TODO: if output: consider connections
+							String handlerCode = new InputHandlerConverter().generate(object, feature, time);
+							createJavaClass(getPackageName(object), getHandlerClassName(feature, time), sourceCode, monitor, root);
+					}
 					visitedObjects.add(object);
 					break;
 				case Thread_Properties_Dispatch_Protocol_Aperiodic:

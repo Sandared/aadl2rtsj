@@ -22,10 +22,6 @@ public class <%=getClassName(component)%> extends AsyncEventHandler{
 		<%=getConstructorMemberAssignments(component)%>
 	}
 	
-	public void startExecution(){
-		timer.start();
-	}
-	
 	@Override
 	public void handleAsyncEvent() {
 		dispatch();
@@ -33,7 +29,7 @@ public class <%=getClassName(component)%> extends AsyncEventHandler{
 		compute();
 		completion();
 	}
-
+	
 	private final void dispatch() {
 		<%=getDispatchStatements(component)%>
 	}
@@ -41,12 +37,26 @@ public class <%=getClassName(component)%> extends AsyncEventHandler{
 	private final void start() {
 		<%=getStartStatements(component)%>
 	}
-
+	
 	private final void compute() {
 		
 	}
 	
 	private final void completion() {
 		<%=getCompletionStatements(component)%>
+	}
+	
+	/**
+	 * Starts the execution of this object
+	 */
+	public void startExecution(){
+		timer.start();
+	}
+	
+	/**
+	 * Stops the execution of this object
+	 */
+	public void stopExcution(){
+		timer.stop();
 	}
 }

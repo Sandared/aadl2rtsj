@@ -1,16 +1,8 @@
 package de.uniaugsburg.smds.aadl2rtsj.utils;
 
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.AADL_Project_Time_Units_Milli_Seconds;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.AADL_Project_Time_Units_Nano_Seconds;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Communication_Properties;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Communication_Properties_Transmission_Type;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Communication_Properties_Transmission_Type_Push;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Dispatch_Protocol;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Thread_Properties_Priority;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Timing_Properties;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.Timing_Properties_Period;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -29,6 +21,8 @@ import org.osate.aadl2.IntegerLiteral;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.NamedValue;
 import org.osate.aadl2.PropertyExpression;
+import org.osate.aadl2.RangeValue;
+import org.osate.aadl2.RecordValue;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.FeatureInstance;
@@ -259,6 +253,28 @@ public class Utils {
 		return dispatchProtocol;
 	}
 	
+//	public static List<OffsetTime> getIOTimePlusOffsets(FeatureInstance feature){
+//		List<PropertyExpression> timeProperties = null;
+//		if(feature.getDirection().incoming())
+//			timeProperties = feature.getPropertyValues(Communication_Properties, Communication_Properties_Input_Time);
+//		else
+//			timeProperties = feature.getPropertyValues(Communication_Properties, Communication_Properties_Output_Time);
+//		List<OffsetTime> times = new ArrayList<OffsetTime>();
+//        if(timeProperties.size() > 0){
+//     	   // Input/Output_Time might be a list, so Input can be frozen multiple times during a dispatch, see AADL Standard 8.3.2 (20)
+//     	   for (PropertyExpression timeProperty : timeProperties) {
+//     		   // Input/Output_Time consists of a Time Part, which is an EnumerationLiteral and an Offset, which is a RangeValue
+//     		   NamedValue timePart = (NamedValue)((RecordValue)timeProperty).getOwnedFieldValues().get(0).getOwnedValue();
+//    		   String ioTime = ((EnumerationLiteral)timePart.getNamedValue()).getName();
+//     		   RangeValue offsetPart = (RangeValue)((RecordValue)timeProperty).getOwnedFieldValues().get(1).getOwnedValue();
+//     		   long minimumMs = (long) offsetPart.getMinimumValue().getScaledValue(AADL_Project_Time_Units_Milli_Seconds);
+//     		   long minimumNs = (long) offsetPart.getMinimumValue().getScaledValue(AADL_Project_Time_Units_Nano_Seconds) % 1000000;
+//     		   times.add(new OffsetTime(minimumMs, minimumNs, System.identityHashCode(timeProperty), ioTime));
+//     	   }
+//        }
+//        return times;
+//	}
+	
 	public static Connection getConnection(ConnectionInstance connection){
 		return connection.getConnectionReferences().get(0).getConnection();
 	}
@@ -277,5 +293,102 @@ public class Utils {
 			return false;
 		}
 		return true;
+	}
+	
+	public static String getHandlerClassName(FeatureInstance feature, OffsetTime time){
+		return getClassName(feature) + "HandlerFor" + time.getIOTime() + "Plus" + time.getMs() + "" + time.getNs() + "" + time.getUniqueId();
+	}
+	
+	
+	public static List<OffsetTime> getTimes(FeatureInstance feature, ConnectionInstance connection, final String IOReferenceTime, boolean isInput){
+		OffsetTime time = null;
+		List<OffsetTime> times = new ArrayList<OffsetTime>();
+		
+		// if immediate/delayed connections are present, then (partially) ignore Input/Output_Time
+		if(connection != null){
+			time = getTimeForConnection(feature, connection, isInput);
+			// special case: if there's a connection timing then this overwrites all other possible timings
+			if(time != null){
+				times.add(time);
+				return times;
+			}
+		}
+		
+		// if NOT immediate/delayed consider Time part of Input/Output_Time and IGNORE offset
+		if(time == null)
+			times = getTimeForReferenceTime(feature, IOReferenceTime, false, isInput);
+        
+		if(times.size() == 0){
+    	   // if there has been no Input/Output_Time on the feature, check for Input/Output_Time on thread, see AADL Standard 8.3.2 (18)
+    	   ComponentInstance component = feature.getContainingComponentInstance();
+    	   times = getTimeForReferenceTime(component, IOReferenceTime, false, isInput);
+        }
+		
+		if(times.size() == 0)
+			if(isInput)
+				//if time is still null, then default is Dispatch for Input, see AADL Standard 8.3.2 (17)). 
+				times.add(new OffsetTime(0, 0, System.identityHashCode(feature), Communication_Properties_IO_Reference_Time_Dispatch));
+			else
+				//if time is still null, then default is Completion for Output, see AADL Standard 8.3.2 (25)
+				times.add(new OffsetTime(0, 0, System.identityHashCode(feature), Communication_Properties_IO_Reference_Time_Completion));
+		return times;
+	}
+	
+	private static OffsetTime getTimeForConnection(NamedElement element, ConnectionInstance connection, boolean isInput){
+		List<PropertyExpression> timingProperties = connection.getPropertyValues(Communication_Properties, Communication_Properties_Timing);
+		OffsetTime time = null;
+		if(timingProperties.size() > 0){
+			EnumerationLiteral timingProperty = (EnumerationLiteral)((NamedValue)timingProperties.get(0)).getNamedValue();
+			String timing = timingProperty.getName(); // sampled, immediate, delayed
+			if(timing.equals(Communication_Properties_Timing_Immediate))
+				if(isInput)
+					time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Start); // see AADL Standard 9.2.5 (50)
+				else{
+					// if there is a single valued Output_Time, then take it, otherwise the time is assumed to be Completion, 
+					// see AADL Standard 9.2.5 (50)
+					List<OffsetTime> times = getTimeForReferenceTime(element, null, true, false);
+					if(times.size() == 0)
+						time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Completion); 
+				}
+			if(timing.equals(Communication_Properties_Timing_Delayed))
+				if(isInput)
+					time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Dispatch);// see AADL Standard 9.2.5 (51)
+				else
+					time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Deadline);// see AADL Standard 9.2.5 (51)
+			// sampled has no special semantic meaning for input and output timing
+		}
+		return time;
+	}
+	
+	private static List<OffsetTime> getTimeForReferenceTime(NamedElement element, final String IOReferenceTime, boolean forceSingleValued, boolean isInput){
+		ArrayList<OffsetTime> times = new ArrayList<OffsetTime>();
+		List<PropertyExpression> timeProperties = null;
+		if(isInput)
+			timeProperties = element.getPropertyValues(Communication_Properties, Communication_Properties_Input_Time);
+		else
+			timeProperties = element.getPropertyValues(Communication_Properties, Communication_Properties_Output_Time);
+		
+		OffsetTime time = null;
+		
+        if(timeProperties.size() > 0){
+        	if(forceSingleValued)
+        		if(timeProperties.size() != 1)
+        			return new ArrayList<OffsetTime>();//empty list
+     	   // Input/Output_Time might be a list, so Input can be frozen multiple times during a dispatch, see AADL Standard 8.3.2 (20)
+     	   for (PropertyExpression timeProperty : timeProperties) {
+     		   // Input/Output_Time consists of a Time Part, which is an EnumerationLiteral and an Offset, which is a RangeValue
+     		   NamedValue timePart = (NamedValue)((RecordValue)timeProperty).getOwnedFieldValues().get(0).getOwnedValue();
+     		   String ioTime = ((EnumerationLiteral)timePart.getNamedValue()).getName();
+     		   RangeValue offsetPart = (RangeValue)((RecordValue)timeProperty).getOwnedFieldValues().get(1).getOwnedValue();
+     		   long minimumMs = (long) offsetPart.getMinimumValue().getScaledValue(AADL_Project_Time_Units_Milli_Seconds);
+     		   long minimumNs = (long) offsetPart.getMinimumValue().getScaledValue(AADL_Project_Time_Units_Nano_Seconds) % 1000000;
+     		   time = new OffsetTime(minimumMs, minimumNs, System.identityHashCode(timeProperty), ioTime);
+     		   
+     		   if(IOReferenceTime == null || time.getIOTime().equals(IOReferenceTime)){
+     			  times.add(time);
+     		   }
+     	   }
+        }
+        return times;
 	}
 }
