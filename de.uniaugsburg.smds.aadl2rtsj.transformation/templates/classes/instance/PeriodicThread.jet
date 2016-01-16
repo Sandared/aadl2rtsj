@@ -1,10 +1,11 @@
 <%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="PeriodicThreadConverter" skeleton="PeriodicThread.skeleton"%>
 package <%=getPackageName(component)%>;
 
-import javax.realtime.AsyncEventHandler;
 import javax.realtime.Timer;
-import javax.realtime.PeriodicTimer;
+import javax.realtime.OneShotTimer;
 import javax.realtime.RelativeTime;
+import javax.realtime.PeriodicTimer;
+import javax.realtime.AsyncEventHandler;
 import javax.realtime.PriorityParameters;
 
 <%=getSubcomponentImportStatements(component)%>

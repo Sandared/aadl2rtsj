@@ -41,11 +41,9 @@ import org.osate.aadl2.instance.util.InstanceSwitch;
 import de.uniaugsburg.smds.aadl2rtsj.converter.DirectedConnectionConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.IOHandlerConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.InDataPortConverter;
-import de.uniaugsburg.smds.aadl2rtsj.converter.InputHandlerConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.OutDataPortConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.PeriodicThreadConverter;
 import de.uniaugsburg.smds.aadl2rtsj.utils.OffsetTime;
-import de.uniaugsburg.smds.aadl2rtsj.utils.Utils;
 
 public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	
@@ -96,10 +94,17 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 					sourceCode = new PeriodicThreadConverter().generate(object);
 					// create all handlers needed by this thread
 					for (FeatureInstance feature : object.getAllFeatureInstances()) {
-						// TODO: decide between input/output
-						// TODO: if output: consider connections
-							String handlerCode = new InputHandlerConverter().generate(object, feature, time);
-							createJavaClass(getPackageName(object), getHandlerClassName(feature, time), sourceCode, monitor, root);
+						// there will be one time if there is a immediate/delayed connection or an input connection
+						// there will be one to multiple times if it is outgoing and sampled or untyped connection, or outgoing with several connections
+						List<OffsetTime> times = getTimes(feature);
+						for (OffsetTime time : times) {
+							// only do something if there is an offset
+							if(time.getMs() != 0 || time.getNs() != 0){
+								String handlerCode = new IOHandlerConverter().generate(object, feature, time);
+								createJavaClass(getPackageName(object), getHandlerClassName(feature, time), handlerCode, monitor, root);
+							}
+							//else: this will result in a method call within PeriodicThread, not the creation of a handler
+						}
 					}
 					visitedObjects.add(object);
 					break;

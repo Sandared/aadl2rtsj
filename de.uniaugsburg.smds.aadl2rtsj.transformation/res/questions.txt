@@ -21,3 +21,5 @@ return the value 1 if the value has been updated, i.e., is fresh. If the data is
 
 data port output: 8.3.2 (29) besagt, dass bei der output zeit "start" (dispatch? -> siehe frage vorher) jederzeit daten durch Send_Output geschrieben werden können, sollten allerdings mehrere connections diese startzeit aufweisen, so kann nicht unterschieden werden welche damit gemeint ist...
 sollen dann alle connections bedient werden?
+
+Laut Standard kann Input_Time und Output_Time auf einem Thread gesetzt werden um das Verhalten aller Ports zu beeinflussen, das geht in Osate nicht?

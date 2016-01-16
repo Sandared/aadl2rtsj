@@ -10,26 +10,27 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.osate.aadl2.Classifier;
+import org.osate.aadl2.DirectionType;
 import org.osate.aadl2.instance.ConnectionInstance;
 
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
 
-public class InputHandlerConverter{	
+public class IOHandlerConverter{	
 	
   protected static String nl;
-  public static synchronized InputHandlerConverter create(String lineSeparator)
+  public static synchronized IOHandlerConverter create(String lineSeparator)
   {
     nl = lineSeparator;
-    InputHandlerConverter result = new InputHandlerConverter();
+    IOHandlerConverter result = new IOHandlerConverter();
     nl = null;
     return result;
   }
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
   protected final String TEXT_1 = "package ";
-  protected final String TEXT_2 = ";" + NL + "" + NL + "import javax.realtime.BoundAsyncEventHandler;" + NL + "import ";
+  protected final String TEXT_2 = ";" + NL + "" + NL + "import javax.realtime.PriorityParameters;" + NL + "import javax.realtime.BoundAsyncEventHandler;" + NL + "import ";
   protected final String TEXT_3 = ".";
-  protected final String TEXT_4 = ";" + NL + "" + NL + "private class ";
+  protected final String TEXT_4 = ";" + NL + "" + NL + "public class ";
   protected final String TEXT_5 = " extends BoundAsyncEventHandler{" + NL + "\tprivate ";
   protected final String TEXT_6 = " ";
   protected final String TEXT_7 = ";" + NL + "\t" + NL + "\tpublic ";
@@ -41,8 +42,14 @@ public class InputHandlerConverter{
   protected final String TEXT_13 = "));" + NL + "\t\t// TODO: AperiodicParameters for deadline/cost/misshandler/overrunhandler?" + NL + "\t}" + NL + "\t" + NL + "\t@Override" + NL + "\tpublic void handleAsyncEvent() {" + NL + "\t\t";
   protected final String TEXT_14 = NL + "\t}" + NL + "}";
 
-	private static String getIOStatement(FeatureInstance feature){
-		return new ReceiveInputStatement().generate(feature).trim();
+	private static String getIOStatement(FeatureInstance feature, OffsetTime time){
+		DirectionType direction = feature.getDirection();
+		if(direction.incoming() && !direction.outgoing())
+			return new ReceiveInputStatement().generate(feature).trim();
+		if(direction.outgoing() && !direction.incoming())
+			return new SendOutputStatement().generate(feature, time.getConnection()).trim();
+		// TODO: In Out Data port!
+		return "In Out data port must still be done";
 	}
 	/*
 	 * (non-javadoc)
@@ -77,7 +84,7 @@ public class InputHandlerConverter{
     stringBuffer.append(TEXT_12);
     stringBuffer.append(getPriority(component));
     stringBuffer.append(TEXT_13);
-    stringBuffer.append(getIOStatement(feature));
+    stringBuffer.append(getIOStatement(feature, time));
     stringBuffer.append(TEXT_14);
     return stringBuffer.toString();
   }

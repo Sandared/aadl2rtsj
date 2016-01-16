@@ -41,7 +41,7 @@ public class PeriodicThreadConverter{
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
   protected final String TEXT_1 = "package ";
-  protected final String TEXT_2 = ";" + NL + "" + NL + "import javax.realtime.AsyncEventHandler;" + NL + "import javax.realtime.Timer;" + NL + "import javax.realtime.PeriodicTimer;" + NL + "import javax.realtime.RelativeTime;" + NL + "import javax.realtime.PriorityParameters;" + NL;
+  protected final String TEXT_2 = ";" + NL + "" + NL + "import javax.realtime.Timer;" + NL + "import javax.realtime.OneShotTimer;" + NL + "import javax.realtime.RelativeTime;" + NL + "import javax.realtime.PeriodicTimer;" + NL + "import javax.realtime.AsyncEventHandler;" + NL + "import javax.realtime.PriorityParameters;" + NL;
   protected final String TEXT_3 = NL;
   protected final String TEXT_4 = NL + NL + "public class ";
   protected final String TEXT_5 = " extends AsyncEventHandler{" + NL + "\t";
@@ -178,8 +178,13 @@ public class PeriodicThreadConverter{
 					String outputAt = offsetTime.getIOTime();
 					//if outputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)
 					if(outputAt.equals(IOReferenceTime)){
-						//send output, but only for this specific connection
-						sb.append(new SendOutputStatement().generate(feature, connection));// see AADL Standard 8.3.2 (29)
+						if(offsetTime.getMs() == 0 && offsetTime.getNs() == 0)
+							//send output, but only for this specific connection via simple statement
+							sb.append(new SendOutputStatement().generate(feature, connection));// see AADL Standard 8.3.2 (29)
+						else{
+							// we need to generate a statement for handling via handler
+							sb.append(new IOViaHandlerStatement().generate(feature, offsetTime));
+						}
 					}
 				}
 			}
@@ -209,15 +214,20 @@ public class PeriodicThreadConverter{
 		
 		// determine actual timing for this feature-connection-combination
 		// as we don#t consider modes, we can take the first one
-		String inputAt = getTimes(feature, connection, IOReferenceTime, true).get(0).getIOTime();
+		OffsetTime time = getTimes(feature, connection, IOReferenceTime, true).get(0);
+		String inputAt = time.getIOTime();
 		
 		//if inputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)
 		if(inputAt.equals(IOReferenceTime)){
-			//freeze input
-			sb.append(new ReceiveInputStatement().generate(feature));// see AADL Standard 8.3.2 (21)
+			if(time.getMs() == 0 && time.getNs() == 0)
+				//freeze input via simpple statement
+				sb.append(new ReceiveInputStatement().generate(feature));// see AADL Standard 8.3.2 (21)
+			else{
+				// we need a handler statement, so that the input can be received later
+				sb.append(new IOViaHandlerStatement().generate(feature, time));
+			}
 		}
-		
-		return sb.toString();
+		return sb.toString().trim();
 	}
 	
 	private static String getConstructorParameters(ComponentInstance component){

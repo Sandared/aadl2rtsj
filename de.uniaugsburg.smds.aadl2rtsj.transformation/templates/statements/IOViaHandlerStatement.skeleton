@@ -1,0 +1,16 @@
+import org.osate.aadl2.NamedElement;
+import org.osate.aadl2.instance.FeatureInstance;
+
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+import de.uniaugsburg.smds.aadl2rtsj.utils.OffsetTime;
+
+public class CLASS{
+	/*
+	 * (non-javadoc)
+	 * 
+	 * @see IGenerator#generate(Object)
+	 */
+	public String generate(FeatureInstance feature, OffsetTime time) {
+		return "";
+	}
+}
