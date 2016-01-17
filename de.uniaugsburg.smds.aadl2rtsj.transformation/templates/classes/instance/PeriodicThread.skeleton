@@ -148,12 +148,17 @@ public class CLASS{
 					String outputAt = offsetTime.getIOTime();
 					//if outputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)
 					if(outputAt.equals(IOReferenceTime)){
-						if(offsetTime.getMs() == 0 && offsetTime.getNs() == 0)
-							//send output, but only for this specific connection via simple statement
-							sb.append(new SendOutputStatement().generate(feature, connection));// see AADL Standard 8.3.2 (29)
+						// deadline must be treated different, as it is always done by a handler
+						if(IOReferenceTime.equals(Communication_Properties_IO_Reference_Time_Deadline))
+							sb.append(new DeadlineIOViaHandlerStatement().generate(feature, offsetTime));
 						else{
-							// we need to generate a statement for handling via handler
-							sb.append(new IOViaHandlerStatement().generate(feature, offsetTime));
+							if(offsetTime.getMs() == 0 && offsetTime.getNs() == 0)
+								//send output, but only for this specific connection via simple statement
+								sb.append(new SendOutputStatement().generate(feature, connection));// see AADL Standard 8.3.2 (29)
+							else{
+								// we need to generate a statement for handling via handler
+								sb.append(new IOViaHandlerStatement().generate(feature, offsetTime));
+							}
 						}
 					}
 				}

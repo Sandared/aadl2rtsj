@@ -33,6 +33,7 @@ public class <%=getClassName(component)%> extends AsyncEventHandler{
 	
 	private final void dispatch() {
 		<%=getDispatchStatements(component)%>
+		<%=getDeadlineStatements(component)%>
 	}
 	
 	private final void start() {

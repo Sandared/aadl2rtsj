@@ -315,7 +315,7 @@ public class Utils {
 		}
 		if(direction.outgoing() && !direction.incoming()){
 			connections = feature.getSrcConnectionInstances();
-			isInput = true;
+			isInput = false;
 		}
 		for (ConnectionInstance connection : connections) {
 			times.addAll(getTimes(feature, connection, null, isInput)); // no referencetime is needed if we want all times for one feature

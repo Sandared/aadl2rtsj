@@ -98,8 +98,8 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 						// there will be one to multiple times if it is outgoing and sampled or untyped connection, or outgoing with several connections
 						List<OffsetTime> times = getTimes(feature);
 						for (OffsetTime time : times) {
-							// only do something if there is an offset
-							if(time.getMs() != 0 || time.getNs() != 0){
+							// only do something if there is an offset or if it is at deadline, at deadline we always have to use handlers
+							if(time.getIOTime().equals(Communication_Properties_IO_Reference_Time_Deadline) || (time.getMs() != 0 || time.getNs() != 0)){
 								String handlerCode = new IOHandlerConverter().generate(object, feature, time);
 								createJavaClass(getPackageName(object), getHandlerClassName(feature, time), handlerCode, monitor, root);
 							}

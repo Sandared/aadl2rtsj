@@ -53,10 +53,11 @@ public class PeriodicThreadConverter{
   protected final String TEXT_11 = ", ";
   protected final String TEXT_12 = "), this);" + NL + "\t\t";
   protected final String TEXT_13 = NL + "\t}" + NL + "\t" + NL + "\t@Override" + NL + "\tpublic void handleAsyncEvent() {" + NL + "\t\tdispatch();" + NL + "\t\tstart();" + NL + "\t\tcompute();" + NL + "\t\tcompletion();" + NL + "\t}" + NL + "\t" + NL + "\tprivate final void dispatch() {" + NL + "\t\t";
-  protected final String TEXT_14 = NL + "\t}" + NL + "\t" + NL + "\tprivate final void start() {" + NL + "\t\t";
-  protected final String TEXT_15 = NL + "\t}" + NL + "\t" + NL + "\tprivate final void compute() {" + NL + "\t\t" + NL + "\t}" + NL + "\t" + NL + "\tprivate final void completion() {" + NL + "\t\t";
-  protected final String TEXT_16 = NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * Starts the execution of this object" + NL + "\t */" + NL + "\tpublic void startExecution(){" + NL + "\t\ttimer.start();" + NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * Stops the execution of this object" + NL + "\t */" + NL + "\tpublic void stopExcution(){" + NL + "\t\ttimer.stop();" + NL + "\t}" + NL + "}";
-  protected final String TEXT_17 = NL;
+  protected final String TEXT_14 = NL + "\t\t";
+  protected final String TEXT_15 = NL + "\t}" + NL + "\t" + NL + "\tprivate final void start() {" + NL + "\t\t";
+  protected final String TEXT_16 = NL + "\t}" + NL + "\t" + NL + "\tprivate final void compute() {" + NL + "\t\t" + NL + "\t}" + NL + "\t" + NL + "\tprivate final void completion() {" + NL + "\t\t";
+  protected final String TEXT_17 = NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * Starts the execution of this object" + NL + "\t */" + NL + "\tpublic void startExecution(){" + NL + "\t\ttimer.start();" + NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * Stops the execution of this object" + NL + "\t */" + NL + "\tpublic void stopExcution(){" + NL + "\t\ttimer.stop();" + NL + "\t}" + NL + "}";
+  protected final String TEXT_18 = NL;
 
 	private static final Logger log = Logger.getLogger( PeriodicThreadConverter.class.getName() );
 	
@@ -178,12 +179,17 @@ public class PeriodicThreadConverter{
 					String outputAt = offsetTime.getIOTime();
 					//if outputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)
 					if(outputAt.equals(IOReferenceTime)){
-						if(offsetTime.getMs() == 0 && offsetTime.getNs() == 0)
-							//send output, but only for this specific connection via simple statement
-							sb.append(new SendOutputStatement().generate(feature, connection));// see AADL Standard 8.3.2 (29)
+						// deadline must be treated different, as it is always done by a handler
+						if(IOReferenceTime.equals(Communication_Properties_IO_Reference_Time_Deadline))
+							sb.append(new DeadlineIOViaHandlerStatement().generate(feature, offsetTime));
 						else{
-							// we need to generate a statement for handling via handler
-							sb.append(new IOViaHandlerStatement().generate(feature, offsetTime));
+							if(offsetTime.getMs() == 0 && offsetTime.getNs() == 0)
+								//send output, but only for this specific connection via simple statement
+								sb.append(new SendOutputStatement().generate(feature, connection));// see AADL Standard 8.3.2 (29)
+							else{
+								// we need to generate a statement for handling via handler
+								sb.append(new IOViaHandlerStatement().generate(feature, offsetTime));
+							}
 						}
 					}
 				}
@@ -302,11 +308,13 @@ public class PeriodicThreadConverter{
     stringBuffer.append(TEXT_13);
     stringBuffer.append(getDispatchStatements(component));
     stringBuffer.append(TEXT_14);
-    stringBuffer.append(getStartStatements(component));
+    stringBuffer.append(getDeadlineStatements(component));
     stringBuffer.append(TEXT_15);
-    stringBuffer.append(getCompletionStatements(component));
+    stringBuffer.append(getStartStatements(component));
     stringBuffer.append(TEXT_16);
+    stringBuffer.append(getCompletionStatements(component));
     stringBuffer.append(TEXT_17);
+    stringBuffer.append(TEXT_18);
     return stringBuffer.toString();
   }
 }
