@@ -26,6 +26,7 @@ import org.osate.aadl2.RangeValue;
 import org.osate.aadl2.RecordValue;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
+import org.osate.aadl2.instance.ConnectionInstanceEnd;
 import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
 
@@ -413,5 +414,32 @@ public class Utils {
      	   }
         }
         return times;
+	}
+	
+	public static String getConnectionType(ConnectionInstance connection){
+		ComponentInstance source = null;
+		ComponentInstance target = null;
+		ConnectionInstanceEnd sourceEnd = connection.getSource();
+		ConnectionInstanceEnd targetEnd = connection.getDestination();
+		// first check if the respective end is a feature or a component and do the necessary casting
+		if(sourceEnd instanceof FeatureInstance)
+			sourceEnd = ((FeatureInstance)sourceEnd).getComponentInstance();
+		source = (ComponentInstance)sourceEnd;
+		if(targetEnd instanceof FeatureInstance)
+			targetEnd = ((FeatureInstance)targetEnd).getComponentInstance();
+		target = (ComponentInstance) targetEnd;
+		
+		// now go through the possible cases (TODO: data might be a special case, as it can be accessed by a direct connection?)
+		if(source.getCategory().equals(ComponentCategory.THREAD) && target.getCategory().equals(ComponentCategory.THREAD))
+			return ConnectionType_Thread_To_Thread;
+		if(!source.getCategory().equals(ComponentCategory.THREAD) && target.getCategory().equals(ComponentCategory.THREAD))
+			return ConnectionType_Non_Thread_To_Thread;
+		if(source.getCategory().equals(ComponentCategory.THREAD) && !target.getCategory().equals(ComponentCategory.THREAD))
+			return ConnectionType_Thread_To_Non_Thread;
+		if(!source.getCategory().equals(ComponentCategory.THREAD) && !target.getCategory().equals(ComponentCategory.THREAD))
+			return ConnectionType_Non_Thread_To_Non_Thread;
+		
+		// 
+		return null;
 	}
 }

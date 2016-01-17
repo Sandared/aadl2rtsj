@@ -142,7 +142,12 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	
 	@Override
 	public String caseConnectionInstance(ConnectionInstance object) {
-		String sourceCode = new DirectedConnectionConverter().generate(object);
+		String connectionType = getConnectionType(object);
+		String sourceCode = null;
+		if(connectionType.equals(ConnectionType_Thread_To_Thread) || connectionType.equals(ConnectionType_Thread_To_Non_Thread))
+			sourceCode = new PassiveDirectedConnectionConverter().generate(object);
+		if(connectionType.equals(ConnectionType_Non_Thread_To_Thread) || connectionType.equals(ConnectionType_Non_Thread_To_Non_Thread))
+			sourceCode = new ActiveDirectedConnectionConverter().generate(object);
 		createJavaClass(getPackageName(object), getClassName(object), sourceCode, monitor, root);
 		visitedObjects.add(object);
 		System.out.println("AADL2RTSJInstanceSwitch.caseConnectionInstance()" + object);

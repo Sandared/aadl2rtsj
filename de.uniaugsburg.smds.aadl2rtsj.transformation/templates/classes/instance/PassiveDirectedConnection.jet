@@ -1,4 +1,4 @@
-<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="DirectedConnectionConverter" skeleton="DirectedConnection.skeleton" %>
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="PassiveDirectedConnectionConverter" skeleton="PassiveDirectedConnection.skeleton" %>
 package <%=getPackageName(connection)%>;
 
 <%=getDataTypeImportStatement(connection)%>

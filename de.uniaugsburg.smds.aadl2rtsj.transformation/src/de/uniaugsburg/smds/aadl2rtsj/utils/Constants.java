@@ -46,6 +46,14 @@ public class Constants {
 	
 	
 	public static final String Timing_Properties = "Timing_Properties";
+	
 	public static final String Timing_Properties_Period = "Period";
+	
+	
+	//the following are my own constants, none of them are in the standard
+	public static final String ConnectionType_Thread_To_Thread = "t2t";
+	public static final String ConnectionType_Thread_To_Non_Thread = "t2nt";
+	public static final String ConnectionType_Non_Thread_To_Thread = "nt2t";
+	public static final String ConnectionType_Non_Thread_To_Non_Thread = "nt2nt";
 
 }
