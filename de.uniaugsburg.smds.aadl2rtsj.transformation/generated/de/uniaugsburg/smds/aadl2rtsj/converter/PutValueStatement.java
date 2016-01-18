@@ -1,31 +1,33 @@
 package de.uniaugsburg.smds.aadl2rtsj.converter;
 
-import org.osate.aadl2.ThreadImplementation;
-
+import org.osate.aadl2.NamedElement;
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 
-import java.util.List;
-
-public class ThreadImplConverter{
-	
+public class PutValueStatement{
   protected static String nl;
-  public static synchronized ThreadImplConverter create(String lineSeparator)
+  public static synchronized PutValueStatement create(String lineSeparator)
   {
     nl = lineSeparator;
-    ThreadImplConverter result = new ThreadImplConverter();
+    PutValueStatement result = new PutValueStatement();
     nl = null;
     return result;
   }
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
+  protected final String TEXT_1 = "\t";
+  protected final String TEXT_2 = ".putValue(value);" + NL + "\t";
+
 	/*
 	 * (non-javadoc)
 	 * 
 	 * @see IGenerator#generate(Object)
 	 */
-	public String generate(ThreadImplementation component)
+	public String generate(NamedElement object)
   {
     final StringBuffer stringBuffer = new StringBuffer();
+    stringBuffer.append(TEXT_1);
+    stringBuffer.append(getObjectName(object));
+    stringBuffer.append(TEXT_2);
     return stringBuffer.toString();
   }
 }

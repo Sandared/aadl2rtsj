@@ -39,8 +39,11 @@ public class CLASS{
 	}
 	
 	private static String getNextConnectionsPutValueStatements(ConnectionInstance connection){
-		//TODO: generate put statements
-		return null;
+		StringBuilder sb = new StringBuilder();
+		for (ConnectionInstance con : getNextConnections(connection)) {
+			sb.append(new PutValueStatement().generate(con));
+		}
+		return sb.toString().trim();
 	}
 	
 	private static String getNextConnectionsImportStatements(ConnectionInstance connection){

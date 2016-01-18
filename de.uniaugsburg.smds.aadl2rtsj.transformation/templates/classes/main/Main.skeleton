@@ -1,3 +1,4 @@
+import org.osate.aadl2.ComponentCategory;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
@@ -9,8 +10,12 @@ import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class CLASS{
 	
@@ -52,12 +57,25 @@ public class CLASS{
 				componentsAndFeatures.add(object);
 		}
 		
-		// do connections first, as they have parameterless constructors
-		MainConnectionStatement connnectionStatement = new MainConnectionStatement();
+		// do passive connections first, as they have parameterless constructors
+		MainPassiveConnectionStatement connnectionStatement = new MainPassiveConnectionStatement();
+		
+		// we need to remember which connections already have been transformed into a statement, especially for active connections
+		Set<ConnectionInstance> workedConnections = new HashSet<ConnectionInstance>();
 		for (ConnectionInstance connection : connections) {
-			sb.append(connnectionStatement.generate(connection, connectionCounter));
-			names.put(connection, "connection_" + connectionCounter);
-			connectionCounter++;
+			// only do something if this connection wasn't already transformed into a statement
+			if(!workedConnections.contains(connection)){
+				boolean isActive = isActive(connection);
+				if(!isActive){
+					sb.append(connnectionStatement.generate(connection, connectionCounter));
+					names.put(connection, "connection_" + connectionCounter);
+					workedConnections.add(connection);
+					connectionCounter++;
+				}
+				else{
+					sb.append(createActiveConnection(connection, workedConnections, connectionCounter, names));
+				}
+			}
 		}
 		
 		MainFeatureStatement featureStatement = new MainFeatureStatement();
@@ -77,6 +95,60 @@ public class CLASS{
 				sb.append(componentStatement.generate((ComponentInstance)object, componentCounter, names));
 				names.put(object, "component_" + componentCounter);
 				componentCounter++;
+			}
+		}
+		return sb.toString().trim();
+	}
+	
+	private static String createActiveConnection(ConnectionInstance connection, Set<ConnectionInstance> workedConnections, long connectionCounter, Map<InstanceObject, String> names){
+		StringBuilder sb = new StringBuilder();
+		List<ConnectionInstance> successors = new ArrayList<ConnectionInstance>();
+		List<ConnectionInstance> targets = new ArrayList<ConnectionInstance>();
+		successors.add(connection);
+		// search for the target of this connection as it is active. Adds each connection in line, that is not active (has an active thread as target)
+		while(successors.size() > 0){
+			ConnectionInstance currentConnection = successors.remove(0);// get the leading element
+			boolean isActive = isActive(currentConnection);
+			if(!isActive)
+				// we have found a target connection
+				targets.add(currentConnection);
+			else{
+				// add the successor connections for the target of the current connection
+				successors.addAll(currentConnection.getDestination().getSrcConnectionInstances());
+			}
+		}
+		
+		// first generate all found passive target connections
+		MainPassiveConnectionStatement passiveConnnectionStatement = new MainPassiveConnectionStatement();
+		for (ConnectionInstance target : targets) {
+			// but only if it has not already been generated
+			if(!workedConnections.contains(target)){
+				sb.append(passiveConnnectionStatement.generate(target, connectionCounter));
+				names.put(target, "connection_" + connectionCounter);
+				workedConnections.add(target);
+				connectionCounter++;
+			}
+		}
+		
+		// now take the targets as starting point to reverse-generate the statements for the active connections
+		MainActiveConnectionStatement activeConnectionStatement = new MainActiveConnectionStatement();
+		for (ConnectionInstance target : targets) {
+			// dataports only have one ingoing connection per mode and we don't consider modes at the moment
+			ConnectionInstance predecessor = target.getSource().getDstConnectionInstances().get(0);
+			while(predecessor != null){
+				// only generate if it has not already been generated
+				if(!workedConnections.contains(predecessor)){
+					sb.append(activeConnectionStatement.generate(connection, connectionCounter, names));
+					names.put(target, "connection_" + connectionCounter);
+					workedConnections.add(target);
+					connectionCounter++;
+				}
+				
+				List<ConnectionInstance> predecessors = predecessor.getSource().getDstConnectionInstances();
+				if(predecessors != null && predecessors.size() > 0)
+					predecessor = predecessors.get(0);
+				else
+					predecessor = null;
 			}
 		}
 		return sb.toString().trim();

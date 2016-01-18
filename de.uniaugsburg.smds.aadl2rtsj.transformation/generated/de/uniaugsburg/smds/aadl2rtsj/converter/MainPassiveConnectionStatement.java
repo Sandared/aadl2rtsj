@@ -6,12 +6,12 @@ import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
 
 import java.util.Map;
 
-public class MainConnectionStatement{
+public class MainPassiveConnectionStatement{
   protected static String nl;
-  public static synchronized MainConnectionStatement create(String lineSeparator)
+  public static synchronized MainPassiveConnectionStatement create(String lineSeparator)
   {
     nl = lineSeparator;
-    MainConnectionStatement result = new MainConnectionStatement();
+    MainPassiveConnectionStatement result = new MainPassiveConnectionStatement();
     nl = null;
     return result;
   }

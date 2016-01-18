@@ -1,6 +1,7 @@
 package de.uniaugsburg.smds.aadl2rtsj.utils;
 
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.getConnectionType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,9 @@ import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.ConnectionInstanceEnd;
 import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
+
+import de.uniaugsburg.smds.aadl2rtsj.converter.ActiveDirectedConnectionConverter;
+import de.uniaugsburg.smds.aadl2rtsj.converter.PassiveDirectedConnectionConverter;
 
 public class Utils {
 	private static final Logger log = Logger.getLogger( Utils.class.getName() );
@@ -170,6 +174,7 @@ public class Utils {
 	}
 	
 	private static String getNameSpace(Classifier classifier){
+		// FIXME: if no datatype was explicitly defined for a data port a null pointer is thrown here
 		StringBuffer namespace = new StringBuffer(classifier.getNamespace().getFullName());
 		int visibilityPos;
 		if((visibilityPos = namespace.indexOf("_public")) != -1)
@@ -441,5 +446,18 @@ public class Utils {
 		
 		// 
 		return null;
+	}
+	
+	
+	public static boolean isActive(ConnectionInstance connection){
+		String connectionType = getConnectionType(connection);
+		boolean isActive = false;
+		// passive directed connection if the next component in line is a thread, which reads actively from this connection
+		if(connectionType.equals(ConnectionType_Thread_To_Thread) || connectionType.equals(ConnectionType_Non_Thread_To_Thread))
+			isActive = false;
+		// active directed connection if the next component in line is a non_thread, which does not read actively from this connection
+		if(connectionType.equals(ConnectionType_Thread_To_Non_Thread) || connectionType.equals(ConnectionType_Non_Thread_To_Non_Thread))
+			isActive = true;
+		return isActive;
 	}
 }
