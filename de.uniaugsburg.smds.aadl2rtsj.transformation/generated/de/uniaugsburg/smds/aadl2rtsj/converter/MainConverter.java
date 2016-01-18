@@ -31,21 +31,19 @@ public class MainConverter{
   }
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
-  protected final String TEXT_1 = "package main;" + NL;
-  protected final String TEXT_2 = NL;
-  protected final String TEXT_3 = NL + NL + "public class Main{" + NL + "\t" + NL + "\tpublic static void main(String[] args){" + NL + "\t\t";
-  protected final String TEXT_4 = NL + "\t}" + NL + "}";
+  protected final String TEXT_1 = "package main;" + NL + "" + NL + "public class Main{" + NL + "\t" + NL + "\tpublic static void main(String[] args){" + NL + "\t\t";
+  protected final String TEXT_2 = NL + "\t}" + NL + "}";
 
-	private static String getImportStatements(List<InstanceObject> objects){
-		StringBuilder sb = new StringBuilder();
-		if(objects.size() != 0){
-			ImportStatement statement = new ImportStatement();
-			for (InstanceObject object : objects) {
-				sb.append(statement.generate(object));
-			}
-		}
-		return sb.toString().trim();
-	}
+//	private static String getImportStatements(List<InstanceObject> objects){
+//		StringBuilder sb = new StringBuilder();
+//		if(objects.size() != 0){
+//			ImportStatement statement = new ImportStatement();
+//			for (InstanceObject object : objects) {
+//				sb.append(statement.generate(object));
+//			}
+//		}
+//		return sb.toString().trim();
+//	}
 	
 	private static String getAssignmentStatements(List<InstanceObject> objects){
 		StringBuilder sb = new StringBuilder();
@@ -80,19 +78,20 @@ public class MainConverter{
 		// we need to remember which connections already have been transformed into a statement, especially for active connections
 		Set<ConnectionInstance> workedConnections = new HashSet<ConnectionInstance>();
 		for (ConnectionInstance connection : connections) {
+			sb.append(connnectionStatement.generate(connection, connectionCounter));
+			names.put(connection, "connection_" + connectionCounter);
+			workedConnections.add(connection);
+			connectionCounter++;
 			// only do something if this connection wasn't already transformed into a statement
-			if(!workedConnections.contains(connection)){
-				boolean isActive = isActive(connection);
-				if(!isActive){
-					sb.append(connnectionStatement.generate(connection, connectionCounter));
-					names.put(connection, "connection_" + connectionCounter);
-					workedConnections.add(connection);
-					connectionCounter++;
-				}
-				else{
-					sb.append(createActiveConnection(connection, workedConnections, connectionCounter, names));
-				}
-			}
+//			if(!workedConnections.contains(connection)){
+//				boolean isActive = isActive(connection);
+//				if(!isActive){
+//					
+//				}
+//				else{
+//					sb.append(createActiveConnection(connection, workedConnections, connectionCounter, names));
+//				}
+//			}
 		}
 		
 		MainFeatureStatement featureStatement = new MainFeatureStatement();
@@ -180,11 +179,8 @@ public class MainConverter{
   {
     final StringBuffer stringBuffer = new StringBuffer();
     stringBuffer.append(TEXT_1);
-    stringBuffer.append(TEXT_2);
-    stringBuffer.append(getImportStatements(objects));
-    stringBuffer.append(TEXT_3);
     stringBuffer.append(getAssignmentStatements(objects));
-    stringBuffer.append(TEXT_4);
+    stringBuffer.append(TEXT_2);
     return stringBuffer.toString();
   }
 }

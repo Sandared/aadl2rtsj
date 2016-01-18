@@ -19,16 +19,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class CLASS{
 	
-	private static String getImportStatements(List<InstanceObject> objects){
-		StringBuilder sb = new StringBuilder();
-		if(objects.size() != 0){
-			ImportStatement statement = new ImportStatement();
-			for (InstanceObject object : objects) {
-				sb.append(statement.generate(object));
-			}
-		}
-		return sb.toString().trim();
-	}
+//	private static String getImportStatements(List<InstanceObject> objects){
+//		StringBuilder sb = new StringBuilder();
+//		if(objects.size() != 0){
+//			ImportStatement statement = new ImportStatement();
+//			for (InstanceObject object : objects) {
+//				sb.append(statement.generate(object));
+//			}
+//		}
+//		return sb.toString().trim();
+//	}
 	
 	private static String getAssignmentStatements(List<InstanceObject> objects){
 		StringBuilder sb = new StringBuilder();
@@ -63,19 +63,20 @@ public class CLASS{
 		// we need to remember which connections already have been transformed into a statement, especially for active connections
 		Set<ConnectionInstance> workedConnections = new HashSet<ConnectionInstance>();
 		for (ConnectionInstance connection : connections) {
+			sb.append(connnectionStatement.generate(connection, connectionCounter));
+			names.put(connection, "connection_" + connectionCounter);
+			workedConnections.add(connection);
+			connectionCounter++;
 			// only do something if this connection wasn't already transformed into a statement
-			if(!workedConnections.contains(connection)){
-				boolean isActive = isActive(connection);
-				if(!isActive){
-					sb.append(connnectionStatement.generate(connection, connectionCounter));
-					names.put(connection, "connection_" + connectionCounter);
-					workedConnections.add(connection);
-					connectionCounter++;
-				}
-				else{
-					sb.append(createActiveConnection(connection, workedConnections, connectionCounter, names));
-				}
-			}
+//			if(!workedConnections.contains(connection)){
+//				boolean isActive = isActive(connection);
+//				if(!isActive){
+//					
+//				}
+//				else{
+//					sb.append(createActiveConnection(connection, workedConnections, connectionCounter, names));
+//				}
+//			}
 		}
 		
 		MainFeatureStatement featureStatement = new MainFeatureStatement();

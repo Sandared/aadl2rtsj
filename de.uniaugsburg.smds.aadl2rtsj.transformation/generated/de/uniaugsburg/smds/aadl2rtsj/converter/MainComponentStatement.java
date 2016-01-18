@@ -22,11 +22,13 @@ public class MainComponentStatement{
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
   protected final String TEXT_1 = "\t\t";
-  protected final String TEXT_2 = " component_";
-  protected final String TEXT_3 = " = new ";
-  protected final String TEXT_4 = "(";
-  protected final String TEXT_5 = ");";
-  protected final String TEXT_6 = NL;
+  protected final String TEXT_2 = ".";
+  protected final String TEXT_3 = " component_";
+  protected final String TEXT_4 = " = new ";
+  protected final String TEXT_5 = ".";
+  protected final String TEXT_6 = "(";
+  protected final String TEXT_7 = ");";
+  protected final String TEXT_8 = NL;
 
 	private static String getParameters(ComponentInstance object, Map<InstanceObject, String> names){
 		StringBuilder sb = new StringBuilder();
@@ -60,15 +62,19 @@ public class MainComponentStatement{
   {
     final StringBuffer stringBuffer = new StringBuffer();
     stringBuffer.append(TEXT_1);
-    stringBuffer.append(getClassName(object));
+    stringBuffer.append(getPackageName(object));
     stringBuffer.append(TEXT_2);
-    stringBuffer.append(counter);
-    stringBuffer.append(TEXT_3);
     stringBuffer.append(getClassName(object));
+    stringBuffer.append(TEXT_3);
+    stringBuffer.append(counter);
     stringBuffer.append(TEXT_4);
-    stringBuffer.append(getParameters(object, names));
+    stringBuffer.append(getPackageName(object));
     stringBuffer.append(TEXT_5);
+    stringBuffer.append(getClassName(object));
     stringBuffer.append(TEXT_6);
+    stringBuffer.append(getParameters(object, names));
+    stringBuffer.append(TEXT_7);
+    stringBuffer.append(TEXT_8);
     return stringBuffer.toString();
   }
 }

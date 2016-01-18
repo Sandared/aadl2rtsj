@@ -175,7 +175,6 @@ public class Utils {
 	}
 	
 	private static String getNameSpace(Classifier classifier){
-		// FIXME: if no datatype was explicitly defined for a data port a null pointer is thrown here
 		StringBuffer namespace = new StringBuffer(classifier.getNamespace().getFullName());
 		int visibilityPos;
 		if((visibilityPos = namespace.indexOf("_public")) != -1)

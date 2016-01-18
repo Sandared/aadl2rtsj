@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.ClassifierFeature;
+import org.osate.aadl2.ComponentCategory;
 import org.osate.aadl2.DirectionType;
 import org.osate.aadl2.Element;
 import org.osate.aadl2.Mode;
@@ -187,20 +188,23 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 		String sourceCode = null;
 		switch (object.getCategory()) {
 		case DATA_PORT:
-			// store classifier for datatype generation
-			Classifier classifier = object.getFeature().getClassifier();
-			if(classifier != null)
-				usedClassifier.add(classifier);
-			
-			DirectionType direction = object.getDirection();
-			// in port
-			if(direction.incoming() && !direction.outgoing())
-				sourceCode = new InDataPortConverter().generate(object);
-			// out port
-			if(!direction.incoming() && direction.outgoing())
-				sourceCode = new OutDataPortConverter().generate(object);
-			//TODO: in out port
-			visitedObjects.add(object);
+			//currently it doesn't make sense to generate data ports for components other than threads
+			if(object.getComponentInstance().getCategory().equals(ComponentCategory.THREAD)){
+				// store classifier for datatype generation
+				Classifier classifier = object.getFeature().getClassifier();
+				if(classifier != null)
+					usedClassifier.add(classifier);
+				
+				DirectionType direction = object.getDirection();
+				// in port
+				if(direction.incoming() && !direction.outgoing())
+					sourceCode = new InDataPortConverter().generate(object);
+				// out port
+				if(!direction.incoming() && direction.outgoing())
+					sourceCode = new OutDataPortConverter().generate(object);
+				//TODO: in out port
+				visitedObjects.add(object);
+			}
 			break;
 
 		default:

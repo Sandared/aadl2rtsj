@@ -38,7 +38,7 @@ public class PassiveDirectedConnectionConverter{
 		FeatureInstance feature = (FeatureInstance) connection.getSource();
 		Classifier classifier = feature.getFeature().getClassifier();
 		// if it is a base type, then we don't have to import anything, as Integer, Boolean etc are part of java.lang
-		if(isBaseType(classifier))
+		if(classifier == null || isBaseType(classifier))
 			return "";
 		return new ImportStatement().generate(classifier);
 	}
