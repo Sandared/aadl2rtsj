@@ -1,7 +1,6 @@
 package de.uniaugsburg.smds.aadl2rtsj.utils;
 
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
-import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.getConnectionType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +27,10 @@ import org.osate.aadl2.RecordValue;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.ConnectionInstanceEnd;
+import org.osate.aadl2.instance.ConnectionReference;
 import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
 
-import de.uniaugsburg.smds.aadl2rtsj.converter.ActiveDirectedConnectionConverter;
-import de.uniaugsburg.smds.aadl2rtsj.converter.PassiveDirectedConnectionConverter;
 
 public class Utils {
 	private static final Logger log = Logger.getLogger( Utils.class.getName() );
@@ -122,6 +120,9 @@ public class Utils {
 		}
 		
 		int pkgEnd = buffer.indexOf(".");
+		// if the buffer is already the package
+		if(pkgEnd == -1)
+			pkgEnd = buffer.length();
 		StringBuffer pkg = new StringBuffer(buffer.substring(0, pkgEnd));//get the part that represents the package
 		buffer.delete(0, pkgEnd); // remove the part that represents the package
 		
@@ -260,30 +261,20 @@ public class Utils {
 		return dispatchProtocol;
 	}
 	
-//	public static List<OffsetTime> getIOTimePlusOffsets(FeatureInstance feature){
-//		List<PropertyExpression> timeProperties = null;
-//		if(feature.getDirection().incoming())
-//			timeProperties = feature.getPropertyValues(Communication_Properties, Communication_Properties_Input_Time);
-//		else
-//			timeProperties = feature.getPropertyValues(Communication_Properties, Communication_Properties_Output_Time);
-//		List<OffsetTime> times = new ArrayList<OffsetTime>();
-//        if(timeProperties.size() > 0){
-//     	   // Input/Output_Time might be a list, so Input can be frozen multiple times during a dispatch, see AADL Standard 8.3.2 (20)
-//     	   for (PropertyExpression timeProperty : timeProperties) {
-//     		   // Input/Output_Time consists of a Time Part, which is an EnumerationLiteral and an Offset, which is a RangeValue
-//     		   NamedValue timePart = (NamedValue)((RecordValue)timeProperty).getOwnedFieldValues().get(0).getOwnedValue();
-//    		   String ioTime = ((EnumerationLiteral)timePart.getNamedValue()).getName();
-//     		   RangeValue offsetPart = (RangeValue)((RecordValue)timeProperty).getOwnedFieldValues().get(1).getOwnedValue();
-//     		   long minimumMs = (long) offsetPart.getMinimumValue().getScaledValue(AADL_Project_Time_Units_Milli_Seconds);
-//     		   long minimumNs = (long) offsetPart.getMinimumValue().getScaledValue(AADL_Project_Time_Units_Nano_Seconds) % 1000000;
-//     		   times.add(new OffsetTime(minimumMs, minimumNs, System.identityHashCode(timeProperty), ioTime));
-//     	   }
-//        }
-//        return times;
-//	}
-	
+	// if there are multiple connectionreferences, then the one upmost in the system hierarchy is returned
 	public static Connection getConnection(ConnectionInstance connection){
-		return connection.getConnectionReferences().get(0).getConnection();
+		ConnectionReference upmost = connection.getConnectionReferences().get(0);
+		for (ConnectionReference current: connection.getConnectionReferences()) {
+			if(!current.equals(upmost)){
+				ComponentInstance currentContext = current.getContext();
+				ComponentInstance upmostContext = upmost.getContext();
+				if(currentContext.getAllComponentInstances().contains(upmostContext))
+					upmost = current;
+				else
+					break;
+			}
+		}
+		return upmost.getConnection();
 	}
 	
 	public static boolean createJavaClass(String packageName, String className, String sourceCode, IProgressMonitor monitor, IPackageFragmentRoot root) {
