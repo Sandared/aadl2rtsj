@@ -15,9 +15,10 @@ public class SynchronisationNotifyStatement{
   }
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
-  protected final String TEXT_1 = "\t\t";
-  protected final String TEXT_2 = ".notifyAll();";
-  protected final String TEXT_3 = NL;
+  protected final String TEXT_1 = "\t\tsynchronized(";
+  protected final String TEXT_2 = "){" + NL + "\t\t\t";
+  protected final String TEXT_3 = ".notifyAll();" + NL + "\t\t}";
+  protected final String TEXT_4 = NL;
 
 	/*
 	 * (non-javadoc)
@@ -30,7 +31,9 @@ public class SynchronisationNotifyStatement{
     stringBuffer.append(TEXT_1);
     stringBuffer.append(getSynchronisationObjectName(connection));
     stringBuffer.append(TEXT_2);
+    stringBuffer.append(getSynchronisationObjectName(connection));
     stringBuffer.append(TEXT_3);
+    stringBuffer.append(TEXT_4);
     return stringBuffer.toString();
   }
 }

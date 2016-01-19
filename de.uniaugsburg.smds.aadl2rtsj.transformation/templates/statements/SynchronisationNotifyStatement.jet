@@ -1,2 +1,4 @@
 <%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="SynchronisationNotifyStatement" skeleton="SynchronisationObject.skeleton" %>
-		<%=getSynchronisationObjectName(connection)%>.notifyAll();
+		synchronized(<%=getSynchronisationObjectName(connection)%>){
+			<%=getSynchronisationObjectName(connection)%>.notifyAll();
+		}

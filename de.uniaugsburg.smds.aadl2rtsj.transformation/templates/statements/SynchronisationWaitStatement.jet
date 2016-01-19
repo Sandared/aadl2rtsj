@@ -1,6 +1,8 @@
 <%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="SynchronisationWaitStatement" skeleton="SynchronisationObject.skeleton" %>
-		try{
-			<%=getSynchronisationObjectName(connection)%>.wait();
-		}catch(InterruptedException e){
-			e.printStackTrace();
+		synchronized(<%=getSynchronisationObjectName(connection)%>){
+			try{
+				<%=getSynchronisationObjectName(connection)%>.wait();
+			}catch(InterruptedException e){
+				e.printStackTrace();
+			}
 		}
