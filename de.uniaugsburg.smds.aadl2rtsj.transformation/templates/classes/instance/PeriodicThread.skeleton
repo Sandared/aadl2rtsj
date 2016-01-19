@@ -220,6 +220,11 @@ public class CLASS{
 		for (ComponentInstance subcomponent : subcomponents) {
 			sb.append(statement.generate(subcomponent));
 		}
+		// consider possible synchronisationobjects
+		ConnectionInstance connection = getImmediateConnection(component);
+		if(connection != null){			
+			sb.append(new SynchronisationObjectMethodParameterStatement().generate(connection));
+		}
 		// delete pending commata ", "
 		sb.delete(sb.length()-2, sb.length());
 		return sb.toString().trim();
@@ -239,6 +244,31 @@ public class CLASS{
 		//for each subcomponent we have to create a Parameter
 		for (ComponentInstance subcomponent : subcomponents) {
 			sb.append(statement.generate(subcomponent));
+		}
+		// consider possible synchronisationobjects
+		ConnectionInstance connection = getImmediateConnection(component);
+		if(connection != null){
+			sb.append(new SynchronisationObjectConstructorAssignmentStatement().generate(connection));
+		}
+		return sb.toString().trim();
+	}
+	
+	private static String getWaitStatement(ComponentInstance component){
+		StringBuilder sb = new StringBuilder();
+		ConnectionInstance connection = getImmediateConnection(component);
+		if(connection != null){
+			//we do this only if we are the target, which has to wait
+			if(connection.getDestination().getComponentInstance().equals(component))
+				sb.append(new SynchronisationWaitStatement().generate(connection));
+		}
+		return sb.toString().trim();
+	}
+	
+	private static String getSynchronisationObjectMemberStatement(ComponentInstance component){
+		StringBuilder sb = new StringBuilder();
+		ConnectionInstance connection = getImmediateConnection(component);
+		if(connection != null){
+			sb.append(new SynchronisationObjectDeclarationMemberStatement().generate(connection));
 		}
 		return sb.toString().trim();
 	}

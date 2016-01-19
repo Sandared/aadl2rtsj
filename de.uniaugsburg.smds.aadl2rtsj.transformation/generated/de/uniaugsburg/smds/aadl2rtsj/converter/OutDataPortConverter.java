@@ -59,6 +59,9 @@ public class OutDataPortConverter{
 		//for all connections we have to create an import statement
 		for (ConnectionInstance connection : feature.getSrcConnectionInstances()) {
 			sb.append(new DeclarationMemberStatement().generate(connection));
+			//consider synchronisationObjects
+			if(getTiming(connection).equals(Communication_Properties_Timing_Immediate))
+				sb.append(new SynchronisationObjectDeclarationMemberStatement().generate(connection));
 		}
 		return sb.toString().trim();
 	}
@@ -79,6 +82,10 @@ public class OutDataPortConverter{
 			StringBuilder sb = new StringBuilder();
 			for(ConnectionInstance connection : connections){
 				sb.append(new MethodParameterStatement().generate(connection));
+				
+				//consider synchronisationObjects
+				if(getTiming(connection).equals(Communication_Properties_Timing_Immediate))
+					sb.append(new SynchronisationObjectMethodParameterStatement().generate(connection));
 			}
 			// delete pending commata ", "
 			sb.delete(sb.length()-2, sb.length());
@@ -94,6 +101,10 @@ public class OutDataPortConverter{
 			StringBuilder sb = new StringBuilder();
 			for(ConnectionInstance connection : connections){
 				sb.append(new ConstructorAssignmentStatement().generate(connection));
+				
+				//consider synchronisationObjects
+				if(getTiming(connection).equals(Communication_Properties_Timing_Immediate))
+					sb.append(new SynchronisationObjectConstructorAssignmentStatement().generate(connection));
 			}
 			return sb.toString().trim();
 		}

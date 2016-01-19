@@ -41,23 +41,27 @@ public class PeriodicThreadConverter{
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
   protected final String TEXT_1 = "package ";
-  protected final String TEXT_2 = ";" + NL + "" + NL + "import javax.realtime.Timer;" + NL + "import javax.realtime.OneShotTimer;" + NL + "import javax.realtime.RelativeTime;" + NL + "import javax.realtime.PeriodicTimer;" + NL + "import javax.realtime.AsyncEventHandler;" + NL + "import javax.realtime.PriorityParameters;" + NL;
+  protected final String TEXT_2 = ";" + NL + "" + NL + "import javax.realtime.Timer;" + NL + "import javax.realtime.OneShotTimer;" + NL + "import javax.realtime.RelativeTime;" + NL + "import javax.realtime.PeriodicTimer;" + NL + "import javax.realtime.AsyncEventHandler;" + NL + "import javax.realtime.PriorityParameters;";
   protected final String TEXT_3 = NL;
-  protected final String TEXT_4 = NL + NL + "public class ";
+  protected final String TEXT_4 = NL + "public class ";
   protected final String TEXT_5 = " extends AsyncEventHandler{" + NL + "\t";
   protected final String TEXT_6 = NL + "\t";
-  protected final String TEXT_7 = NL + "\t" + NL + "\tprivate Timer timer;" + NL + "\t" + NL + "\tpublic ";
-  protected final String TEXT_8 = "(";
-  protected final String TEXT_9 = "){" + NL + "\t\tsuper();" + NL + "\t\tsetSchedulingParametersIfFeasible(new PriorityParameters(";
-  protected final String TEXT_10 = "));" + NL + "\t\ttimer = new PeriodicTimer(new RelativeTime(), new RelativeTime(";
-  protected final String TEXT_11 = ", ";
-  protected final String TEXT_12 = "), this);" + NL + "\t\t";
-  protected final String TEXT_13 = NL + "\t}" + NL + "\t" + NL + "\t@Override" + NL + "\tpublic void handleAsyncEvent() {" + NL + "\t\tdispatch();" + NL + "\t\tstart();" + NL + "\t\tcompute();" + NL + "\t\tcompletion();" + NL + "\t}" + NL + "\t" + NL + "\tprivate final void dispatch() {" + NL + "\t\t";
-  protected final String TEXT_14 = NL + "\t\t";
-  protected final String TEXT_15 = NL + "\t}" + NL + "\t" + NL + "\tprivate final void start() {" + NL + "\t\t";
-  protected final String TEXT_16 = NL + "\t}" + NL + "\t" + NL + "\tprivate final void compute() {" + NL + "\t\t" + NL + "\t}" + NL + "\t" + NL + "\tprivate final void completion() {" + NL + "\t\t";
-  protected final String TEXT_17 = NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * Starts the execution of this object" + NL + "\t */" + NL + "\tpublic void startExecution(){" + NL + "\t\ttimer.start();" + NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * Stops the execution of this object" + NL + "\t */" + NL + "\tpublic void stopExcution(){" + NL + "\t\ttimer.stop();" + NL + "\t}" + NL + "}";
-  protected final String TEXT_18 = NL;
+  protected final String TEXT_7 = NL + "\t";
+  protected final String TEXT_8 = NL + "\tprivate Timer timer;" + NL + "\t" + NL + "\tpublic ";
+  protected final String TEXT_9 = "(";
+  protected final String TEXT_10 = "){" + NL + "\t\tsuper();" + NL + "\t\tsetDaemon(false);" + NL + "\t\tsetSchedulingParametersIfFeasible(new PriorityParameters(";
+  protected final String TEXT_11 = "));" + NL + "\t\ttimer = new PeriodicTimer(new RelativeTime(), new RelativeTime(";
+  protected final String TEXT_12 = ", ";
+  protected final String TEXT_13 = "), this);" + NL + "\t\t";
+  protected final String TEXT_14 = NL + "\t}" + NL + "\t" + NL + "\t@Override" + NL + "\tpublic void handleAsyncEvent() {" + NL + "\t\t";
+  protected final String TEXT_15 = NL + "\t\tdispatch();" + NL + "\t\tstart();" + NL + "\t\tcompute();" + NL + "\t\tcompletion();" + NL + "\t}" + NL + "\t" + NL + "\tprivate final void dispatch() {" + NL + "\t\t";
+  protected final String TEXT_16 = NL + "\t\t";
+  protected final String TEXT_17 = NL + "\t}" + NL + "\t" + NL + "\tprivate final void start() {" + NL + "\t\t";
+  protected final String TEXT_18 = NL + "\t}" + NL + "\t" + NL + "\tprivate final void compute() {" + NL + "\t\tSystem.out.println(\"";
+  protected final String TEXT_19 = ".";
+  protected final String TEXT_20 = ".compute()\");" + NL + "\t}" + NL + "\t" + NL + "\tprivate final void completion() {" + NL + "\t\t";
+  protected final String TEXT_21 = NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * Starts the execution of this object" + NL + "\t */" + NL + "\tpublic void startExecution(){" + NL + "\t\ttimer.start();" + NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * Stops the execution of this object" + NL + "\t */" + NL + "\tpublic void stopExcution(){" + NL + "\t\ttimer.stop();" + NL + "\t}" + NL + "}";
+  protected final String TEXT_22 = NL;
 
 	private static final Logger log = Logger.getLogger( PeriodicThreadConverter.class.getName() );
 	
@@ -251,6 +255,11 @@ public class PeriodicThreadConverter{
 		for (ComponentInstance subcomponent : subcomponents) {
 			sb.append(statement.generate(subcomponent));
 		}
+		// consider possible synchronisationobjects
+		ConnectionInstance connection = getImmediateConnection(component);
+		if(connection != null){			
+			sb.append(new SynchronisationObjectMethodParameterStatement().generate(connection));
+		}
 		// delete pending commata ", "
 		sb.delete(sb.length()-2, sb.length());
 		return sb.toString().trim();
@@ -270,6 +279,31 @@ public class PeriodicThreadConverter{
 		//for each subcomponent we have to create a Parameter
 		for (ComponentInstance subcomponent : subcomponents) {
 			sb.append(statement.generate(subcomponent));
+		}
+		// consider possible synchronisationobjects
+		ConnectionInstance connection = getImmediateConnection(component);
+		if(connection != null){
+			sb.append(new SynchronisationObjectConstructorAssignmentStatement().generate(connection));
+		}
+		return sb.toString().trim();
+	}
+	
+	private static String getWaitStatement(ComponentInstance component){
+		StringBuilder sb = new StringBuilder();
+		ConnectionInstance connection = getImmediateConnection(component);
+		if(connection != null){
+			//we do this only if we are the target, which has to wait
+			if(connection.getDestination().getComponentInstance().equals(component))
+				sb.append(new SynchronisationWaitStatement().generate(connection));
+		}
+		return sb.toString().trim();
+	}
+	
+	private static String getSynchronisationObjectMemberStatement(ComponentInstance component){
+		StringBuilder sb = new StringBuilder();
+		ConnectionInstance connection = getImmediateConnection(component);
+		if(connection != null){
+			sb.append(new SynchronisationObjectDeclarationMemberStatement().generate(connection));
 		}
 		return sb.toString().trim();
 	}
@@ -294,27 +328,35 @@ public class PeriodicThreadConverter{
     stringBuffer.append(TEXT_6);
     stringBuffer.append(getFeatureMemberStatements(component));
     stringBuffer.append(TEXT_7);
-    stringBuffer.append(getClassName(component));
+    stringBuffer.append(getSynchronisationObjectMemberStatement(component));
     stringBuffer.append(TEXT_8);
-    stringBuffer.append(getConstructorParameters(component));
+    stringBuffer.append(getClassName(component));
     stringBuffer.append(TEXT_9);
-    stringBuffer.append(getPriority(component));
+    stringBuffer.append(getConstructorParameters(component));
     stringBuffer.append(TEXT_10);
-    stringBuffer.append(getPeriodMilliSeconds(component));
+    stringBuffer.append(getPriority(component));
     stringBuffer.append(TEXT_11);
-    stringBuffer.append(getPeriodNanoSeconds(component));
+    stringBuffer.append(getPeriodMilliSeconds(component));
     stringBuffer.append(TEXT_12);
-    stringBuffer.append(getConstructorMemberAssignments(component));
+    stringBuffer.append(getPeriodNanoSeconds(component));
     stringBuffer.append(TEXT_13);
-    stringBuffer.append(getDispatchStatements(component));
+    stringBuffer.append(getConstructorMemberAssignments(component));
     stringBuffer.append(TEXT_14);
-    stringBuffer.append(getDeadlineStatements(component));
+    stringBuffer.append(getWaitStatement(component));
     stringBuffer.append(TEXT_15);
-    stringBuffer.append(getStartStatements(component));
+    stringBuffer.append(getDispatchStatements(component));
     stringBuffer.append(TEXT_16);
-    stringBuffer.append(getCompletionStatements(component));
+    stringBuffer.append(getDeadlineStatements(component));
     stringBuffer.append(TEXT_17);
+    stringBuffer.append(getStartStatements(component));
     stringBuffer.append(TEXT_18);
+    stringBuffer.append(getPackageName(component));
+    stringBuffer.append(TEXT_19);
+    stringBuffer.append(getClassName(component));
+    stringBuffer.append(TEXT_20);
+    stringBuffer.append(getCompletionStatements(component));
+    stringBuffer.append(TEXT_21);
+    stringBuffer.append(TEXT_22);
     return stringBuffer.toString();
   }
 }

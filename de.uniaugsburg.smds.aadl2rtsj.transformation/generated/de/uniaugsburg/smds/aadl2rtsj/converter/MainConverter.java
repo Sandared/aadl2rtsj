@@ -8,6 +8,7 @@ import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
 
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,21 +35,11 @@ public class MainConverter{
   protected final String TEXT_1 = "package main;" + NL + "" + NL + "public class Main{" + NL + "\t" + NL + "\tpublic static void main(String[] args){" + NL + "\t\t";
   protected final String TEXT_2 = NL + "\t}" + NL + "}";
 
-//	private static String getImportStatements(List<InstanceObject> objects){
-//		StringBuilder sb = new StringBuilder();
-//		if(objects.size() != 0){
-//			ImportStatement statement = new ImportStatement();
-//			for (InstanceObject object : objects) {
-//				sb.append(statement.generate(object));
-//			}
-//		}
-//		return sb.toString().trim();
-//	}
-	
 	private static String getAssignmentStatements(List<InstanceObject> objects){
 		StringBuilder sb = new StringBuilder();
 		List<ConnectionInstance> connections = new ArrayList<ConnectionInstance>();
 		List<InstanceObject> componentsAndFeatures = new ArrayList<InstanceObject>();
+		List<ComponentInstance> threads = new ArrayList<ComponentInstance>();
 		
 		// we need to give each object a unique name
 		// as full qualified names might be unreadable, we just name them connection_X, feature_X, component_X
@@ -72,26 +63,17 @@ public class MainConverter{
 				componentsAndFeatures.add(object);
 		}
 		
-		// do passive connections first, as they have parameterless constructors
-		MainPassiveConnectionStatement connnectionStatement = new MainPassiveConnectionStatement();
+		// do connections first, as they have parameterless constructors
+		MainConnectionStatement connnectionStatement = new MainConnectionStatement();
+		MainSyncObjectStatement syncObjectStatement = new MainSyncObjectStatement();
 		
-		// we need to remember which connections already have been transformed into a statement, especially for active connections
-		Set<ConnectionInstance> workedConnections = new HashSet<ConnectionInstance>();
 		for (ConnectionInstance connection : connections) {
 			sb.append(connnectionStatement.generate(connection, connectionCounter));
 			names.put(connection, "connection_" + connectionCounter);
-			workedConnections.add(connection);
+			//if this connection is immediate we have to create a synchronisationobject
+			if(getTiming(connection).equals(Communication_Properties_Timing_Immediate))
+				sb.append(syncObjectStatement.generate(connection, connectionCounter));
 			connectionCounter++;
-			// only do something if this connection wasn't already transformed into a statement
-//			if(!workedConnections.contains(connection)){
-//				boolean isActive = isActive(connection);
-//				if(!isActive){
-//					
-//				}
-//				else{
-//					sb.append(createActiveConnection(connection, workedConnections, connectionCounter, names));
-//				}
-//			}
 		}
 		
 		MainFeatureStatement featureStatement = new MainFeatureStatement();
@@ -108,64 +90,20 @@ public class MainConverter{
 			}
 			else{
 				// must be a ComponentInstance
-				sb.append(componentStatement.generate((ComponentInstance)object, componentCounter, names));
+				ComponentInstance component = (ComponentInstance) object;
+				sb.append(componentStatement.generate(component, componentCounter, names));
 				names.put(object, "component_" + componentCounter);
 				componentCounter++;
-			}
-		}
-		return sb.toString().trim();
-	}
-	
-	private static String createActiveConnection(ConnectionInstance connection, Set<ConnectionInstance> workedConnections, long connectionCounter, Map<InstanceObject, String> names){
-		StringBuilder sb = new StringBuilder();
-		List<ConnectionInstance> successors = new ArrayList<ConnectionInstance>();
-		List<ConnectionInstance> targets = new ArrayList<ConnectionInstance>();
-		successors.add(connection);
-		// search for the target of this connection as it is active. Adds each connection in line, that is not active (has an active thread as target)
-		while(successors.size() > 0){
-			ConnectionInstance currentConnection = successors.remove(0);// get the leading element
-			boolean isActive = isActive(currentConnection);
-			if(!isActive)
-				// we have found a target connection
-				targets.add(currentConnection);
-			else{
-				// add the successor connections for the target of the current connection
-				successors.addAll(currentConnection.getDestination().getSrcConnectionInstances());
+				// save threads to start them later
+				if(component.getCategory().equals(ComponentCategory.THREAD))
+					threads.add(component);
 			}
 		}
 		
-		// first generate all found passive target connections
-		MainPassiveConnectionStatement passiveConnnectionStatement = new MainPassiveConnectionStatement();
-		for (ConnectionInstance target : targets) {
-			// but only if it has not already been generated
-			if(!workedConnections.contains(target)){
-				sb.append(passiveConnnectionStatement.generate(target, connectionCounter));
-				names.put(target, "connection_" + connectionCounter);
-				workedConnections.add(target);
-				connectionCounter++;
-			}
-		}
-		
-		// now take the targets as starting point to reverse-generate the statements for the active connections
-		MainActiveConnectionStatement activeConnectionStatement = new MainActiveConnectionStatement();
-		for (ConnectionInstance target : targets) {
-			// dataports only have one ingoing connection per mode and we don't consider modes at the moment
-			ConnectionInstance predecessor = target.getSource().getDstConnectionInstances().get(0);
-			while(predecessor != null){
-				// only generate if it has not already been generated
-				if(!workedConnections.contains(predecessor)){
-					sb.append(activeConnectionStatement.generate(connection, connectionCounter, names));
-					names.put(target, "connection_" + connectionCounter);
-					workedConnections.add(target);
-					connectionCounter++;
-				}
-				
-				List<ConnectionInstance> predecessors = predecessor.getSource().getDstConnectionInstances();
-				if(predecessors != null && predecessors.size() > 0)
-					predecessor = predecessors.get(0);
-				else
-					predecessor = null;
-			}
+		//TODO: einschränken auf periodische Threads, ist zur Zeit noch egal, da wir keine anderen betrachten
+		MainThreadStartStatement startStatement = new MainThreadStartStatement();
+		for (ComponentInstance thread : threads) {
+			sb.append(startStatement.generate(thread, names));
 		}
 		return sb.toString().trim();
 	}

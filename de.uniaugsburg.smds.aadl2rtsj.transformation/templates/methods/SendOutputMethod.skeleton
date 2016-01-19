@@ -2,8 +2,18 @@ import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.InstanceObject;
 
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
 
 public class CLASS{
+	
+	private static String getNotifyStatement(ConnectionInstance connection){
+		StringBuilder sb = new StringBuilder();
+		String timing = getTiming(connection);
+		if(timing.equals(Communication_Properties_Timing_Immediate)){
+			sb.append(new SynchronisationNotifyStatement().generate(connection)); 
+		}
+		return sb.toString().trim();
+	}
 	/*
 	 * (non-javadoc)
 	 * 

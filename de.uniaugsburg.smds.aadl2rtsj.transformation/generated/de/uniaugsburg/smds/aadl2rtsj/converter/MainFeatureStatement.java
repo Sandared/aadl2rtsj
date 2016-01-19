@@ -6,6 +6,7 @@ import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
 
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Utils.*;
+import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
 
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,12 @@ public class MainFeatureStatement{
 		
 		for (ConnectionInstance connection : connections) {
 			sb.append(names.get(connection) + ", ");
+			
+			//consider SynchronisationObjects
+			//must only be checked for out data ports
+			if(direction.outgoing() && !direction.incoming())
+				if(getTiming(connection).equals(Communication_Properties_Timing_Immediate))
+					sb.append(names.get(connection) + "_Sync, ");
 		}
 		
 		if(sb.length() != 0)

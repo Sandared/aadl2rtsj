@@ -1,6 +1,7 @@
 package de.uniaugsburg.smds.aadl2rtsj.converter;
 
 import org.osate.aadl2.instance.ComponentInstance;
+import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
 
@@ -46,6 +47,11 @@ public class MainComponentStatement{
 		for (ComponentInstance subcomponent : subcomponents) {
 			sb.append(names.get(subcomponent) + ", ");
 		}
+		
+		// consider possible sync objects for immediate connections
+		ConnectionInstance connection = getImmediateConnection(object);
+		if(connection != null)
+			sb.append(names.get(connection) + "_Sync, ");
 		
 		if(sb.length() != 0)
 			sb.delete(sb.length() - 2, sb.length()); // delete pending commata

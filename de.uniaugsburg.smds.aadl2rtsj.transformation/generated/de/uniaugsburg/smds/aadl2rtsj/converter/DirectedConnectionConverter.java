@@ -11,13 +11,13 @@ import org.osate.aadl2.instance.FeatureInstance;
 
 import static de.uniaugsburg.smds.aadl2rtsj.utils.Constants.*;
 
-public class PassiveDirectedConnectionConverter{
+public class DirectedConnectionConverter{
 	
   protected static String nl;
-  public static synchronized PassiveDirectedConnectionConverter create(String lineSeparator)
+  public static synchronized DirectedConnectionConverter create(String lineSeparator)
   {
     nl = lineSeparator;
-    PassiveDirectedConnectionConverter result = new PassiveDirectedConnectionConverter();
+    DirectedConnectionConverter result = new DirectedConnectionConverter();
     nl = null;
     return result;
   }

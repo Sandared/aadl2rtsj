@@ -1,0 +1,2 @@
+<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="SynchronisationObjectDeclarationMemberStatement" skeleton="SynchronisationObject.skeleton" %>
+	private Object <%=getSynchronisationObjectName(connection)%>;

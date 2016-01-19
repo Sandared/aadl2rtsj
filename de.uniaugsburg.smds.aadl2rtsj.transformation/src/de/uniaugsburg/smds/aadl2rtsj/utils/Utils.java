@@ -354,29 +354,39 @@ public class Utils {
 	}
 	
 	private static OffsetTime getTimeForConnection(NamedElement element, ConnectionInstance connection, boolean isInput){
-		List<PropertyExpression> timingProperties = connection.getPropertyValues(Communication_Properties, Communication_Properties_Timing);
 		OffsetTime time = null;
+		String timing = getTiming(connection); // sampled, immediate, delayed
+		if(timing.equals(Communication_Properties_Timing_Immediate))
+			if(isInput)
+				time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Start, connection); // see AADL Standard 9.2.5 (50)
+			else{
+				// if there is a single valued Output_Time, then take it, otherwise the time is assumed to be Completion, 
+				// see AADL Standard 9.2.5 (50)
+				List<OffsetTime> times = getTimeForReferenceTime(element, null, true, false, connection);
+				if(times.size() == 0)
+					time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Completion, connection); 
+			}
+		if(timing.equals(Communication_Properties_Timing_Delayed))
+			if(isInput)
+				time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Dispatch, connection);// see AADL Standard 9.2.5 (51)
+			else
+				time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Deadline, connection);// see AADL Standard 9.2.5 (51)
+		// sampled has no special semantic meaning for input and output timing
+		return time;
+	}
+	
+	public static String getTiming(ConnectionInstance connection){
+		String timing = null;
+		List<PropertyExpression> timingProperties = connection.getPropertyValues(Communication_Properties, Communication_Properties_Timing);
 		if(timingProperties.size() > 0){
 			EnumerationLiteral timingProperty = (EnumerationLiteral)((NamedValue)timingProperties.get(0)).getNamedValue();
-			String timing = timingProperty.getName(); // sampled, immediate, delayed
-			if(timing.equals(Communication_Properties_Timing_Immediate))
-				if(isInput)
-					time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Start, connection); // see AADL Standard 9.2.5 (50)
-				else{
-					// if there is a single valued Output_Time, then take it, otherwise the time is assumed to be Completion, 
-					// see AADL Standard 9.2.5 (50)
-					List<OffsetTime> times = getTimeForReferenceTime(element, null, true, false, connection);
-					if(times.size() == 0)
-						time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Completion, connection); 
-				}
-			if(timing.equals(Communication_Properties_Timing_Delayed))
-				if(isInput)
-					time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Dispatch, connection);// see AADL Standard 9.2.5 (51)
-				else
-					time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Deadline, connection);// see AADL Standard 9.2.5 (51)
-			// sampled has no special semantic meaning for input and output timing
+			timing = timingProperty.getName(); // sampled, immediate, delayed
 		}
-		return time;
+		else{
+			//default
+			timing = Communication_Properties_Timing_Sampled;
+		}
+		return timing;
 	}
 	
 	private static List<OffsetTime> getTimeForReferenceTime(NamedElement element, final String IOReferenceTime, boolean forceSingleValued, boolean isInput, ConnectionInstance connection){
@@ -411,6 +421,12 @@ public class Utils {
         return times;
 	}
 	
+	public static String getSynchronisationObjectName(ConnectionInstance connection){
+		ConnectionInstanceEnd source = connection.getSource();
+		ConnectionInstanceEnd target = connection.getDestination();
+		return getObjectName(source) + "2" + getClassName(target) + "Sync";
+	}
+	
 	public static String getConnectionType(ConnectionInstance connection){
 		ComponentInstance source = null;
 		ComponentInstance target = null;
@@ -435,6 +451,24 @@ public class Utils {
 			return ConnectionType_Non_Thread_To_Non_Thread;
 		
 		// 
+		return null;
+	}
+	
+	public static ConnectionInstance getImmediateConnection(ComponentInstance component){
+		List<FeatureInstance> features = component.getAllFeatureInstances();
+		for (FeatureInstance feature : features) {
+			DirectionType direction = feature.getDirection();
+			List<ConnectionInstance> connections = null;
+			if(direction.incoming() && !direction.outgoing())
+				connections = feature.getDstConnectionInstances();
+			if(direction.outgoing() && !direction.incoming())
+				connections = feature.getSrcConnectionInstances();
+			for (ConnectionInstance connection : connections) {
+				String timing = getTiming(connection);
+				if(timing.equals(Communication_Properties_Timing_Immediate))
+					return connection;
+			}
+		}
 		return null;
 	}
 	

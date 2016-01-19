@@ -39,11 +39,10 @@ import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.instance.SystemOperationMode;
 import org.osate.aadl2.instance.util.InstanceSwitch;
 
-import de.uniaugsburg.smds.aadl2rtsj.converter.ActiveDirectedConnectionConverter;
+import de.uniaugsburg.smds.aadl2rtsj.converter.DirectedConnectionConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.IOHandlerConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.InDataPortConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.OutDataPortConverter;
-import de.uniaugsburg.smds.aadl2rtsj.converter.PassiveDirectedConnectionConverter;
 import de.uniaugsburg.smds.aadl2rtsj.converter.PeriodicThreadConverter;
 import de.uniaugsburg.smds.aadl2rtsj.utils.OffsetTime;
 
@@ -144,15 +143,14 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	
 	@Override
 	public String caseConnectionInstance(ConnectionInstance object) {
-		String sourceCode = null;
 		boolean isActive = isActive(object);
 		// TODO: we currently do not use a if/else, because there might be special types like data... 
 		// passive directed connection if the next component in line is a thread, which reads actively from this connection
-		if(!isActive)
-			sourceCode = new PassiveDirectedConnectionConverter().generate(object);
-		// active directed connection if the next component in line is a non_thread, which does not read actively from this connection
-		if(isActive)
-			sourceCode = new ActiveDirectedConnectionConverter().generate(object);
+		String sourceCode = new DirectedConnectionConverter().generate(object);
+//		if(!isActive)
+//		// active directed connection if the next component in line is a non_thread, which does not read actively from this connection
+//		if(isActive)
+//			sourceCode = new ActiveDirectedConnectionConverter().generate(object);
 		createJavaClass(getPackageName(object), getClassName(object), sourceCode, monitor, root);
 		visitedObjects.add(object);
 		System.out.println("AADL2RTSJInstanceSwitch.caseConnectionInstance()" + object);

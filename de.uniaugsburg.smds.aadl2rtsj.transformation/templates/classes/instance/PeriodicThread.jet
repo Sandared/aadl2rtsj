@@ -7,17 +7,16 @@ import javax.realtime.RelativeTime;
 import javax.realtime.PeriodicTimer;
 import javax.realtime.AsyncEventHandler;
 import javax.realtime.PriorityParameters;
-
 <%=getSubcomponentImportStatements(component)%>
-
 public class <%=getClassName(component)%> extends AsyncEventHandler{
 	<%=getSubcomponentMemberStatements(component)%>
 	<%=getFeatureMemberStatements(component)%>
-	
+	<%=getSynchronisationObjectMemberStatement(component)%>
 	private Timer timer;
 	
 	public <%=getClassName(component)%>(<%=getConstructorParameters(component)%>){
 		super();
+		setDaemon(false);
 		setSchedulingParametersIfFeasible(new PriorityParameters(<%=getPriority(component)%>));
 		timer = new PeriodicTimer(new RelativeTime(), new RelativeTime(<%=getPeriodMilliSeconds(component)%>, <%=getPeriodNanoSeconds(component)%>), this);
 		<%=getConstructorMemberAssignments(component)%>
@@ -25,6 +24,7 @@ public class <%=getClassName(component)%> extends AsyncEventHandler{
 	
 	@Override
 	public void handleAsyncEvent() {
+		<%=getWaitStatement(component)%>
 		dispatch();
 		start();
 		compute();
@@ -41,7 +41,7 @@ public class <%=getClassName(component)%> extends AsyncEventHandler{
 	}
 	
 	private final void compute() {
-		
+		System.out.println("<%=getPackageName(component)%>.<%=getClassName(component)%>.compute()");
 	}
 	
 	private final void completion() {
