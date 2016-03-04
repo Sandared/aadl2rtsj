@@ -1,0 +1,27 @@
+[comment encoding = UTF-8 /]
+[module CommonHelper('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')/]
+
+[query public getClassName(arg0 : NamedElement) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.CommonHelper', 'getClassName(org.osate.aadl2.NamedElement)', Sequence{arg0})
+/]
+
+[query public getObjectName(arg0 : NamedElement) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.CommonHelper', 'getObjectName(org.osate.aadl2.NamedElement)', Sequence{arg0})
+/]
+
+[query public getPackageName(arg0 : NamedElement) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.CommonHelper', 'getPackageName(org.osate.aadl2.NamedElement)', Sequence{arg0})
+/]
+
+[query public getDataType(arg0 : FeatureInstance) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.CommonHelper', 'getDataType(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
+/]
+
+[query public isBaseType(arg0 : Classifier) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.CommonHelper', 'isBaseType(org.osate.aadl2.Classifier)', Sequence{arg0})
+/]
+
+[query public getConnection(arg0 : ConnectionInstance) : Connection
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.CommonHelper', 'getConnection(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
+/]
+
