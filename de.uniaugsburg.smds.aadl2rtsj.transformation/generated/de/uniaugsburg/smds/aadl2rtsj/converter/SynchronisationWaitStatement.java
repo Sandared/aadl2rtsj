@@ -16,9 +16,10 @@ public class SynchronisationWaitStatement{
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
   protected final String TEXT_1 = "\t\tsynchronized(";
-  protected final String TEXT_2 = "){" + NL + "\t\t\ttry{" + NL + "\t\t\t\t";
-  protected final String TEXT_3 = ".wait();" + NL + "\t\t\t}catch(InterruptedException e){" + NL + "\t\t\t\te.printStackTrace();" + NL + "\t\t\t}" + NL + "\t\t}";
-  protected final String TEXT_4 = NL;
+  protected final String TEXT_2 = "){" + NL + "\t\t\ttry{" + NL + "\t\t\t\twhile(!";
+  protected final String TEXT_3 = ".isDirty()){" + NL + "\t\t\t\t\t";
+  protected final String TEXT_4 = ".wait();" + NL + "\t\t\t\t}" + NL + "\t\t\t}catch(InterruptedException e){" + NL + "\t\t\t\te.printStackTrace();" + NL + "\t\t\t}" + NL + "\t\t}";
+  protected final String TEXT_5 = NL;
 
 	/*
 	 * (non-javadoc)
@@ -31,9 +32,11 @@ public class SynchronisationWaitStatement{
     stringBuffer.append(TEXT_1);
     stringBuffer.append(getSynchronisationObjectName(connection));
     stringBuffer.append(TEXT_2);
-    stringBuffer.append(getSynchronisationObjectName(connection));
+    stringBuffer.append(getObjectName(connection));
     stringBuffer.append(TEXT_3);
+    stringBuffer.append(getSynchronisationObjectName(connection));
     stringBuffer.append(TEXT_4);
+    stringBuffer.append(TEXT_5);
     return stringBuffer.toString();
   }
 }

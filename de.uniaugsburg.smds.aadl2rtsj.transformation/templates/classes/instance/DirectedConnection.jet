@@ -6,6 +6,7 @@ package <%=getPackageName(connection)%>;
 public class <%=getClassName(connection)%>{
 	
 	private volatile <%=getConnectionDataType(connection)%> value = null;
+	private boolean isDirty = false;
 	
 	/**
 	 * Write the value which can then be read be the target of this connection
@@ -13,6 +14,7 @@ public class <%=getClassName(connection)%>{
 	 */
 	public void putValue(<%=getConnectionDataType(connection)%> value){
 		this.value = value;
+		isDirty = true;
 	}
 	
 	/**
@@ -20,6 +22,15 @@ public class <%=getClassName(connection)%>{
 	 * @return the value which was set by <code>putValue</code>
 	 */
 	public <%=getConnectionDataType(connection)%> getValue(){
+		isDirty = false;
 		return value;
+	}
+	
+	/**
+	 * Indicates whether this connection provides a new value or still the old, already read one.
+	 * @return true if there's a new value, false otherwise
+	 */
+	public boolean isDirty(){
+		return isDirty;
 	}
 }

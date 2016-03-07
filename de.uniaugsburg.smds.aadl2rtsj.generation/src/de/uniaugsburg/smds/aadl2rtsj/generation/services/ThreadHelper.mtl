@@ -1,15 +1,54 @@
 [comment encoding = UTF-8 /]
+[**
+ * The documentation of the module.
+ */]
 [module ThreadHelper('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')/]
 
+[**
+ * The documentation of the query
+ * @param arg0
+ */]
 [query public isThread(arg0 : ComponentInstance) : Boolean
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ThreadHelper', 'isThread(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
+[**
+ * The documentation of the query
+ * @param arg0
+ */]
 [query public isPeriodic(arg0 : ComponentInstance) : Boolean
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ThreadHelper', 'isPeriodic(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
+[**
+ * The documentation of the query
+ * @param arg0
+ */]
 [query public getDispatchProtocol(arg0 : ComponentInstance) : String
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ThreadHelper', 'getDispatchProtocol(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
+[**
+ * The documentation of the query
+ * @param arg0
+ */]
+[query public getPeriodMilliSeconds(arg0 : ComponentInstance) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ThreadHelper', 'getPeriodMilliSeconds(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
+[**
+ * The documentation of the query
+ * @param arg0
+ */]
+[query public getPeriodNanoSeconds(arg0 : ComponentInstance) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ThreadHelper', 'getPeriodNanoSeconds(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
+[**
+ * The documentation of the query
+ * @param arg0
+ */]
+[query public getPriority(arg0 : ComponentInstance) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ThreadHelper', 'getPriority(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 

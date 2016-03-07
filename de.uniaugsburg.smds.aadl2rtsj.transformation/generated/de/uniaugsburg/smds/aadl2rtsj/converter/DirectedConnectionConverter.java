@@ -28,9 +28,9 @@ public class DirectedConnectionConverter{
   protected final String TEXT_3 = NL;
   protected final String TEXT_4 = NL + NL + "public class ";
   protected final String TEXT_5 = "{" + NL + "\t" + NL + "\tprivate volatile ";
-  protected final String TEXT_6 = " value = null;" + NL + "\t" + NL + "\t/**" + NL + "\t * Write the value which can then be read be the target of this connection" + NL + "\t * @param value the new value for this connection" + NL + "\t */" + NL + "\tpublic void putValue(";
-  protected final String TEXT_7 = " value){" + NL + "\t\tthis.value = value;" + NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * Read the value which was written by the source of this connection." + NL + "\t * @return the value which was set by <code>putValue</code>" + NL + "\t */" + NL + "\tpublic ";
-  protected final String TEXT_8 = " getValue(){" + NL + "\t\treturn value;" + NL + "\t}" + NL + "}";
+  protected final String TEXT_6 = " value = null;" + NL + "\tprivate boolean isDirty = false;" + NL + "\t" + NL + "\t/**" + NL + "\t * Write the value which can then be read be the target of this connection" + NL + "\t * @param value the new value for this connection" + NL + "\t */" + NL + "\tpublic void putValue(";
+  protected final String TEXT_7 = " value){" + NL + "\t\tthis.value = value;" + NL + "\t\tisDirty = true;" + NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * Read the value which was written by the source of this connection." + NL + "\t * @return the value which was set by <code>putValue</code>" + NL + "\t */" + NL + "\tpublic ";
+  protected final String TEXT_8 = " getValue(){" + NL + "\t\tisDirty = false;" + NL + "\t\treturn value;" + NL + "\t}" + NL + "\t" + NL + "\t/**" + NL + "\t * Indicates whether this connection provides a new value or still the old, already read one." + NL + "\t * @return true if there's a new value, false otherwise" + NL + "\t */" + NL + "\tpublic boolean isDirty(){" + NL + "\t\treturn isDirty;" + NL + "\t}" + NL + "}";
 
 	private static String getDataTypeImportStatement(ConnectionInstance connection){
 		// we don't consider splitting or aggregation of data types currently, so it's sufficient to check one connectionend for its datatype

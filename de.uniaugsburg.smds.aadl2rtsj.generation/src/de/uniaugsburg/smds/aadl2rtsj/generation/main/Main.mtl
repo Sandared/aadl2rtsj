@@ -1,0 +1,15 @@
+[comment encoding = UTF-8 /]
+[module Main('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')/]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::common::PeriodicThreadGenerator /]
+
+[template public Main(system : SystemInstance)]
+	
+	[comment @main /]
+	[file ('system.test', false, 'UTF-8')]
+		Hier kommt jetzt ein wenig Text und
+		[for (ci : ComponentInstance | system.componentInstance)]
+			Komponentenname: [ci.name/]
+		[/for]
+	[/file]
+	
+[/template]

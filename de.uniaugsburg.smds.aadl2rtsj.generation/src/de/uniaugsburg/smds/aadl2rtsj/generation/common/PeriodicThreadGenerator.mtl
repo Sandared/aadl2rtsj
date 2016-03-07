@@ -7,11 +7,8 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::CommonHelper /]
 
 
-[**
- * The documentation of the template generatePeriodicThread.
- * @param aComponentInstance
- */]
 [template public generatePeriodicThread(thread : ComponentInstance)? (isThread(thread) and isPeriodic(thread))]
+[file (getPackageName(thread).concat(getClassName(thread).concat('.java')), false, 'UTF-8')][/file]
 package [getPackageName(thread)/];
 
 import javax.realtime.Timer;
@@ -21,16 +18,35 @@ import javax.realtime.PeriodicTimer;
 import javax.realtime.BoundAsyncEventHandler;
 import javax.realtime.PriorityParameters;
 
-[subcomponentImportStatements(thread)/]
+[comment  
+Create an Import Statement for each Subcomponent. 
+The first element in componentInstance is always the component itself./]
+[if (thread.componentInstance->size() > 1)]
+	[for (subcomponent : ComponentInstance | thread.componentInstance)]
+		[if (subcomponent <> thread)]
+			import [getPackageName(subcomponent)/].[getClassName(subcomponent)/];
+		[/if]
+	[/for]
+[/if]
 
 public class [getClassName(thread)/] extends BoundAsyncEventHandler{
-
+	private final Timer timer = new PeriodicTimer(new RelativeTime(), new RelativeTime([getPeriodMilliSeconds(thread)/], [getPeriodNanoSeconds(thread)/]), this);
+	[comment 
+	Create a Member Statement for each Subcomponent 
+	The first element in componentInstance is always the component itself./]
+	[if (thread.componentInstance->size() > 1)]
+		[for (subcomponent : ComponentInstance | thread.componentInstance)]
+			[if (subcomponent <> thread)]
+				private [getClassName(subcomponent)/] [getObjectName(subcomponent)/] = new [getClassName(subcomponent)/];
+			[/if]
+		[/for]
+	[/if]
+	[comment Create a Member Statement for each Feature/]
+	[if (thread.featureInstance->size() > 0)]
+		[for (feature : FeatureInstance | thread.featureInstance)]
+			private [getClassName(feature)/] [getObjectName(feature)/];
+		[/for]
+	[/if]
 }
 
-[/template]
-
-[template private subcomponentImportStatements(thread : ComponentInstance)]
-
-
-	
 [/template]

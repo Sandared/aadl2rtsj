@@ -8,7 +8,7 @@ import javax.realtime.PeriodicTimer;
 import javax.realtime.AsyncEventHandler;
 import javax.realtime.PriorityParameters;
 <%=getSubcomponentImportStatements(component)%>
-public class <%=getClassName(component)%> extends AsyncEventHandler{
+public class <%=getClassName(component)%> extends BoundAsyncEventHandler{
 	<%=getSubcomponentMemberStatements(component)%>
 	<%=getFeatureMemberStatements(component)%>
 	<%=getSynchronisationObjectMemberStatement(component)%>

@@ -93,6 +93,8 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 				switch (dispatchProtocol) {
 				case Thread_Properties_Dispatch_Protocol_Periodic:
 					sourceCode = new PeriodicThreadConverter().generate(object);
+					
+					// TODO: create usercode class (check for existing code etc.)
 					// create all handlers needed by this thread
 					for (FeatureInstance feature : object.getAllFeatureInstances()) {
 						// there will be one time if there is a immediate/delayed connection or an input connection

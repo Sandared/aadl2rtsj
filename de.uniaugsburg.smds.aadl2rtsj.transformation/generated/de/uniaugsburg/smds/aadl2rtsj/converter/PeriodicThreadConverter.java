@@ -44,7 +44,7 @@ public class PeriodicThreadConverter{
   protected final String TEXT_2 = ";" + NL + "" + NL + "import javax.realtime.Timer;" + NL + "import javax.realtime.OneShotTimer;" + NL + "import javax.realtime.RelativeTime;" + NL + "import javax.realtime.PeriodicTimer;" + NL + "import javax.realtime.AsyncEventHandler;" + NL + "import javax.realtime.PriorityParameters;";
   protected final String TEXT_3 = NL;
   protected final String TEXT_4 = NL + "public class ";
-  protected final String TEXT_5 = " extends AsyncEventHandler{" + NL + "\t";
+  protected final String TEXT_5 = " extends BoundAsyncEventHandler{" + NL + "\t";
   protected final String TEXT_6 = NL + "\t";
   protected final String TEXT_7 = NL + "\t";
   protected final String TEXT_8 = NL + "\tprivate Timer timer;" + NL + "\t" + NL + "\tpublic ";
