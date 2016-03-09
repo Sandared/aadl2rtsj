@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+  <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            id="org.osate.analysis.architecture.ocua"
+            objectClass="java.lang.Object">
+         <action
+               class="de.uniaugsburg.smds.aadl2rtsj.generation.DoRTSJGeneration"
+               id="de.uniaugsburg.smds.aadl2rtsj.generation.generateaction"
+               label="RTSJ Code Generation"
+               menubarPath="org.osate.ui.popupMenu.CodeGeneration/generation.grp">
+         </action>
+         <visibility>
+            <or>
+               <and>
+                  <objectClass
+                        name="org.eclipse.core.resources.IFile">
+                  </objectClass>
+                  <objectState
+                        name="extension"
+                        value="aaxl2">
+                  </objectState>
+               </and>
+               <objectClass
+                     name="org.osate.aadl2.instance.SystemInstance">
+               </objectClass>
+            </or>
+         </visibility>
+         <menu
+               id="org.osate.ui.popupMenu.CodeGeneration"
+               label="AADL Code Generation"
+               path="additions">
+            <groupMarker
+                  name="generation.grp">
+            </groupMarker>
+         </menu>
+      </objectContribution>
+   </extension>
+
+</plugin>

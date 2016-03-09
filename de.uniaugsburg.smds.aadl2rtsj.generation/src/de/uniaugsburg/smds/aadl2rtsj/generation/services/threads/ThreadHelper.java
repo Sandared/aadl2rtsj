@@ -1,6 +1,13 @@
-package de.uniaugsburg.smds.aadl2rtsj.generation.services;
+package de.uniaugsburg.smds.aadl2rtsj.generation.services.threads;
 
-import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.*;
+import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.AADL_Project_Time_Units_Milli_Seconds;
+import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.AADL_Project_Time_Units_Nano_Seconds;
+import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.Thread_Properties;
+import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.Thread_Properties_Dispatch_Protocol;
+import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.Thread_Properties_Dispatch_Protocol_Periodic;
+import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.Thread_Properties_Priority;
+import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.Timing_Properties;
+import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.Timing_Properties_Period;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -13,7 +20,7 @@ import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.instance.ComponentInstance;
 
 public class ThreadHelper {
-	private static final Logger log = Logger.getLogger( ThreadHelper.class.getName() );
+	private static final Logger log = Logger.getLogger(ThreadHelper.class.getName() );
 	
 	public static boolean isThread(ComponentInstance ci){
 		return ci.getCategory() == ComponentCategory.THREAD;
@@ -49,8 +56,8 @@ public class ThreadHelper {
 			Integer period = new Integer((int)((IntegerLiteral)periodProperty).getScaledValue(AADL_Project_Time_Units_Milli_Seconds));
 			return period.toString();
 		}
-		log.warning("No Timing_Properties::Period was given for " + ci.getName());
-		return "0";
+		log.warning("No Timing_Properties::Period was given for " + ci.getName() + ". Default is 200");
+		return "200";
 	}
 	
 	public static String getPeriodNanoSeconds(ComponentInstance ci){
@@ -63,7 +70,7 @@ public class ThreadHelper {
 			Integer period = new Integer((int)(((IntegerLiteral)periodProperty).getScaledValue(AADL_Project_Time_Units_Nano_Seconds) % 1000000));
 			return period.toString();
 		}
-		log.warning("No Timing_Properties::Period was given for " + ci.getName());
+		log.warning("No Timing_Properties::Period was given for " + ci.getName() + ". Default is 0");
 		return "0";
 	}
 	
@@ -76,7 +83,8 @@ public class ThreadHelper {
 			Integer priority = new Integer((int)(((IntegerLiteral)priorityProperty).getValue()));
 			return priority.toString();
 		}
-		log.warning("No Thread_Properties::Priority was given for " + ci.getName());
+		log.warning("No Thread_Properties::Priority was given for " + ci.getName() + ". Default is 5");
 		return "5";
 	}
+
 }

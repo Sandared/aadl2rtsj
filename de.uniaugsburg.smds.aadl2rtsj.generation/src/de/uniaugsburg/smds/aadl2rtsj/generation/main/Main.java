@@ -340,6 +340,12 @@ public class Main extends AbstractAcceleoGenerator {
     @Override
     public void registerPackages(ResourceSet resourceSet) {
         super.registerPackages(resourceSet);
+        if (!isInWorkspace(org.osate.aadl2.Aadl2Package.class)) {
+            resourceSet.getPackageRegistry().put(org.osate.aadl2.Aadl2Package.eINSTANCE.getNsURI(), org.osate.aadl2.Aadl2Package.eINSTANCE);
+        }
+        if (!isInWorkspace(org.osate.aadl2.instance.InstancePackage.class)) {
+            resourceSet.getPackageRegistry().put(org.osate.aadl2.instance.InstancePackage.eINSTANCE.getNsURI(), org.osate.aadl2.instance.InstancePackage.eINSTANCE);
+        }
         
         /*
          * If you want to change the content of this method, do NOT forget to change the "@generated"

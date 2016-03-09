@@ -1,0 +1,155 @@
+[comment encoding = UTF-8 /]
+[**
+ * The documentation of the module generate.
+ */]
+[module PeriodicThreadGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::aadl::AADLHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::threads::ThreadHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::threads::PeriodicThreadHelper /]
+
+
+[template public generatePeriodicThread(thread : ComponentInstance)? (isPeriodic(thread)) ]
+[file(getPackageName(thread).substitute('.', '/').concat('/').concat(getClassName(thread)).concat('.java') , false, 'UTF-8')]
+package [getPackageName(thread)/];
+
+import javax.realtime.Timer;
+import javax.realtime.OneShotTimer;
+import javax.realtime.RelativeTime;
+import javax.realtime.PeriodicTimer;
+[comment if this thread has a immediate connection where it is the target, it has to wait and therefore needs to be a BoundAsyncEventHandler. Otherwise it's just an AsyncEventHandler /]
+import javax.realtime.[getHandlerType(thread)/];
+import javax.realtime.PriorityParameters;
+
+[comment Create an Import Statement for each Subcomponent, Features are in the same package and don't need an Import Statement /]
+[if (getSubcomponents(thread)->size() > 0)]
+	[for (subcomponent : ComponentInstance | getSubcomponents(thread))]
+		[if (i > 1)]
+import [getPackageName(subcomponent)/].[getClassName(subcomponent)/];
+		[/if]
+	[/for]
+[/if]
+
+[comment if this thread has an immediate connection where it is the target, it has to wait and therefore needs to be a BoundAsyncEventHandler. Otherwise it's just an AsyncEventHandler /]
+
+public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
+	private final Timer timer = new PeriodicTimer(new RelativeTime(), new RelativeTime([getPeriodMilliSeconds(thread)/], [getPeriodNanoSeconds(thread)/]), this);
+	[comment Create a Member Statement for each Subcomponent /]
+	[if (getSubcomponents(thread)->size() > 0)]
+		[for (subcomponent : ComponentInstance | getSubcomponents(thread))after (lineSeparator())]
+	private [getClassName(subcomponent)/] [getObjectName(subcomponent)/];
+		[/for]
+	[/if]
+	[comment Create a Member Statement for each Feature/]
+	[if (getFeatures(thread)->size() > 0)]
+		[for (feature : FeatureInstance | getFeatures(thread))after (lineSeparator())]
+	private [getClassName(feature)/] [getObjectName(feature)/];
+		[/for]
+	[/if]
+
+	public [getClassName(thread)/]([getConstructorParameters(thread)/]){
+		super();
+		setDaemon(false);
+		setSchedulingParameters(new PriorityParameters([getPriority(thread)/]));
+		timer = new PeriodicTimer(new RelativeTime(), new RelativeTime([getPeriodMilliSeconds(thread)/], [getPeriodNanoSeconds(thread)/]), this);
+		[for (feature : FeatureInstance | getFeatures(thread))after (lineSeparator())]
+			this.[getObjectName(feature)/] = [getObjectName(feature)/];
+		[/for]
+
+		[comment for each subcomponent we have to create an Assignment Statement/]
+		[if (getSubcomponents(thread)->size() > 0)]
+			[for (subcomponent : ComponentInstance | getSubcomponents(thread))after (lineSeparator())]
+				[if (i > 1)]
+		this.[getObjectName(subcomponent)/] = [getObjectName(subcomponent)/];
+				[/if]
+			[/for]
+		[/if]
+
+		[comment for each feature we have to create an Assignment Statement/]
+		[if (getFeatures(thread)->size() > 0)]
+			[for (feature : FeatureInstance | getFeatures(thread))after (lineSeparator())]
+		this.[getObjectName(feature)/] = [getObjectName(feature)/];
+			[/for]
+		[/if]
+		[comment consider possible synchronisationobjects/]
+		[let connection : ConnectionInstance = getImmediateConnection(thread)]
+			this.[getSynchronisationObjectName(connection)/] = [getSynchronisationObjectName(connection)/];
+		[/let]		
+	}
+	
+	@Override
+	public void handleAsyncEvent() {
+		[comment add a wait statement if we have to /]
+		[let connection : ConnectionInstance = getImmediateConnection(thread)]
+			[comment we do this only if we are the target, which has to wait/]
+			[if (getComponentInstance(connection.destination) = thread)]
+		synchronized([getSynchronisationObjectName(connection)/]){
+			try{
+				while([getObjectName(connection)/].isDirty()){
+					[getSynchronisationObjectName(connection)/].wait();
+				}
+			}catch(InterruptedException e){
+				e.printStackTrace();
+			}
+		}
+			[/if]
+		[/let]	
+		dispatch();
+		start();
+		compute();
+		completion();
+	}
+	
+	private final void dispatch() {
+		[getDispatchStatements(thread)/]
+		[getDeadlineStatements(thread)/]
+	}
+	
+	private final void start() {
+		[getStartStatements(thread)/]
+	}
+	
+	private final void compute() {
+		System.out.println("[getPackageName(thread)/].[getClassName(thread)/].compute()");
+	}
+	
+	private final void completion() {
+		[getCompletionStatements(thread)/]
+	}
+	
+	/**
+	 * Starts the execution of this object
+	 */
+	public void startExecution(){
+		timer.start();
+	}
+	
+	/**
+	 * Stops the execution of this object
+	 */
+	public void stopExcution(){
+		timer.stop();
+	}
+}
+[/file]
+[/template]
+
+[template private getHandlerType(thread : ComponentInstance) post (trim()) {connection : ConnectionInstance = getImmediateConnection(thread);}]
+	[if (connection <> null) and (getComponentInstance(getConnectionDestination(connection)) = thread)]
+		BoundAsyncEventHandler
+	[else]
+		AsyncEventHandler
+	[/if]
+[/template]
+
+[template private getConstructorParameters(thread : ComponentInstance) post (substring(0, size()-1).trim()) {connection : ConnectionInstance = getImmediateConnection(thread);}]
+	[for (feature : FeatureInstance | getFeatures(thread))]
+		[getClassName(feature)/] [getObjectName(feature)/],
+	[/for]
+	[for (subcomponent : ComponentInstance | getSubcomponents(thread))]
+		[getClassName(subcomponent)/] [getObjectName(subcomponent)/], 
+	[/for]
+	[if (connection <> null)]
+		Object [getSynchronisationObjectName(connection)/],
+	[/if]
+[/template]

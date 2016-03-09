@@ -1,15 +1,34 @@
 [comment encoding = UTF-8 /]
 [module Main('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')/]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::common::PeriodicThreadGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::common::threads::ThreadGenerator /]
 
 [template public Main(system : SystemInstance)]
 	
 	[comment @main /]
-	[file ('system.test', false, 'UTF-8')]
-		Hier kommt jetzt ein wenig Text und
-		[for (ci : ComponentInstance | system.componentInstance)]
-			Komponentenname: [ci.name/]
-		[/for]
-	[/file]
+	[generateComponent(system)/]
+	
+[/template]
+
+[template public generateComponent(ci : ComponentInstance)]
+	[comment generate the component itself. Each Generator decides if the given object is the right one /]
+	[generateThread(ci)/]
+	
+
+
+
+	[comment generate the features for this component /]
+	[for (feature : FeatureInstance | ci.featureInstance)]
+		[generateFeature(feature)/]
+	[/for]
+	
+	[comment generate all subcomponents recursively  /]
+	[for (subcomponent : ComponentInstance | ci.componentInstance)]
+		[if (subcomponent <> ci)]
+			[generateComponent(subcomponent)/]
+		[/if]
+	[/for]
+[/template]
+
+[template public generateFeature(fi : FeatureInstance)]
 	
 [/template]

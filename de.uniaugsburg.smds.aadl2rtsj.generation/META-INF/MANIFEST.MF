@@ -1,12 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Acceleo Generation Module Runtime Plug-in
-Bundle-SymbolicName: de.uniaugsburg.smds.aadl2rtsj.generation
+Bundle-SymbolicName: de.uniaugsburg.smds.aadl2rtsj.generation;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: de.uniaugsburg.smds.aadl2rtsj.generation.Activator
 Bundle-Vendor: Eclipse Modeling Project
-Require-Bundle: org.eclipse.core.runtime, 
- org.eclipse.emf.ecore, 
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.emf.ecore,
  org.eclipse.emf.ecore,
  org.eclipse.emf.ecore.xmi,
  org.eclipse.ocl,
@@ -16,10 +16,18 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.acceleo.profiler;bundle-version="3.3.0",
  org.eclipse.acceleo.engine;bundle-version="3.3.0",
  com.google.guava,
- org.osate.aadl2
+ org.osate.aadl2,
+ org.osate.ui,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.launching,
+ org.eclipse.ui,
+ org.osate.xtext.aadl2.properties;bundle-version="1.0.0",
+ org.osate.xtext.aadl2;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
 Export-Package: de.uniaugsburg.smds.aadl2rtsj.generation.main,
- de.uniaugsburg.smds.aadl2rtsj.generation.services
+ de.uniaugsburg.smds.aadl2rtsj.generation.services.aadl,
+ de.uniaugsburg.smds.aadl2rtsj.generation.services.common,
+ de.uniaugsburg.smds.aadl2rtsj.generation.services.threads
 

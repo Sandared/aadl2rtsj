@@ -1,0 +1,18 @@
+[comment encoding = UTF-8 /]
+[**
+ * The documentation of the module ThreadGenerator.
+ */]
+[module ThreadGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::threads::ThreadHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::common::threads::PeriodicThreadGenerator /]
+
+[**
+ * The documentation of the template generateElement.
+ * @param aType
+ */]
+[template public generateThread(ci : ComponentInstance)? (isThread(ci))]
+	[comment Each ThreadGenerator decides if it's the right one for himself /]
+	[generatePeriodicThread(ci)/]
+	[comment generateSporadicThread(ci) TODO/]
+	[comment generateAperiodicThread(ci) TODO/]
+[/template]

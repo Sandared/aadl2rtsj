@@ -1,4 +1,4 @@
-package de.uniaugsburg.smds.aadl2rtsj.generation.services;
+package de.uniaugsburg.smds.aadl2rtsj.generation.services.common;
 
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.ComponentCategory;
@@ -8,9 +8,13 @@ import org.osate.aadl2.DataImplementation;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
+import org.osate.aadl2.instance.ConnectionInstanceEnd;
 import org.osate.aadl2.instance.ConnectionReference;
 import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
+
+import de.uniaugsburg.smds.aadl2rtsj.generation.utils.OffsetTime;
+
 
 public class CommonHelper {
 	
@@ -72,15 +76,6 @@ public class CommonHelper {
 		return pkg.toString().toLowerCase();
 	}
 	
-	/**
-	 * Uses the instanceobject's path to create a package name from it.<br>
-	 * If the instance object is of type FeatureInstance, the part after the last dot is stripped.<br>
-	 * If the path contains an "_impl_" part, then this part is stripped.<br>
-	 * If the path contains an "_Instance" part, then this part is stripped.<br>
-	 * The whole String is returned as lower case.
-	 * @param object the object the packagename is created for
-	 * @return a String that represents a package name, e.g. path.to.some.package
-	 */
 	private static String getHierarchyName(InstanceObject object){
 		StringBuffer buffer = null;
 		buffer = new StringBuffer(object.getInstanceObjectPath());
@@ -174,6 +169,16 @@ public class CommonHelper {
 			}
 		}
 		return upmost.getConnection();
+	}
+	
+	public static String packageName2PackagePath(String pkgName){
+		return pkgName.replace(".", "/");
+	}
+	
+	public static String getSynchronisationObjectName(ConnectionInstance connection){
+		ConnectionInstanceEnd source = connection.getSource();
+		ConnectionInstanceEnd target = connection.getDestination();
+		return getObjectName(source) + "2" + getClassName(target) + "Sync";
 	}
 
 }

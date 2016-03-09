@@ -1,0 +1,19 @@
+[comment encoding = UTF-8 /]
+[module AADLHelper('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')/]
+
+[query public getComponentInstance(arg0 : ConnectionInstanceEnd) : ComponentInstance
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.aadl.AADLHelper', 'getComponentInstance(org.osate.aadl2.instance.ConnectionInstanceEnd)', Sequence{arg0})
+/]
+
+[query public getSubcomponents(arg0 : ComponentInstance) : Sequence(ComponentInstance)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.aadl.AADLHelper', 'getSubcomponents(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
+[query public getFeatures(arg0 : ComponentInstance) : Sequence(FeatureInstance)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.aadl.AADLHelper', 'getFeatures(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
+[query public getConnectionDestination(arg0 : ConnectionInstance) : ConnectionInstanceEnd
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.aadl.AADLHelper', 'getConnectionDestination(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
+/]
+
