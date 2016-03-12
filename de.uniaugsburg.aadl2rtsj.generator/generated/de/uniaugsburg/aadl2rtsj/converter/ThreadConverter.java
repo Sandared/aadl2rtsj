@@ -15,7 +15,7 @@ public class ThreadConverter{
   }
 
   public final String NL = nl == null ? (System.getProperties().getProperty("line.separator")) : nl;
-  protected final String TEXT_1 = NL + "public class ";
+  protected final String TEXT_1 = NL + "//TODO: import subcomponents if necessary" + NL + "" + NL + "public class ";
   protected final String TEXT_2 = "{" + NL + "\t";
   protected final String TEXT_3 = NL + "\t/*" + NL + "\t * Subcomponents" + NL + "\t */ ";
   protected final String TEXT_4 = NL + "\t";
@@ -30,7 +30,7 @@ public class ThreadConverter{
   protected final String TEXT_13 = " = new ";
   protected final String TEXT_14 = "();" + NL + "\t\t";
   protected final String TEXT_15 = NL + "\t";
-  protected final String TEXT_16 = NL + "}";
+  protected final String TEXT_16 = NL + "\t" + NL + "\tprivate final void run(){" + NL + "\t\ttry{" + NL + "\t\t\tdispatch();" + NL + "\t\t\tinitialize();" + NL + "\t\t\tcompute();" + NL + "\t\t\tfinalize()" + NL + "\t\t}catch(Exception e){" + NL + "\t\t\terror();" + NL + "\t\t}" + NL + "\t}" + NL + "\t" + NL + "\tprivate final void dispatch(){" + NL + "\t\t//do all stuff that has to be done at dispatch" + NL + "\t}" + NL + "\t" + NL + "\tprivate void initialize(){" + NL + "\t\t//Usercode for initializeS" + NL + "\t}" + NL + "\t" + NL + "\tprivate void compute(){" + NL + "\t\t//Usercode for compute" + NL + "\t}" + NL + "\t" + NL + "\tprivate void finalize(){" + NL + "\t\t//Usercode for finalize" + NL + "\t}" + NL + "\t" + NL + "\tprivate void error(){" + NL + "\t\t//Usercode for error" + NL + "\t}" + NL + "}";
   protected final String TEXT_17 = NL;
 
 	/*

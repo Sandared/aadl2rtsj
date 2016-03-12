@@ -8,7 +8,7 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper;
 public class SimpleStatements {
 
 	public static String receiveInputStatement(FeatureInstance fi){
-		return CommonHelper.getObjectName(fi) + ".receiveInput()";
+		return CommonHelper.getObjectName(fi) + ".receiveInput();";
 	}
 	
 	public static String sendOutputStatement(FeatureInstance fi, ConnectionInstance ci){
@@ -45,8 +45,4 @@ public class SimpleStatements {
 	private static String getHandlerClassName(FeatureInstance feature, OffsetTime time){
 		return CommonHelper.getClassName(feature) + "Handler_" + time.getUniqueId();
 	}
-	
-//	private static String getHandlerObjectName(FeatureInstance feature, OffsetTime time){
-//		return CommonHelper.getObjectName(feature) + "Handler_" + time.getUniqueId();
-//	}
 }

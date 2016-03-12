@@ -171,10 +171,6 @@ public class CommonHelper {
 		return upmost.getConnection();
 	}
 	
-	public static String packageName2PackagePath(String pkgName){
-		return pkgName.replace(".", "/");
-	}
-	
 	public static String getSynchronisationObjectName(ConnectionInstance connection){
 		ConnectionInstanceEnd source = connection.getSource();
 		ConnectionInstanceEnd target = connection.getDestination();

@@ -13,7 +13,7 @@ public class AADLHelper {
 	}
 	
 	public static EList<ComponentInstance> getSubcomponents(ComponentInstance ci){
-		EList<ComponentInstance> subcomponents = ci.getComponentInstances();
+		EList<ComponentInstance> subcomponents = ci.getAllComponentInstances();
 		subcomponents.remove(0); // the first one is always the Component itself
 		return subcomponents;
 	}

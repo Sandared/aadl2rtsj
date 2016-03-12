@@ -25,10 +25,6 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getConnection(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
 /]
 
-[query public packageName2PackagePath(arg0 : String) : String
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'packageName2PackagePath(java.lang.String)', Sequence{arg0})
-/]
-
 [query public getSynchronisationObjectName(arg0 : ConnectionInstance) : String
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getSynchronisationObjectName(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
 /]
