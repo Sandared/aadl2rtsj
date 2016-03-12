@@ -1,6 +1,8 @@
 [comment encoding = UTF-8 /]
 [module Main('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')/]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::common::threads::ThreadGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::aadl::AADLHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::features::ports::PortGenerator /]
 
 [template public Main(system : SystemInstance)]
 	
@@ -17,12 +19,12 @@
 
 
 	[comment generate the features for this component /]
-	[for (feature : FeatureInstance | ci.featureInstance)]
+	[for (feature : FeatureInstance | getFeatures(ci))]
 		[generateFeature(feature)/]
 	[/for]
 	
 	[comment generate all subcomponents recursively  /]
-	[for (subcomponent : ComponentInstance | ci.componentInstance)]
+	[for (subcomponent : ComponentInstance | getSubcomponents(ci) )]
 		[if (subcomponent <> ci)]
 			[generateComponent(subcomponent)/]
 		[/if]
@@ -30,5 +32,6 @@
 [/template]
 
 [template public generateFeature(fi : FeatureInstance)]
-	
+	[comment generate the feature of a componentf. Each Generator decides if the given object is the right one /]
+	[generateDataPort(fi)/]
 [/template]

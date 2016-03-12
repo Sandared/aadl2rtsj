@@ -1,0 +1,9 @@
+[comment encoding = UTF-8 /]
+[module PortGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::features::ports::InDataPortGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::features::ports::PortHelper /]
+
+
+[template public generateDataPort(dataPort : FeatureInstance)? (isDataPort(dataPort))]
+	[generateInDataPort(dataPort)/]
+[/template]
