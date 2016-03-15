@@ -3,8 +3,8 @@
  * The documentation of the module ThreadGenerator.
  */]
 [module ThreadGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::services::threads::ThreadHelper /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::common::threads::PeriodicThreadGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::components::threads::ThreadHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::components::threads::PeriodicThreadGenerator /]
 
 [**
  * The documentation of the template generateElement.

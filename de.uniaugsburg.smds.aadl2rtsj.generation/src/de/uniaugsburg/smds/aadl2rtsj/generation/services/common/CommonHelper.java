@@ -1,5 +1,14 @@
 package de.uniaugsburg.smds.aadl2rtsj.generation.services.common;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.ComponentCategory;
 import org.osate.aadl2.ComponentImplementation;
@@ -13,6 +22,7 @@ import org.osate.aadl2.instance.ConnectionReference;
 import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
 
+import de.uniaugsburg.smds.aadl2rtsj.generation.DoRTSJGeneration;
 import de.uniaugsburg.smds.aadl2rtsj.generation.utils.OffsetTime;
 
 
@@ -141,7 +151,7 @@ public class CommonHelper {
 	
 	public static boolean isBaseType(Classifier classifier){
 		return getNameSpace(classifier).equals("Base_Types");
-	}
+	}	
 	
 	private static String getNameSpace(Classifier classifier){
 		StringBuffer namespace = new StringBuffer(classifier.getNamespace().getFullName());

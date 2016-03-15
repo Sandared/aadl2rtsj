@@ -5,3 +5,11 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.features.ports.PortHelper', 'isDataPort(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
 /]
 
+[query public isIncoming(arg0 : FeatureInstance) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.features.ports.PortHelper', 'isIncoming(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
+/]
+
+[query public isOutgoing(arg0 : FeatureInstance) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.features.ports.PortHelper', 'isOutgoing(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
+/]
+

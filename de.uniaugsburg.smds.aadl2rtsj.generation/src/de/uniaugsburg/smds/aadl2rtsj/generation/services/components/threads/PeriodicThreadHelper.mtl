@@ -1,0 +1,23 @@
+[comment encoding = UTF-8 /]
+[module PeriodicThreadHelper('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')/]
+
+[query public getDispatchStatements(arg0 : ComponentInstance) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.components.threads.PeriodicThreadHelper', 'getDispatchStatements(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
+[query public getStartStatements(arg0 : ComponentInstance) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.components.threads.PeriodicThreadHelper', 'getStartStatements(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
+[query public getCompletionStatements(arg0 : ComponentInstance) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.components.threads.PeriodicThreadHelper', 'getCompletionStatements(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
+[query public getDeadlineStatements(arg0 : ComponentInstance) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.components.threads.PeriodicThreadHelper', 'getDeadlineStatements(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
+[query public getImmediateConnection(arg0 : ComponentInstance) : ConnectionInstance
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.components.threads.PeriodicThreadHelper', 'getImmediateConnection(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+

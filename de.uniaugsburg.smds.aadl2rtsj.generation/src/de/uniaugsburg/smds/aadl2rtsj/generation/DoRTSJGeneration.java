@@ -32,7 +32,8 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.main.Main;
 
 public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 
-	private IPackageFragmentRoot rootPackage = null;
+	public static IPackageFragmentRoot _rootPackage = null;
+	public static IProgressMonitor _monitor = null;
 
 	@Override
 	protected String getActionName() {
@@ -42,6 +43,7 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 	@Override
 	protected void doAaxlAction(IProgressMonitor monitor, Element root) {
 		System.out.println("DoRTSJGeneration.doAaxlAction()");
+		_monitor = monitor;
 
 		monitor.beginTask("Generating RTSJ Code", IProgressMonitor.UNKNOWN);
 
@@ -80,7 +82,7 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 			
 			// Use Acceleo instead of Osate Switches and JET
 			try {
-				File srcFolder = new File(rootPackage.getCorrespondingResource().getLocationURI());
+				File srcFolder = new File(_rootPackage.getCorrespondingResource().getLocationURI());
 				Main main = new Main(si, srcFolder, new ArrayList<Object>());
 				main.doGenerate(BasicMonitor.toMonitor(monitor));
 			} catch (IOException e) {
@@ -145,11 +147,11 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 				sourceFolder.create(false, true, monitor);
 
 			// add source folder to classpath entries
-			rootPackage = javaProject.getPackageFragmentRoot(sourceFolder);
+			_rootPackage = javaProject.getPackageFragmentRoot(sourceFolder);
 			IClasspathEntry[] oldEntries = javaProject.getRawClasspath();
 			IClasspathEntry[] newEntries = new IClasspathEntry[oldEntries.length + 1];
 			System.arraycopy(oldEntries, 0, newEntries, 0, oldEntries.length);
-			newEntries[oldEntries.length] = JavaCore.newSourceEntry(rootPackage.getPath());
+			newEntries[oldEntries.length] = JavaCore.newSourceEntry(_rootPackage.getPath());
 			javaProject.setRawClasspath(newEntries, monitor);
 
 		} catch (CoreException e1) {

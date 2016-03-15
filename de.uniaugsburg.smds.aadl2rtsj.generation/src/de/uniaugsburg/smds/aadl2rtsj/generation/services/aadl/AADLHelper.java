@@ -1,6 +1,7 @@
 package de.uniaugsburg.smds.aadl2rtsj.generation.services.aadl;
 
 import org.eclipse.emf.common.util.EList;
+import org.osate.aadl2.Classifier;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.ConnectionInstanceEnd;
@@ -24,6 +25,14 @@ public class AADLHelper {
 	
 	public static ConnectionInstanceEnd getConnectionDestination(ConnectionInstance coni){
 		return coni.getDestination();
+	}
+	
+	public static EList<ConnectionInstance> getDstConnectionInstances(FeatureInstance fi){
+		return fi.getDstConnectionInstances();
+	}
+	
+	public static Classifier getClassifier(FeatureInstance fi){
+		return fi.getFeature().getClassifier();
 	}
 
 }

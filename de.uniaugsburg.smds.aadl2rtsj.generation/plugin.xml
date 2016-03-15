@@ -38,5 +38,11 @@
          </menu>
       </objectContribution>
    </extension>
+  <extension
+        point="org.eclipse.acceleo.engine.traceabilityListener">
+     <traceabilityListener
+           class="de.uniaugsburg.smds.aadl2rtsj.generation.AADL2RTSJGenerationListener">
+     </traceabilityListener>
+  </extension>
 
 </plugin>

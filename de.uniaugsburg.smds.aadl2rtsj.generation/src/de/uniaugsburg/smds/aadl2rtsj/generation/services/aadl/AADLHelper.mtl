@@ -17,3 +17,11 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.aadl.AADLHelper', 'getConnectionDestination(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
 /]
 
+[query public getDstConnectionInstances(arg0 : FeatureInstance) : Sequence(ConnectionInstance)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.aadl.AADLHelper', 'getDstConnectionInstances(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
+/]
+
+[query public getClassifier(arg0 : FeatureInstance) : Classifier
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.aadl.AADLHelper', 'getClassifier(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
+/]
+

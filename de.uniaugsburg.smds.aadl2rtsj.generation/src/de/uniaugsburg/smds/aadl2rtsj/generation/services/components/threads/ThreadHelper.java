@@ -1,4 +1,4 @@
-package de.uniaugsburg.smds.aadl2rtsj.generation.services.threads;
+package de.uniaugsburg.smds.aadl2rtsj.generation.services.components.threads;
 
 import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.AADL_Project_Time_Units_Milli_Seconds;
 import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.AADL_Project_Time_Units_Nano_Seconds;

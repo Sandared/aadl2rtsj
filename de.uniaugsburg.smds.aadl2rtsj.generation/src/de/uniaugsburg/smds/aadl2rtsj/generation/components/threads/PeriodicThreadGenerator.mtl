@@ -5,8 +5,8 @@
 [module PeriodicThreadGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::aadl::AADLHelper /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::services::threads::ThreadHelper /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::services::threads::PeriodicThreadHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::components::threads::ThreadHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::components::threads::PeriodicThreadHelper /]
 
 
 [template public generatePeriodicThread(thread : ComponentInstance)? (isPeriodic(thread)) ]
@@ -135,7 +135,7 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 [/template]
 
 [template private getHandlerType(thread : ComponentInstance) post (trim()) {connection : ConnectionInstance = getImmediateConnection(thread);}]
-	[if (connection <> null) and (getComponentInstance(getConnectionDestination(connection)) = thread)]
+	[if ((connection <> null) and (getComponentInstance(getConnectionDestination(connection)) = thread))]
 		BoundAsyncEventHandler
 	[else]
 		AsyncEventHandler
@@ -152,5 +152,4 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 	[if (connection <> null)]
 Object [getSynchronisationObjectName(connection)/]
 	[/if]
-	
 [/template]

@@ -29,5 +29,6 @@ Eclipse-LazyStart: true
 Export-Package: de.uniaugsburg.smds.aadl2rtsj.generation.main,
  de.uniaugsburg.smds.aadl2rtsj.generation.services.aadl,
  de.uniaugsburg.smds.aadl2rtsj.generation.services.common,
- de.uniaugsburg.smds.aadl2rtsj.generation.services.threads
+ de.uniaugsburg.smds.aadl2rtsj.generation.services.components.threads,
+ de.uniaugsburg.smds.aadl2rtsj.generation.services.features.ports
 
