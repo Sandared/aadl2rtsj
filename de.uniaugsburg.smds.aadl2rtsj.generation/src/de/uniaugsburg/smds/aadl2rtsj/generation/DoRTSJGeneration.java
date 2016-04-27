@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.launching.IVMInstallType;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.osate.aadl2.Element;
 import org.osate.aadl2.instance.InstanceObject;
@@ -84,6 +85,8 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 			try {
 				File srcFolder = new File(_rootPackage.getCorrespondingResource().getLocationURI());
 				Main main = new Main(si, srcFolder, new ArrayList<Object>());
+				
+				main.addGenerationListener(new AADL2RTSJGenerationListener(monitor, _rootPackage));
 				main.doGenerate(BasicMonitor.toMonitor(monitor));
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -135,8 +138,15 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 
 			// define classpath entries
 			List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
-			IClasspathEntry defaultJREContainerEntry = JavaRuntime.getDefaultJREContainerEntry();
+			IClasspathEntry defaultJREContainerEntry = JavaRuntime.getDefaultJREContainerEntry(); 
 			entries.add(defaultJREContainerEntry);
+			
+			
+			//search for RTSJ
+			IVMInstallType[] types = JavaRuntime.getVMInstallTypes();
+			for (IVMInstallType ivmInstallType : types) {
+				System.out.println(ivmInstallType);
+			}
 
 			// add libs to project class path
 			javaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), monitor);

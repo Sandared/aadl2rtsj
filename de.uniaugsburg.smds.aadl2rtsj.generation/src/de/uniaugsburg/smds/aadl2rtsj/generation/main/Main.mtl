@@ -27,11 +27,9 @@
 			[generateComponent(subcomponent)/]
 		[/if]
 	[/for]
-	[createJavaClass(ci)/]
 [/template]
 
 [template public generateFeature(fi : FeatureInstance)]
 	[comment generate the feature of a component. Each Generator decides if the given object is the right one /]
 	[generateDataPort(fi)/]
-	[createJavaClass(fi)/]
 [/template]

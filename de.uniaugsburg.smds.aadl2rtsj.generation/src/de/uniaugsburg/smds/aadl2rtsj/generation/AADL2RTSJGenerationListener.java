@@ -1,74 +1,114 @@
 package de.uniaugsburg.smds.aadl2rtsj.generation;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.eclipse.acceleo.engine.event.AbstractAcceleoTextGenerationListener;
 import org.eclipse.acceleo.engine.event.AcceleoTextGenerationEvent;
-import org.eclipse.acceleo.engine.event.IAcceleoTextGenerationListener;
-import org.eclipse.acceleo.model.mtl.FileBlock;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 
-public class AADL2RTSJGenerationListener implements IAcceleoTextGenerationListener {
+/**
+ * This whole class is a workaround in order to create CompilationUnits instead of plain text files during generation.
+ * Writing your own GenerationStrategy might be a more elegant way, but I had not enough time to dig into this further
+ * @author Thomas Driessen
+ *
+ */
+public class AADL2RTSJGenerationListener extends AbstractAcceleoTextGenerationListener {
 	private final static String SOURCE_PKG = "src";
-	private StringBuilder sourceCode = new StringBuilder();
+	private IProgressMonitor monitor;
+	private IPackageFragmentRoot root;
+	private Map<String, String> srcFiles = new HashMap<String, String>();
+
+	public AADL2RTSJGenerationListener(IProgressMonitor monitor, IPackageFragmentRoot root) {
+		this.monitor = monitor;
+		this.root = root;
+	}
 
 	@Override
 	public void fileGenerated(AcceleoTextGenerationEvent event) {
-
+		try {
+			String sourceCode = new String(Files.readAllBytes(Paths.get(event.getText())));
+			srcFiles.put(event.getText(), sourceCode);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	@Override
-	public void filePathComputed(AcceleoTextGenerationEvent event) {
-//		String path = event.getText();
-//		int srcPos = path.indexOf(SOURCE_PKG + File.separator);
-//		String srcPath = path.substring(srcPos + SOURCE_PKG.length() + File.separator.length());
-//		int classPos = srcPath.lastIndexOf(File.separator);
-//		String className = srcPath.substring(classPos + File.separator.length());
-//		String packageName = srcPath.substring(0, classPos).replace(File.separator, ".");
-//		
-//		FileBlock fb = (FileBlock) event.getBlock();
-//		String test = fb.toString();
-//		createJavaClass(packageName, className, sourceCode.toString(), DoRTSJGeneration._monitor, DoRTSJGeneration._rootPackage);
-//		sourceCode = new StringBuilder();
-	}
-
-	@Override
-	public void generationEnd(AcceleoTextGenerationEvent arg0) {
-		// nothing to do here
-	}
-
-	@Override
-	public boolean listensToGenerationEnd() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public void textGenerated(AcceleoTextGenerationEvent arg0) {
-//		sourceCode.append(arg0.getText());
-	}
-	
-	private boolean createJavaClass(String packageName, String className, String sourceCode, IProgressMonitor monitor, IPackageFragmentRoot root) {
+	private boolean createJavaClass(String packageName, String className, String sourceCode) {
 		IPackageFragment fragment = null;
 		try {
 			// get or create the package
 			fragment = root.getPackageFragment(packageName);
-			if(!fragment.exists())
+			if (!fragment.exists())
 				fragment = root.createPackageFragment(packageName, false, monitor);
-			
+
 			ICompilationUnit cu = fragment.getCompilationUnit(className);
-			if(!cu.exists())
+			if (!cu.exists())
 				cu = fragment.createCompilationUnit(className, sourceCode, false, monitor);
-			
+
 			// create class
 			cu.save(monitor, true);
 		} catch (JavaModelException e) {
 			e.printStackTrace();
 			return false;
 		}
+		return true;
+	}
+
+	@Override
+	public void generationEnd(AcceleoTextGenerationEvent event) {
+		// clear src folder
+		try {
+			Path directory = Paths.get(root.getCorrespondingResource().getLocationURI().getPath());
+			Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					Files.delete(file);
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+					Files.delete(dir);
+					return FileVisitResult.CONTINUE;
+				}
+
+			});
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		
+		// recreate it as Java files
+		for (Map.Entry<String, String> srcFile : srcFiles.entrySet()) {
+			String path = srcFile.getKey();
+			String packageName = path.substring(path.lastIndexOf(SOURCE_PKG) + SOURCE_PKG.length());
+			String className = packageName.substring(packageName.lastIndexOf(File.separator) + File.separator.length());
+			packageName = packageName.substring(1, packageName.lastIndexOf(File.separator)).replace(File.separatorChar, '.');
+			String sourceCode = srcFile.getValue();
+			
+			createJavaClass(packageName, className, sourceCode);
+		}
+
+		// clear the map
+		srcFiles.clear();
+	}
+
+	@Override
+	public boolean listensToGenerationEnd() {
 		return true;
 	}
 
