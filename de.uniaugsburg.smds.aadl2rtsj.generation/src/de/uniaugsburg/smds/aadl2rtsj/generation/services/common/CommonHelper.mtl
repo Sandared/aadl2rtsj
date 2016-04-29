@@ -29,7 +29,11 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getSynchronisationObjectName(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
 /]
 
-[query public createJavaClass(arg0 : NamedElement) : Boolean
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'createJavaClass(org.osate.aadl2.NamedElement)', Sequence{arg0})
+[query public getTiming(arg0 : ConnectionInstance) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getTiming(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
+/]
+
+[query public isImmediate(arg0 : ConnectionInstance) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'isImmediate(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
 /]
 

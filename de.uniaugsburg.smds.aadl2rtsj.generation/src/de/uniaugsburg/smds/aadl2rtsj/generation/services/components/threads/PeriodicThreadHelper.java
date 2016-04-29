@@ -19,6 +19,7 @@ import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.FeatureInstance;
 
+import de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper;
 import de.uniaugsburg.smds.aadl2rtsj.generation.utils.OffsetTime;
 import de.uniaugsburg.smds.aadl2rtsj.generation.utils.SimpleStatements;
 
@@ -194,7 +195,7 @@ public class PeriodicThreadHelper {
 	
 	private static OffsetTime getTimeForConnection(NamedElement element, ConnectionInstance connection, boolean isInput){
 		OffsetTime time = null;
-		String timing = getTiming(connection); // sampled, immediate, delayed
+		String timing = CommonHelper.getTiming(connection); // sampled, immediate, delayed
 		if(timing.equals(Communication_Properties_Timing_Immediate))
 			if(isInput)
 				time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Start, connection); // see AADL Standard 9.2.5 (50)
@@ -212,20 +213,6 @@ public class PeriodicThreadHelper {
 				time = new OffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Deadline, connection);// see AADL Standard 9.2.5 (51)
 		// sampled has no special semantic meaning for input and output timing
 		return time;
-	}
-	
-	private static String getTiming(ConnectionInstance connection){
-		String timing = null;
-		List<PropertyExpression> timingProperties = connection.getPropertyValues(Communication_Properties, Communication_Properties_Timing);
-		if(timingProperties.size() > 0){
-			EnumerationLiteral timingProperty = (EnumerationLiteral)((NamedValue)timingProperties.get(0)).getNamedValue();
-			timing = timingProperty.getName(); // sampled, immediate, delayed
-		}
-		else{
-			//default
-			timing = Communication_Properties_Timing_Sampled;
-		}
-		return timing;
 	}
 	
 	private static List<OffsetTime> getTimeForReferenceTime(NamedElement element, final String IOReferenceTime, boolean forceSingleValued, boolean isInput, ConnectionInstance connection){
@@ -270,7 +257,7 @@ public class PeriodicThreadHelper {
 			if(direction.outgoing() && !direction.incoming())
 				connections = feature.getSrcConnectionInstances();
 			for (ConnectionInstance connection : connections) {
-				String timing = getTiming(connection);
+				String timing = CommonHelper.getTiming(connection);
 				if(timing.equals(Communication_Properties_Timing_Immediate))
 					return connection;
 			}

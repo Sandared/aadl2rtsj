@@ -33,7 +33,7 @@ import [getPackageName(subcomponent)/].[getClassName(subcomponent)/];
 [comment if this thread has an immediate connection where it is the target, it has to wait and therefore needs to be a BoundAsyncEventHandler. Otherwise it's just an AsyncEventHandler /]
 
 public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
-	private final Timer timer = new PeriodicTimer(new RelativeTime(), new RelativeTime([getPeriodMilliSeconds(thread)/], [getPeriodNanoSeconds(thread)/]), this);
+	private Timer timer;
 	[comment Create a Member Statement for each Subcomponent /]
 	[if (getSubcomponents(thread)->size() > 0)]
 		[for (subcomponent : ComponentInstance | getSubcomponents(thread))]

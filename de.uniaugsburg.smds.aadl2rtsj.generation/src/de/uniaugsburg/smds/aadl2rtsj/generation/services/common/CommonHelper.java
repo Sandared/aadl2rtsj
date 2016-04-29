@@ -1,29 +1,24 @@
 package de.uniaugsburg.smds.aadl2rtsj.generation.services.common;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.CompilationUnit;
+import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.*;
+
+import java.util.List;
+
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.ComponentCategory;
 import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.DataImplementation;
+import org.osate.aadl2.EnumerationLiteral;
 import org.osate.aadl2.NamedElement;
+import org.osate.aadl2.NamedValue;
+import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.ConnectionInstanceEnd;
 import org.osate.aadl2.instance.ConnectionReference;
 import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
-
-import de.uniaugsburg.smds.aadl2rtsj.generation.DoRTSJGeneration;
-import de.uniaugsburg.smds.aadl2rtsj.generation.utils.OffsetTime;
 
 
 public class CommonHelper {
@@ -186,5 +181,23 @@ public class CommonHelper {
 		ConnectionInstanceEnd target = connection.getDestination();
 		return getObjectName(source) + "2" + getClassName(target) + "Sync";
 	}
-
+	
+	public static String getTiming(ConnectionInstance connection){
+		String timing = null;
+		List<PropertyExpression> timingProperties = connection.getPropertyValues(Communication_Properties, Communication_Properties_Timing);
+		if(timingProperties.size() > 0){
+			EnumerationLiteral timingProperty = (EnumerationLiteral)((NamedValue)timingProperties.get(0)).getNamedValue();
+			timing = timingProperty.getName(); // sampled, immediate, delayed
+		}
+		else{
+			//default
+			timing = Communication_Properties_Timing_Sampled;
+		}
+		return timing;
+	}
+	
+	public static boolean isImmediate(ConnectionInstance connection){
+		return getTiming(connection).equals(Communication_Properties_Timing_Immediate);
+	}
+	
 }

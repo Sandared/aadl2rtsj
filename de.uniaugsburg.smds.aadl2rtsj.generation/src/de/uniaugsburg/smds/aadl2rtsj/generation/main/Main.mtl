@@ -4,6 +4,7 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::aadl::AADLHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::features::ports::PortGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::connections::ConnectionGenerator /]
 
 [template public Main(system : SystemInstance)]
 	
@@ -20,6 +21,11 @@
 	[for (feature : FeatureInstance | getFeatures(ci))]
 		[generateFeature(feature)/]
 	[/for]
+
+	[comment generate connections for this component /]
+	[for (connection : ConnectionInstance | getConnectionInstances(ci))]
+		[generateConnection(connection)/]
+	[/for]
 	
 	[comment generate all subcomponents recursively  /]
 	[for (subcomponent : ComponentInstance | getSubcomponents(ci) )]
@@ -27,6 +33,9 @@
 			[generateComponent(subcomponent)/]
 		[/if]
 	[/for]
+
+	[comment TODO: DataTypes müssen irgendwie noch implementiert werden, die tauchen wsl hier gar nicht auf? /]
+	
 [/template]
 
 [template public generateFeature(fi : FeatureInstance)]

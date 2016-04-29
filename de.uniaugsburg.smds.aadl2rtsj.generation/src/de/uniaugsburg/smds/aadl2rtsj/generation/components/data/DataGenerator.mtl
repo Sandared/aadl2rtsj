@@ -1,0 +1,20 @@
+[comment encoding = UTF-8 /]
+[module DataGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::aadl::AADLHelper /]
+
+[template public generateData(data : DataImplementation)]
+[file(getPackageName(data).substitute('.', '/').concat('/').concat(getClassName(data)).concat('.java') , false, 'UTF-8')]
+package [getPackageName(data)/];
+[for (subcomponent: Subcomponent | getDataSubcomponents(data))]
+import [getPackageName(subcomponent)/].[getClassName(subcomponent)/];
+[/for]
+
+public class [getClassName(data)/]{
+	[for (subcomponent : Subcomponent | getDataSubcomponents(data))]
+	[comment create a member statement for each subcomponent /]
+	private [getClassName(subcomponent)/] [getObjectName(subcomponent)/] = new [getClassName(subcomponent)/]();
+	[/for]	
+}
+[/file]
+[/template]

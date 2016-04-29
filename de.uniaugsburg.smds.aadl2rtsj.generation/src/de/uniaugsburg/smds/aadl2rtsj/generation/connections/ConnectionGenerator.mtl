@@ -1,0 +1,53 @@
+[comment encoding = UTF-8 /]
+[module ConnectionGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::aadl::AADLHelper /]
+
+[template public generateConnection(connection : ConnectionInstance)]
+[file(getPackageName(connection).substitute('.', '/').concat('/').concat(getClassName(connection)).concat('.java') , false, 'UTF-8')]
+package [getPackageName(connection)/];
+[comment import datatype if necessary /]
+[comment we don't consider splitting or aggregation of data types currently, so it's sufficient to check one connectionend for its datatype/]
+[comment the end must be a FeatureInstance as we only consider data ports at the moment/]
+[let feature : FeatureInstance = connection.source.oclAsType(FeatureInstance)]
+	[let classifier : Classifier = feature.feature.classifier]
+		[comment if it is a base type, then we don't have to import anything, as Integer, Boolean etc are part of java.lang /]		
+		[if (isBaseType(classifier) <> true)]
+import [getPackageName(classifier)/].[getClassName(classifier)/];
+		[/if]
+	[/let]
+[/let]
+public class [getClassName(connection)/]{
+	[comment we don't consider splitting or aggregation of data types currently, so it's sufficient to check one connectionend for its datatype/]
+	[comment the end must be a FeatureInstance as we only consider data ports at the moment/]
+	private volatile [getDataType(connection.source.oclAsType(FeatureInstance))/] value = null;
+	private boolean isDirty = false;
+	
+	/**
+	 * Write the value which can then be read be the target of this connection
+	 * @param value the new value for this connection
+	 */
+	public void putValue([getDataType(connection.source.oclAsType(FeatureInstance))/] value){
+		this.value = value;
+		isDirty = true;
+	}
+	
+	/**
+	 * Read the value which was written by the source of this connection.
+	 * @return the value which was set by <code>putValue</code>
+	 */
+	public [getDataType(connection.source.oclAsType(FeatureInstance))/] getValue(){
+		isDirty = false;
+		return value;
+	}
+	
+	/**
+	 * Indicates whether this connection provides a new value or still the old, already read one.
+	 * @return true if there's a new value, false otherwise
+	 */
+	public boolean isDirty(){
+		return isDirty;
+	}
+}
+[/file]
+[/template]
