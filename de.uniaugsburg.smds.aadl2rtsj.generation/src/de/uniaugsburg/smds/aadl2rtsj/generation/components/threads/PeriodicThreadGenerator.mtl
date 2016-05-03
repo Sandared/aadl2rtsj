@@ -4,9 +4,6 @@
  */]
 [module PeriodicThreadGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::services::aadl::AADLHelper /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::services::components::threads::ThreadHelper /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::services::components::threads::PeriodicThreadHelper /]
 
 
 [template public generatePeriodicThread(thread : ComponentInstance)? (isPeriodic(thread)) ]
@@ -29,7 +26,6 @@ import [getPackageName(subcomponent)/].[getClassName(subcomponent)/];
 		[/if]
 	[/for]
 [/if]
-
 [comment if this thread has an immediate connection where it is the target, it has to wait and therefore needs to be a BoundAsyncEventHandler. Otherwise it's just an AsyncEventHandler /]
 
 public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
@@ -46,14 +42,20 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 	private [getClassName(feature)/] [getObjectName(feature)/];
 		[/for]
 	[/if]
+	[comment consider possible Member Statement for Synchronisation Object/]
+	[let connection : ConnectionInstance = getImmediateConnection(thread)]
+	private Object [getSynchronisationObjectName(connection)/];
+	[/let]	
 
 	public [getClassName(thread)/]([getConstructorParameters(thread)/]){
 		super();
 		setDaemon(false);
 		setSchedulingParameters(new PriorityParameters([getPriority(thread)/]));
 		timer = new PeriodicTimer(new RelativeTime(), new RelativeTime([getPeriodMilliSeconds(thread)/], [getPeriodNanoSeconds(thread)/]), this);
+		
+		[comment for each feature we have to create an Assignment Statement/]
 		[for (feature : FeatureInstance | getFeatures(thread))]
-			this.[getObjectName(feature)/] = [getObjectName(feature)/];
+		this.[getObjectName(feature)/] = [getObjectName(feature)/];
 		[/for]
 
 		[comment for each subcomponent we have to create an Assignment Statement/]
@@ -64,16 +66,11 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 				[/if]
 			[/for]
 		[/if]
-
-		[comment for each feature we have to create an Assignment Statement/]
-		[if (getFeatures(thread)->size() > 0)]
-			[for (feature : FeatureInstance | getFeatures(thread))]
-		this.[getObjectName(feature)/] = [getObjectName(feature)/];
-			[/for]
-		[/if]
+		
 		[comment consider possible synchronisationobjects/]
+		[comment TODO: what if there are multiple immediate connections for this CI?/]
 		[let connection : ConnectionInstance = getImmediateConnection(thread)]
-			this.[getSynchronisationObjectName(connection)/] = [getSynchronisationObjectName(connection)/];
+		this.[getSynchronisationObjectName(connection)/] = [getSynchronisationObjectName(connection)/];
 		[/let]		
 	}
 	
@@ -85,9 +82,10 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 			[if (getComponentInstance(connection.destination) = thread)]
 		synchronized([getSynchronisationObjectName(connection)/]){
 			try{
-				while([getObjectName(connection)/].isDirty()){
+				// TODO: not yet sure how to solve synchronization for immediate connections 
+				//while(![getObjectName(connection)/].isDirty()){
 					[getSynchronisationObjectName(connection)/].wait();
-				}
+				//}
 			}catch(InterruptedException e){
 				e.printStackTrace();
 			}
@@ -150,6 +148,6 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 [getClassName(subcomponent)/] [getObjectName(subcomponent)/]
 	[/for]
 	[if (connection <> null)]
-Object [getSynchronisationObjectName(connection)/]
+, Object [getSynchronisationObjectName(connection)/]
 	[/if]
 [/template]

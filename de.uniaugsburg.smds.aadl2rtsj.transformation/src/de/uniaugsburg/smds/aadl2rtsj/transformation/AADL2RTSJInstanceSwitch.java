@@ -145,14 +145,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	
 	@Override
 	public String caseConnectionInstance(ConnectionInstance object) {
-		boolean isActive = isActive(object);
-		// TODO: we currently do not use a if/else, because there might be special types like data... 
-		// passive directed connection if the next component in line is a thread, which reads actively from this connection
 		String sourceCode = new DirectedConnectionConverter().generate(object);
-//		if(!isActive)
-//		// active directed connection if the next component in line is a non_thread, which does not read actively from this connection
-//		if(isActive)
-//			sourceCode = new ActiveDirectedConnectionConverter().generate(object);
 		createJavaClass(getPackageName(object), getClassName(object), sourceCode, monitor, root);
 		visitedObjects.add(object);
 		System.out.println("AADL2RTSJInstanceSwitch.caseConnectionInstance()" + object);

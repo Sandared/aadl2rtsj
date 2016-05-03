@@ -1,0 +1,35 @@
+[comment encoding = UTF-8 /]
+[module IOHandlerGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+
+[template public generateIOHandler(component : ComponentInstance, feature : FeatureInstance, time : OffsetTime)]
+[file(getPackageName(component).substitute('.', '/').concat('/').concat(getHandlerClassName(feature, time)).concat('.java') , false, 'UTF-8')]
+package [getPackageName(component)/];
+
+import javax.realtime.Timer;
+import javax.realtime.OneShotTimer;
+import javax.realtime.RelativeTime;
+import javax.realtime.PriorityParameters;
+import javax.realtime.BoundAsyncEventHandler;
+import [getPackageName(feature)/].[getClassName(feature)/];
+
+public class [getHandlerClassName(feature, time)/] extends BoundAsyncEventHandler{
+	private [getClassName(feature)/] [getObjectName(feature)/];
+	
+	public [getHandlerClassName(feature, time)/]([getClassName(feature)/] [getObjectName(feature)/]){
+		this.[getObjectName(feature)/] = [getObjectName(feature)/];
+		setSchedulingParameters(new PriorityParameters([getPriority(component)/]));
+		// TODO: AperiodicParameters for deadline/cost/misshandler/overrunhandler?
+	}
+	
+	@Override
+	public void handleAsyncEvent() {
+		Timer timerFor[getHandlerClassName(feature, time)/] = new OneShotTimer(new RelativeTime([time.ms.toString()/], [time.ns.toString()/]), new [getHandlerClassName(feature, time)/]([getObjectName(feature)/]));
+		timerFor[getHandlerClassName(feature, time)/].start();
+	}
+}
+[/file]
+
+[/template]
+
+

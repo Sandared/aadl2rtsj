@@ -22,13 +22,11 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jdt.launching,
  org.eclipse.ui,
  org.osate.xtext.aadl2.properties;bundle-version="1.0.0",
- org.osate.xtext.aadl2;bundle-version="1.0.0"
+ org.osate.xtext.aadl2;bundle-version="1.0.0",
+ de.uniaugsburg.smds.aadl2rtsj.generation.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
 Export-Package: de.uniaugsburg.smds.aadl2rtsj.generation.main,
- de.uniaugsburg.smds.aadl2rtsj.generation.services.aadl,
- de.uniaugsburg.smds.aadl2rtsj.generation.services.common,
- de.uniaugsburg.smds.aadl2rtsj.generation.services.components.threads,
- de.uniaugsburg.smds.aadl2rtsj.generation.services.features.ports
+ de.uniaugsburg.smds.aadl2rtsj.generation.services.common
 

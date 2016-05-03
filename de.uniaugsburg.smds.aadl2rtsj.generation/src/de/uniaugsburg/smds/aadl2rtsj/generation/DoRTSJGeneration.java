@@ -67,8 +67,8 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 			try {
 				File srcFolder = new File(root.getCorrespondingResource().getLocationURI());
 				Main main = new Main(si, srcFolder, new ArrayList<Object>());
-				
 				main.addGenerationListener(new AADL2RTSJGenerationListener(monitor, root));
+				main.addPropertiesFile("platform:/plugin/de.uniaugsburg.smds.aadl2rtsj.generation/de/uniaugsburg/smds/aadl2rtsj/generation/main/aadl2rtsj.properties");
 				main.doGenerate(BasicMonitor.toMonitor(monitor));
 			} catch (IOException e) {
 				e.printStackTrace();

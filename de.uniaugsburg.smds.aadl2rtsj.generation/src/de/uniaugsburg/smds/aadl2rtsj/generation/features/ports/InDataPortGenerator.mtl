@@ -1,8 +1,6 @@
 [comment encoding = UTF-8 /]
 [module InDataPortGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::services::features::ports::PortHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::services::aadl::AADLHelper /]
 
 [template public generateInDataPort(dataPort : FeatureInstance)? (isIncoming(dataPort)) { classifier : Classifier = getClassifier(dataPort); } ]
 [file(getPackageName(dataPort).substitute('.', '/').concat('/').concat(getClassName(dataPort)).concat('.java') , false, 'UTF-8')]
@@ -31,6 +29,8 @@ public class [getClassName(dataPort)/]{
 		this.[getObjectName(connection)/] = [getObjectName(connection)/];
 		[/for]
 	}
+
+
 	
 	/**
 	 * This method returns the data that was made available by calling <code>receiveInput()</code><br>

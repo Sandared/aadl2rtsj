@@ -4,6 +4,7 @@ import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.FeatureInstance;
 
 import de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper;
+import util.OffsetTime;
 
 public class SimpleStatements {
 
