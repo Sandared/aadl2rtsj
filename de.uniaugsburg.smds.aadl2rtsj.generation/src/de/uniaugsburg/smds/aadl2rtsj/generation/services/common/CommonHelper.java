@@ -10,6 +10,7 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.ComponentCategory;
+import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.DataImplementation;
@@ -30,7 +31,6 @@ import org.osate.aadl2.instance.FeatureCategory;
 import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
 
-import de.uniaugsburg.smds.aadl2rtsj.generation.utils.SimpleStatements;
 import util.OffsetTime;
 import util.UtilFactory;
 
@@ -391,6 +391,10 @@ public class CommonHelper {
 		return ci.getCategory() == ComponentCategory.THREAD;
 	}
 	
+	public static boolean isData(ComponentInstance ci){
+		return ci.getCategory() == ComponentCategory.DATA;
+	}
+	
 	public static boolean isPeriodic(ComponentInstance ci){
 		return getDispatchProtocol(ci).equals(Thread_Properties_Dispatch_Protocol_Periodic);
 	}
@@ -431,6 +435,10 @@ public class CommonHelper {
 	
 	public static Classifier getClassifier(FeatureInstance fi){
 		return fi.getFeature().getClassifier();
+	}
+	
+	public static Classifier getClassifier(ComponentInstance ci){
+		return ci.getComponentClassifier();
 	}
 	
 	public static EList<DataSubcomponent> getDataSubcomponents(DataImplementation dataImpl){
