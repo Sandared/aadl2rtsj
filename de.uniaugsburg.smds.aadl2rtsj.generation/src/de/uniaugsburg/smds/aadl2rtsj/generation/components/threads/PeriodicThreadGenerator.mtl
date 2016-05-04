@@ -2,7 +2,7 @@
 [**
  * The documentation of the module generate.
  */]
-[module PeriodicThreadGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[module PeriodicThreadGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
 
 
@@ -99,12 +99,13 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 	}
 	
 	private final void dispatch() {
-		[getDispatchStatements(thread)/]
-		[getDeadlineStatements(thread)/]
+		[getStatementsForReferenceTime(thread, getProperty('Communication_Properties_IO_Reference_Time_Dispatch'))/]
+		[comment we need deadline statements at this point, as there is no way to hook into the JVM to listen for a deadline /]
+		[getStatementsForReferenceTime(thread, getProperty('Communication_Properties_IO_Reference_Time_Deadline'))/]
 	}
 	
 	private final void start() {
-		[getStartStatements(thread)/]
+		[getStatementsForReferenceTime(thread, getProperty('Communication_Properties_IO_Reference_Time_Start'))/]
 	}
 	
 	private final void compute() {
@@ -112,7 +113,7 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 	}
 	
 	private final void completion() {
-		[getCompletionStatements(thread)/]
+		[getStatementsForReferenceTime(thread, getProperty('Communication_Properties_IO_Reference_Time_Completion'))/]
 	}
 	
 	/**
@@ -150,4 +151,80 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 	[if (connection <> null)]
 , Object [getSynchronisationObjectName(connection)/]
 	[/if]
+[/template]
+
+[template public getStatementsForReferenceTime(thread : ComponentInstance, IOReferenceTime : String)]
+	[for (feature : FeatureInstance | getFeatures(thread))]
+		[if (isDataPort(feature))]
+			[if (isIncoming(feature))]
+				[comment IGNORE Input_Time == Deadline, it seems to be forbidden by standard 8.3.2 (19) TODO: ask on mailinglist for clarification /]
+				[if (IOReferenceTime <> getProperty('Communication_Properties_IO_Reference_Time_Deadline'))]
+[getDataPortInputStatementsForReferenceTime(feature, IOReferenceTime)/]
+				[/if]
+			[/if]
+			[if (isOutgoing(feature))]
+				[comment IGNORE Output_Time == Dispatch, it seems to be forbidden by standard 8.3.2 (27) TODO: ask on mailinglist for clarification/]
+				[if (IOReferenceTime <> getProperty('Communication_Properties_IO_Reference_Time_Dispatch'))]
+[getDataPortOutputStatementsForReferenceTime(feature, IOReferenceTime)/]
+				[/if]
+			[/if]
+		[/if]
+	[/for]
+[/template]
+
+[comment ASSUMPTIONS/] 
+[comment (1) IGNORE Input_Rate/]
+[comment (2) IGNORE negative Offset part of Timing/]
+[template private getDataPortInputStatementsForReferenceTime(feature : FeatureInstance, IOReferenceTime : String)]
+	[comment get all connections, where this feature is the destination/]
+	[comment if immediate/delayed connections are present, then ignore Input_Time/]
+	[for (connection : ConnectionInstance | getDstConnectionInstances(feature))]
+		[comment in DataPorts may have only one connection per mode. We don't consider modes at the moment, so there may only be one connection/]
+		[comment determine actual timing for this feature-connection-combination/] 
+		[for (offsetTime : OffsetTime | getTimes(feature, connection, IOReferenceTime, true))]
+			[comment as we don't consider modes, we could only take the first one/]
+			[comment if outputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)/]
+			[if(offsetTime.ioTime = IOReferenceTime)]
+				[if (offsetTime.ms = 0 and offsetTime.ns = 0)]
+					[comment freeze input via simple statement/]
+[getObjectName(feature)/].receiveInput();
+				[else]
+					[comment we need to generate a statement for handling via handler/]
+Timer timerFor[getHandlerClassName(feature, offsetTime)/] = new OneShotTimer(new RelativeTime([offsetTime.ms/], [offsetTime.ns/]), new [getHandlerClassName(feature, offsetTime)/]([getObjectName(feature)/]));
+timerFor[getHandlerClassName(feature, offsetTime)/].start();
+				[/if]
+			[/if]
+		[/for]
+	[/for]
+[/template]
+
+[comment ASSUMPTIONS/]
+[comment (1) IGNORE Output_Rate/]
+[comment (2) IGNORE negative Offset part of Timing/]
+[template private getDataPortOutputStatementsForReferenceTime(feature : FeatureInstance, IOReferenceTime : String)]
+	[comment get all connections, where this feature is the source/]
+	[comment if immediate/delayed connections are present, then partially ignore Output_Time/]
+	[for (connection : ConnectionInstance | getSrcConnectionInstances(feature))]
+		[comment out DataPorts may have multiple connections per mode/] 
+		[comment those might have different timings/]
+		[comment determine actual timing for this feature-connection-combination/] 
+		[for (offsetTime : OffsetTime | getTimes(feature, connection, IOReferenceTime, false))]
+			[comment if outputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)/]
+			[if(offsetTime.ioTime = IOReferenceTime)]
+				[comment deadline must be treated different, as it is always done by a handler/]
+				[if(IOReferenceTime = getProperty('Communication_Properties_IO_Reference_Time_Deadline'))]
+Timer timerFor[getHandlerClassName(feature, offsetTime)/] = new OneShotTimer(timer.getFireTime(), new [getHandlerClassName(feature, offsetTime)/]([getObjectName(feature)/]));
+timerFor[getHandlerClassName(feature, offsetTime)/].start();
+				[elseif ((offsetTime.ms = 0) and (offsetTime.ns = 0))]
+					[comment send output, but only for this specific connection via simple statement/]
+					[comment see AADL Standard 8.3.2 (29)/]
+[getObjectName(feature)/].sendOutputOn[getClassName(connection)/]();
+				[else]
+					[comment we need to generate a statement for handling via handler/]
+Timer timerFor[getHandlerClassName(feature, offsetTime)/] = new OneShotTimer(new RelativeTime([offsetTime.ms/], [offsetTime.ns/]), new [getHandlerClassName(feature, offsetTime)/]([getObjectName(feature)/]));
+timerFor[getHandlerClassName(feature, offsetTime)/].start();
+				[/if]
+			[/if]
+		[/for]
+	[/for]
 [/template]

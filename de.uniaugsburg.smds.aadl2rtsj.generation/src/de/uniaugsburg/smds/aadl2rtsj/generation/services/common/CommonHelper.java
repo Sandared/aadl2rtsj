@@ -128,6 +128,9 @@ public class CommonHelper {
 		return buffer.toString();
 	}
 	
+	public static String getHandlerClassName(FeatureInstance feature, OffsetTime time){
+		return getClassName(feature) + "IOHandler_" + time.getUniqueId();
+	}
 	
 	public static String getDataType(FeatureInstance feature){
 		Classifier classifier = feature.getFeature().getClassifier();
@@ -199,202 +202,7 @@ public class CommonHelper {
 		return getObjectName(source) + "2" + getClassName(target) + "Sync";
 	}
 	
-	public static String getTiming(ConnectionInstance connection){
-		String timing = null;
-		List<PropertyExpression> timingProperties = connection.getPropertyValues(Communication_Properties, Communication_Properties_Timing);
-		if(timingProperties.size() > 0){
-			EnumerationLiteral timingProperty = (EnumerationLiteral)((NamedValue)timingProperties.get(0)).getNamedValue();
-			timing = timingProperty.getName(); // sampled, immediate, delayed
-		}
-		else{
-			//default
-			timing = Communication_Properties_Timing_Sampled;
-		}
-		return timing;
-	}
-	
-	public static boolean isImmediate(ConnectionInstance connection){
-		return getTiming(connection).equals(Communication_Properties_Timing_Immediate);
-	}
-	
-	public static String getHandlerClassName(FeatureInstance feature, OffsetTime time){
-		return getClassName(feature) + "IOHandler_" + time.getUniqueId();
-	}
-	
-	public static boolean isAtDeadline(OffsetTime time){
-		return time.getIoTime().equals(Communication_Properties_IO_Reference_Time_Deadline);
-	}
-	
-	public static ComponentInstance getComponentInstance(ConnectionInstanceEnd conie){
-		return conie.getComponentInstance();
-	}
-	
-	public static EList<ComponentInstance> getSubcomponents(ComponentInstance ci){
-		EList<ComponentInstance> subcomponents = ci.getAllComponentInstances();
-		subcomponents.remove(0); // the first one is always the Component itself, thus no check is needed
-		return subcomponents;
-	}
-	
-	public static EList<FeatureInstance> getFeatures(ComponentInstance ci){
-		return ci.getFeatureInstances();
-	}
-	
-	public static ConnectionInstanceEnd getConnectionDestination(ConnectionInstance coni){
-		return coni.getDestination();
-	}
-	
-	public static EList<ConnectionInstance> getDstConnectionInstances(FeatureInstance fi){
-		return fi.getDstConnectionInstances();
-	}
-	
-	public static EList<ConnectionInstance> getSrcConnectionInstances(FeatureInstance fi){
-		return fi.getSrcConnectionInstances();
-	}
-	
-	public static Classifier getClassifier(FeatureInstance fi){
-		return fi.getFeature().getClassifier();
-	}
-	
-	public static EList<DataSubcomponent> getDataSubcomponents(DataImplementation dataImpl){
-		return dataImpl.getOwnedDataSubcomponents();
-	}
-	
-	public static EList<ConnectionInstance> getConnectionInstances(ComponentInstance ci){
-		return ci.getAllEnclosingConnectionInstances();
-	}
-	
-	public static String getDispatchStatements(ComponentInstance component){
-		return getStatementsForReferenceTime(component, Communication_Properties_IO_Reference_Time_Dispatch);
-	}
-	
-	public static String getStartStatements(ComponentInstance component){
-		return getStatementsForReferenceTime(component, Communication_Properties_IO_Reference_Time_Start);
-	}
-	
-	public static String getCompletionStatements(ComponentInstance component){
-		return getStatementsForReferenceTime(component, Communication_Properties_IO_Reference_Time_Completion);
-	}
-	
-	public static String getDeadlineStatements(ComponentInstance component){
-		return getStatementsForReferenceTime(component, Communication_Properties_IO_Reference_Time_Deadline);
-	}
-	
-	private static String getStatementsForReferenceTime(ComponentInstance component, final String IOReferenceTime){
-		List<FeatureInstance> features = component.getAllFeatureInstances();
-		// only do something if features are defined
-		if(features.size() > 0){
-			StringBuilder sb = new StringBuilder();
-			for (FeatureInstance feature : features) {
-				// which direction is the feature? in, out, inout
-				DirectionType direction = feature.getDirection();
-				switch (feature.getCategory()) {
-					case DATA_PORT:
-						if(direction.incoming())
-							sb.append(getDataPortInputStatementsForReferenceTime(feature, IOReferenceTime));
-						if(direction.outgoing())
-							sb.append(getDataPortOutputStatementsForReferenceTime(feature, IOReferenceTime));
-						break;
-					case EVENT_PORT:
-						// TODO: Event Port Statements
-						break;
-					case EVENT_DATA_PORT:
-						// TODO: Event Data Port Statements
-						break;
-					default:
-						log.info("some other features than ports");
-						break;
-					}
-			}
-			return sb.toString().trim();
-		}
-		log.info("No features found for " + component.getName());
-		return "";
-	}
-
-	// ASSUMPTIONS
-	// (1) IGNORE Output_Rate
-	// (2) IGNORE negative Offset part of Timing
-	// (3) IGNORE Output_Time == Dispatch, it seems to be forbidden by standard 8.3.2 (27) TODO: ask on mailinglist for clarification
-	private static String getDataPortOutputStatementsForReferenceTime(FeatureInstance feature, final String IOReferenceTime){
-		// see (3)
-		if(IOReferenceTime.equals(Communication_Properties_IO_Reference_Time_Dispatch))
-			return "";
-		
-		StringBuilder sb = new StringBuilder();
-		// get all connections, where this feature is the destination
-		List<ConnectionInstance> connections = feature.getSrcConnectionInstances();
-		
-		// if immediate/delayed connections are present, then partially ignore Output_Time
-		if(connections.size() > 0){
-			// out DataPorts may have multiple connections per mode. 
-			// those might have different timings
-			for (ConnectionInstance connection : connections) {
-				// determine actual timing for this feature-connection-combination 
-				List<OffsetTime> outputsAt = getTimes(feature, connection, IOReferenceTime, false);
-
-				for (OffsetTime offsetTime : outputsAt) {
-					
-					String outputAt = offsetTime.getIoTime();
-					//if outputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)
-					if(outputAt.equals(IOReferenceTime)){
-						// deadline must be treated different, as it is always done by a handler
-						if(IOReferenceTime.equals(Communication_Properties_IO_Reference_Time_Deadline))
-							sb.append(SimpleStatements.iOViaHandlerStatement(feature, offsetTime, true));
-						else{
-							if(offsetTime.getMs() == 0 && offsetTime.getNs() == 0)
-								//send output, but only for this specific connection via simple statement
-								sb.append(SimpleStatements.sendOutputStatement(feature, connection));// see AADL Standard 8.3.2 (29)
-							else{
-								// we need to generate a statement for handling via handler
-								sb.append(SimpleStatements.iOViaHandlerStatement(feature, offsetTime, false));
-							}
-						}
-					}
-				}
-			}
-		}
-		return sb.toString();
-	}
-	
-	// ASSUMPTIONS 
-	// (1) IGNORE Input_Rate
-	// (2) IGNORE negative Offset part of Timing
-	// (3) IGNORE Input_Time == Deadline, it seems to be forbidden by standard 8.3.2 (19) TODO: ask on mailinglist for clarification
-	private static String getDataPortInputStatementsForReferenceTime(FeatureInstance feature, final String IOReferenceTime){
-		// see (3)
-		if(IOReferenceTime.equals(Communication_Properties_IO_Reference_Time_Deadline))
-			return "";
-		
-		StringBuilder sb = new StringBuilder();
-		// get all connections, where this feature is the destination
-		List<ConnectionInstance> connections = feature.getDstConnectionInstances();
-		
-		// if immediate/delayed connections are present, then ignore Input_Time
-		ConnectionInstance connection = null;
-		if(connections.size() > 0)
-			// in DataPorts may have only one connection per mode. We don't consider modes at the moment, so there may only be one connection. 
-			connection = connections.get(0);
-		
-		
-		// determine actual timing for this feature-connection-combination
-		// as we don't consider modes, we can take the first one
-		OffsetTime time = getTimes(feature, connection, IOReferenceTime, true).get(0);
-		String inputAt = time.getIoTime();
-		
-		//if inputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)
-		if(inputAt.equals(IOReferenceTime)){
-			if(time.getMs() == 0 && time.getNs() == 0)
-				//freeze input via simpple statement
-				sb.append(SimpleStatements.receiveInputStatement(feature));// see AADL Standard 8.3.2 (21)
-			else{
-				// we need a handler statement, so that the input can be received later
-				sb.append(SimpleStatements.iOViaHandlerStatement(feature, time, false));
-			}
-		}
-		return sb.toString().trim();
-	}
-	
-	private static List<OffsetTime> getTimes(FeatureInstance feature, ConnectionInstance connection, final String IOReferenceTime, boolean isInput){
+	public static List<OffsetTime> getTimes(FeatureInstance feature, ConnectionInstance connection, String IOReferenceTime, Boolean isInput){
 		OffsetTime time = null;
 		List<OffsetTime> times = new ArrayList<OffsetTime>();
 		
@@ -565,12 +373,88 @@ public class CommonHelper {
 		return times;
 	}
 	
+	// ########## AADL Model Navigation #########
+	
+	public static boolean isDataPort(FeatureInstance fi){
+		return fi.getCategory() == FeatureCategory.DATA_PORT;
+	}
+	
+	public static boolean isIncoming(FeatureInstance fi){
+		return fi.getDirection().incoming();
+	}
+	
+	public static boolean isOutgoing(FeatureInstance fi){
+		return fi.getDirection().outgoing();
+	}
+	
 	public static boolean isThread(ComponentInstance ci){
 		return ci.getCategory() == ComponentCategory.THREAD;
 	}
 	
 	public static boolean isPeriodic(ComponentInstance ci){
 		return getDispatchProtocol(ci).equals(Thread_Properties_Dispatch_Protocol_Periodic);
+	}
+	
+	public static boolean isImmediate(ConnectionInstance connection){
+		return getTiming(connection).equals(Communication_Properties_Timing_Immediate);
+	}
+	
+	public static boolean isAtDeadline(OffsetTime time){
+		return time.getIoTime().equals(Communication_Properties_IO_Reference_Time_Deadline);
+	}
+	
+	public static ComponentInstance getComponentInstance(ConnectionInstanceEnd conie){
+		return conie.getComponentInstance();
+	}
+	
+	public static EList<ComponentInstance> getSubcomponents(ComponentInstance ci){
+		EList<ComponentInstance> subcomponents = ci.getAllComponentInstances();
+		subcomponents.remove(0); // the first one is always the Component itself, thus no check is needed
+		return subcomponents;
+	}
+	
+	public static EList<FeatureInstance> getFeatures(ComponentInstance ci){
+		return ci.getFeatureInstances();
+	}
+	
+	public static ConnectionInstanceEnd getConnectionDestination(ConnectionInstance coni){
+		return coni.getDestination();
+	}
+	
+	public static EList<ConnectionInstance> getDstConnectionInstances(FeatureInstance fi){
+		return fi.getDstConnectionInstances();
+	}
+	
+	public static EList<ConnectionInstance> getSrcConnectionInstances(FeatureInstance fi){
+		return fi.getSrcConnectionInstances();
+	}
+	
+	public static Classifier getClassifier(FeatureInstance fi){
+		return fi.getFeature().getClassifier();
+	}
+	
+	public static EList<DataSubcomponent> getDataSubcomponents(DataImplementation dataImpl){
+		return dataImpl.getOwnedDataSubcomponents();
+	}
+	
+	public static EList<ConnectionInstance> getConnectionInstances(ComponentInstance ci){
+		return ci.getAllEnclosingConnectionInstances();
+	}
+	
+	//######### Methods for Properties #############
+	
+	public static String getTiming(ConnectionInstance connection){
+		String timing = null;
+		List<PropertyExpression> timingProperties = connection.getPropertyValues(Communication_Properties, Communication_Properties_Timing);
+		if(timingProperties.size() > 0){
+			EnumerationLiteral timingProperty = (EnumerationLiteral)((NamedValue)timingProperties.get(0)).getNamedValue();
+			timing = timingProperty.getName(); // sampled, immediate, delayed
+		}
+		else{
+			//default
+			timing = Communication_Properties_Timing_Sampled;
+		}
+		return timing;
 	}
 	
 	public static String getDispatchProtocol(ComponentInstance ci){
@@ -629,17 +513,4 @@ public class CommonHelper {
 		log.warning("No Thread_Properties::Priority was given for " + ci.getName() + ". Default is 5");
 		return "5";
 	}
-	
-	public static boolean isDataPort(FeatureInstance fi){
-		return fi.getCategory() == FeatureCategory.DATA_PORT;
-	}
-	
-	public static boolean isIncoming(FeatureInstance fi){
-		return fi.getDirection().incoming();
-	}
-	
-	public static boolean isOutgoing(FeatureInstance fi){
-		return fi.getDirection().outgoing();
-	}
-	
 }
