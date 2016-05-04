@@ -61,8 +61,8 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'isThread(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
-[query public isData(arg0 : ComponentInstance) : Boolean
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'isData(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+[query public isData(arg0 : Classifier) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'isData(org.osate.aadl2.Classifier)', Sequence{arg0})
 /]
 
 [query public isPeriodic(arg0 : ComponentInstance) : Boolean

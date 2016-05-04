@@ -2,15 +2,15 @@
 [module DataGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
 
-[template public generateData(data : ComponentInstance)? (isData(data))]
+[template public generateData(data : Classifier)? (isData(data)) { dataImpl : DataImplementation = data.oclAsType(DataImplementation); }]
 [file(getPackageName(data).substitute('.', '/').concat('/').concat(getClassName(data)).concat('.java') , false, 'UTF-8')]
 package [getPackageName(data)/];
-[for (subcomponent: Subcomponent | getDataSubcomponents(data))]
+[for (subcomponent: Subcomponent | getDataSubcomponents(dataImpl))]
 import [getPackageName(subcomponent)/].[getClassName(subcomponent)/];
 [/for]
 
-public class [getClassName(data)/]{
-	[for (subcomponent : Subcomponent | getDataSubcomponents(data))]
+public class [getClassName(dataImpl)/]{
+	[for (subcomponent : Subcomponent | getDataSubcomponents(dataImpl))]
 	[comment create a member statement for each subcomponent /]
 	private [getClassName(subcomponent)/] [getObjectName(subcomponent)/] = new [getClassName(subcomponent)/]();
 	[/for]	

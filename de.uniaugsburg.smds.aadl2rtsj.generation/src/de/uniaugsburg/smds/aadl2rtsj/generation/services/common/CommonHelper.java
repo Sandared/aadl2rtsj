@@ -391,8 +391,8 @@ public class CommonHelper {
 		return ci.getCategory() == ComponentCategory.THREAD;
 	}
 	
-	public static boolean isData(ComponentInstance ci){
-		return ci.getCategory() == ComponentCategory.DATA;
+	public static boolean isData(Classifier c){
+		return c instanceof DataImplementation; // we only consider dataImpleentation at the moment as classifiers
 	}
 	
 	public static boolean isPeriodic(ComponentInstance ci){

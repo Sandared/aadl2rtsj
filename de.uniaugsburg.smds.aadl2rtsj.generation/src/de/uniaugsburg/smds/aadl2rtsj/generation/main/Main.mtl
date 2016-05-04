@@ -11,16 +11,17 @@
 [template public Main(system : SystemInstance)]
 	[comment @main /]
 	[generateComponent(system)/]
-	1
 [/template]
 
 [template public generateComponent(ci : ComponentInstance)]
 	[comment generate the component itself. Each Generator decides if the given object is the right one /]
 	[generateThread(ci)/]
-	[generateData(ci)/]
+	[generateData(getClassifier(ci))/]
 	[comment generate the features for this component /]
 	[for (fi : FeatureInstance | getFeatures(ci))]
 		[generateFeature(fi)/]
+		[comment each Feature might have a datatype. This might lead to doubled generation of the same datatype?/]
+		[generateData(getClassifier(fi))/]
 		[comment generate IOHandler if necessary /]
 		[for (time : OffsetTime | getTimes(fi))]
 			[comment only do something if there is an offset or if it is at deadline, at deadline we always have to use handlers/]
@@ -28,20 +29,18 @@
 				[generateIOHandler(ci, fi, time)/]
 			[/if]
 		[/for]
+		
 	[/for]
 	[comment generate connections for this component /]
 	[for (connection : ConnectionInstance | getConnectionInstances(ci))]
 		[generateConnection(connection)/]
 	[/for]
-	
 	[comment generate all subcomponents recursively  /]
 	[for (subcomponent : ComponentInstance | getSubcomponents(ci) )]
 		[if (subcomponent <> ci)]
 			[generateComponent(subcomponent)/]
 		[/if]
 	[/for]
-
-	[comment TODO: DataTypes müssen irgendwie noch implementiert werden, die tauchen wsl hier gar nicht auf? /]
 [/template]
 
 [template public generateFeature(fi : FeatureInstance)]
