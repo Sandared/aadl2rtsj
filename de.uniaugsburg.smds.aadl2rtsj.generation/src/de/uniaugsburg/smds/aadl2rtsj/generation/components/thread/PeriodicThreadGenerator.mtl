@@ -19,29 +19,23 @@ import javax.realtime.[getHandlerType(thread)/];
 import javax.realtime.PriorityParameters;
 
 [comment Create an Import Statement for each Subcomponent, Features are in the same package and don't need an Import Statement /]
-[if (getSubcomponents(thread)->size() > 0)]
-	[for (subcomponent : ComponentInstance | getSubcomponents(thread))]
-		[if (i > 1)]
+
+[for (subcomponent : ComponentInstance | getSubcomponents(thread))]
 import [getPackageName(subcomponent)/].[getClassName(subcomponent)/];
-		[/if]
-	[/for]
-[/if]
+[/for]
+
 [comment if this thread has an immediate connection where it is the target, it has to wait and therefore needs to be a BoundAsyncEventHandler. Otherwise it's just an AsyncEventHandler /]
 
 public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 	private Timer timer;
 	[comment Create a Member Statement for each Subcomponent /]
-	[if (getSubcomponents(thread)->size() > 0)]
-		[for (subcomponent : ComponentInstance | getSubcomponents(thread))]
+	[for (subcomponent : ComponentInstance | getSubcomponents(thread))]
 	private [getClassName(subcomponent)/] [getObjectName(subcomponent)/];
-		[/for]
-	[/if]
+	[/for]
 	[comment Create a Member Statement for each Feature/]
-	[if (getFeatures(thread)->size() > 0)]
-		[for (feature : FeatureInstance | getFeatures(thread))]
+	[for (feature : FeatureInstance | getFeatures(thread))]
 	private [getClassName(feature)/] [getObjectName(feature)/];
-		[/for]
-	[/if]
+	[/for]
 	[comment consider possible Member Statement for Synchronisation Object/]
 	[let connection : ConnectionInstance = getImmediateConnection(thread)]
 	private Object [getSynchronisationObjectName(connection)/];
@@ -145,6 +139,9 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 	[for (feature : FeatureInstance | getFeatures(thread)) separator (', ')]
 [getClassName(feature)/] [getObjectName(feature)/]
 	[/for]
+	[if (getSubcomponents(thread)->size() > 0)]
+, 
+	[/if]
 	[for (subcomponent : ComponentInstance | getSubcomponents(thread)) separator (', ')]
 [getClassName(subcomponent)/] [getObjectName(subcomponent)/]
 	[/for]
@@ -153,7 +150,7 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 	[/if]
 [/template]
 
-[template public getStatementsForReferenceTime(thread : ComponentInstance, IOReferenceTime : String)]
+[template public getStatementsForReferenceTime(thread : ComponentInstance, IOReferenceTime : String)post (trim())]
 	[for (feature : FeatureInstance | getFeatures(thread))]
 		[if (isDataPort(feature))]
 			[if (isIncoming(feature))]

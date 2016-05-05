@@ -3,7 +3,7 @@
  * The documentation of the module ThreadGenerator.
  */]
 [module ThreadGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::components::threads::PeriodicThreadGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::components::thread::PeriodicThreadGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
 
 [**

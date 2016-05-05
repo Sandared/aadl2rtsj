@@ -1,6 +1,6 @@
 [comment encoding = UTF-8 /]
 [module Main('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')/]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::components::threads::ThreadGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::components::thread::ThreadGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::features::ports::PortGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::connections::ConnectionGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::features::util::io::IOHandlerGenerator /]
