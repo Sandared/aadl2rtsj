@@ -5,15 +5,18 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::connections::ConnectionGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::features::util::io::IOHandlerGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::components::data::DataGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::ClassifierGenerator /]
 
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
 
-[template public Main(system : SystemInstance)]
+[template public Main(system : SystemInstance, classifiers : Sequence(Classifier))]
 	[comment @main /]
 	[generateComponent(system)/]
 [/template]
 
 [template public generateComponent(ci : ComponentInstance)]
+	[comment for each component we have to generate the classifier, i.e., its implementation declaration and type declaration /]
+	[generateClassifier(getClassifier(ci))/]
 	[comment generate the component itself. Each Generator decides if the given object is the right one /]
 	[generateThread(ci)/]
 	[generateData(getClassifier(ci))/]

@@ -109,6 +109,10 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getClassifier(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
+[query public getRealizedTypeClassifier(arg0 : ComponentInstance) : Classifier
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getRealizedTypeClassifier(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
 [query public getDataSubcomponents(arg0 : DataImplementation) : Sequence(DataSubcomponent)
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getDataSubcomponents(org.osate.aadl2.DataImplementation)', Sequence{arg0})
 /]

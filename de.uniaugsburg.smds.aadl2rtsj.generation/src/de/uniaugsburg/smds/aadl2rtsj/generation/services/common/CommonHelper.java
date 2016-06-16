@@ -10,7 +10,6 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.ComponentCategory;
-import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.DataImplementation;
@@ -23,6 +22,7 @@ import org.osate.aadl2.NamedValue;
 import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.RangeValue;
 import org.osate.aadl2.RecordValue;
+import org.osate.aadl2.impl.ComponentImplementationImpl;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
 import org.osate.aadl2.instance.ConnectionInstanceEnd;
@@ -54,8 +54,12 @@ public class CommonHelper {
 		}
 		StringBuilder b = new StringBuilder(object.getName());
 		if(object instanceof ComponentImplementation){
-			//replace the ".impl" part with "Impl"
-			b.replace(b.lastIndexOf(".impl"), b.length(), "Impl");
+			//replace the ".xxx" part with "Xxx"
+			int dotIndex = b.lastIndexOf(".");
+			if(dotIndex != -1){
+				b.deleteCharAt(dotIndex);
+				b.replace(dotIndex, dotIndex + 1, b.substring(dotIndex, dotIndex + 1).toUpperCase());
+			}
 		}
 		
 		//generally we replace "_xxx" with "Xxx"
@@ -367,6 +371,9 @@ public class CommonHelper {
 			connections = feature.getSrcConnectionInstances();
 			isInput = false;
 		}
+		if (connections == null) {
+			System.out.println("no connections");
+		}
 		for (ConnectionInstance connection : connections) {
 			times.addAll(getTimes(feature, connection, null, isInput)); // no referencetime is needed if we want all times for one feature
 		}
@@ -439,6 +446,12 @@ public class CommonHelper {
 	
 	public static Classifier getClassifier(ComponentInstance ci){
 		return ci.getComponentClassifier();
+	}
+	
+	public static Classifier getRealizedTypeClassifier(ComponentInstance ci){
+		//we assume ci to be an implementation declaration, otherwise it's a type declaration that doesn't realize anything
+		ComponentImplementationImpl ciClassifier = (ComponentImplementationImpl) getClassifier(ci);
+		return ciClassifier.basicGetType();
 	}
 	
 	public static EList<DataSubcomponent> getDataSubcomponents(DataImplementation dataImpl){

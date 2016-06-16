@@ -19,7 +19,6 @@ import javax.realtime.[getHandlerType(thread)/];
 import javax.realtime.PriorityParameters;
 
 [comment Create an Import Statement for each Subcomponent, Features are in the same package and don't need an Import Statement /]
-
 [for (subcomponent : ComponentInstance | getSubcomponents(thread))]
 import [getPackageName(subcomponent)/].[getClassName(subcomponent)/];
 [/for]

@@ -1,0 +1,8 @@
+[comment encoding = UTF-8 /]
+[module ClassifierGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+
+[template public generateClassifier(classifier : Classifier)]
+[comment wir brauchen noch die liste um zu checken ob wir den jeweiligen extended classifier oder realized classifier bereits generiert haben /]
+
+[/template]

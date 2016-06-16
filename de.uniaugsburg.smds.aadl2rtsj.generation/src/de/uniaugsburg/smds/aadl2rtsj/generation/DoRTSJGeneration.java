@@ -4,7 +4,9 @@ package de.uniaugsburg.smds.aadl2rtsj.generation;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -23,6 +25,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstallType;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.osate.aadl2.Classifier;
 import org.osate.aadl2.Element;
 import org.osate.aadl2.instance.InstanceObject;
 import org.osate.aadl2.instance.SystemInstance;
@@ -66,7 +69,11 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 			// Use Acceleo instead of Osate Switches and JET
 			try {
 				File srcFolder = new File(root.getCorrespondingResource().getLocationURI());
-				Main main = new Main(si, srcFolder, new ArrayList<Object>());
+				//We need a list to save all classifiers that are used during generation
+				List<Classifier> classifier = new ArrayList<Classifier>();
+				List<Object> arguments = new ArrayList<Object>();
+				arguments.add(classifier);
+				Main main = new Main(si, srcFolder, arguments);
 				main.addGenerationListener(new AADL2RTSJGenerationListener(monitor, root));
 				main.addPropertiesFile("platform:/plugin/de.uniaugsburg.smds.aadl2rtsj.generation/de/uniaugsburg/smds/aadl2rtsj/generation/main/aadl2rtsj.properties");
 				main.doGenerate(BasicMonitor.toMonitor(monitor));
