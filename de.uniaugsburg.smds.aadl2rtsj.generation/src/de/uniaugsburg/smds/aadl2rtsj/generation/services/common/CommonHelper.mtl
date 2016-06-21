@@ -61,8 +61,16 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'isIncoming(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
 /]
 
+[query public isIncoming(arg0 : Feature) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'isIncoming(org.osate.aadl2.Feature)', Sequence{arg0})
+/]
+
 [query public isOutgoing(arg0 : FeatureInstance) : Boolean
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'isOutgoing(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
+/]
+
+[query public isOutgoing(arg0 : Feature) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'isOutgoing(org.osate.aadl2.Feature)', Sequence{arg0})
 /]
 
 [query public isThread(arg0 : ComponentInstance) : Boolean
@@ -161,3 +169,38 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getPriority(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
+[query public isRefined(arg0 : Feature) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'isRefined(org.osate.aadl2.Feature)', Sequence{arg0})
+/]
+
+[query public getRefinedClassifier(arg0 : Feature) : ComponentClassifier
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getRefinedClassifier(org.osate.aadl2.Feature)', Sequence{arg0})
+/]
+
+[query public getExtendedClassifier(arg0 : ComponentClassifier) : ComponentClassifier
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getExtendedClassifier(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public getRealizedClassifier(arg0 : ComponentImplementation) : ComponentClassifier
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getRealizedClassifier(org.osate.aadl2.ComponentImplementation)', Sequence{arg0})
+/]
+
+[query public getClassifier(arg0 : Feature) : ComponentClassifier
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getClassifier(org.osate.aadl2.Feature)', Sequence{arg0})
+/]
+
+[query public getDataPortClassifiers(arg0 : ComponentClassifier) : Set(ComponentClassifier)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getDataPortClassifiers(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public hasInOutDataPort(arg0 : ComponentClassifier) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'hasInOutDataPort(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public hasInDataPort(arg0 : ComponentClassifier) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'hasInDataPort(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public hasOutDataPort(arg0 : ComponentClassifier) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'hasOutDataPort(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]

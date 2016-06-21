@@ -10,14 +10,14 @@
  * The documentation of the template generateElement.
  * @param aType
  */]
-[template public generateThread(ci : ComponentInstance)? (isThread(ci))]
+[template public generateThreadInstance(ci : ComponentInstance)? (isThread(ci))]
 	[comment Each ThreadGenerator decides if it's the right one for himself /]
 	[generatePeriodicThread(ci)/]
 	[comment generateSporadicThread(ci) TODO/]
 	[comment generateAperiodicThread(ci) TODO/]
 [/template]
 
-[template public generateThread(cf : ComponentClassifier)]
+[template public generateThreadClassifier(cf : ComponentClassifier)]
 [let thread : ThreadClassifier = cf]
 	[comment Each ThreadGenerator decides if it's the right one for himself /]
 	[generateThreadImplementation(thread)/]

@@ -3,7 +3,11 @@ package de.uniaugsburg.smds.aadl2rtsj.generation.services.common;
 import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import org.eclipse.emf.common.util.BasicEList;
@@ -15,6 +19,7 @@ import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.ComponentType;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.DataImplementation;
+import org.osate.aadl2.DataPort;
 import org.osate.aadl2.DataSubcomponent;
 import org.osate.aadl2.DirectedFeature;
 import org.osate.aadl2.DirectionType;
@@ -38,6 +43,7 @@ import org.osate.aadl2.instance.FeatureCategory;
 import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
 
+import de.uniaugsburg.smds.aadl2rtsj.generation.ClassifierComparator;
 import util.OffsetTime;
 import util.UtilFactory;
 
@@ -80,6 +86,10 @@ public class CommonHelper {
 	}
 	
 	public static String getClassName(ComponentClassifier cf){
+		if(cf == null){
+			log.warning("No classifier was given. Default is Object");
+			return "Object";
+		}
 		if(cf instanceof ComponentImplementation)
 			return ((ComponentImplementation) cf).getImplementationName();
 		return cf.getName();
@@ -112,7 +122,7 @@ public class CommonHelper {
 	}
 	
 	/**
-	 * A ComponentClassifier is always put into the package 'types'. The rest o f the packagename is constructed as follows:</br>
+	 * A ComponentClassifier is always put into the package 'classifier'. The rest of the packagename is constructed as follows:</br>
 	 * We take two values of the AADL model into consideration:</br>
 	 * - <code>cc.getNamespace.getName()</code> which is in the form 'packagename'_'visibility'</br>
 	 * - <code>cc.getQualifiedName()</code> which is in the form 'packagename'::'typename</br>
@@ -125,7 +135,7 @@ public class CommonHelper {
 	 */
 	public static String getPackageName(ComponentClassifier cc){
 		StringBuilder sb = new StringBuilder();
-		sb.append("types");//it's a classifier so it gets into the type package
+		sb.append("classifier");
 		sb.append(".");
 		sb.append(getAADLPackageName(cc));		
 		return sb.toString().toLowerCase();
@@ -450,11 +460,19 @@ public class CommonHelper {
 	public static boolean isIncoming(Feature f){
 		if(f instanceof DirectedFeature)
 			return ((DirectedFeature) f).getDirection().incoming();
+		log.warning("Feature " + f  + " is not a Directed Feature! Default 'true' is given for incoming");
 		return true;// Default
 	}
 	
 	public static boolean isOutgoing(FeatureInstance fi){
 		return fi.getDirection().outgoing();
+	}
+	
+	public static boolean isOutgoing(Feature f){
+		if(f instanceof DirectedFeature)
+			return ((DirectedFeature) f).getDirection().outgoing();
+		log.warning("Feature " + f  + " is not a Directed Feature! Default 'true' is given for outgoing");
+		return true;// Default
 	}
 	
 	public static boolean isThread(ComponentInstance ci){
@@ -625,5 +643,79 @@ public class CommonHelper {
 		}
 		log.warning("No Thread_Properties::Priority was given for " + ci.getName() + ". Default is 5");
 		return "5";
+	}
+	
+	public static boolean isRefined(Feature f){
+		return f.getRefined() != null;
+	}
+	
+	public static ComponentClassifier getRefinedClassifier(Feature f){
+		return (ComponentClassifier) f.getRefined().getClassifier();
+	}
+	
+	public static ComponentClassifier getExtendedClassifier(ComponentClassifier cc){
+		return (ComponentClassifier) cc.getExtended();
+	}
+	
+	public static ComponentClassifier getRealizedClassifier(ComponentImplementation ci){
+		return ci.getType();
+	}
+	
+	public static ComponentClassifier getClassifier(Feature f){
+		return (ComponentClassifier) f.getClassifier();
+	}
+	
+	/**
+	 * All features of cc are traversed and their classifiers are added to the resulting Set </br>
+	 * The respective classifier is not added if:</br>
+	 * - the Feature is not a DataPort</br>
+	 * - the same classifier is already in the Set</br>
+	 * - the classifier is a BaseType
+	 * @param cc 
+	 * @return A Set of unique DataPort Classifiers for the given ComponentClassifier
+	 */
+	public static Set<ComponentClassifier> getDataPortClassifiers(ComponentClassifier cc){
+		Set<ComponentClassifier> classifiers = new TreeSet<ComponentClassifier>(new ClassifierComparator());
+		for (Feature feature : cc.getAllFeatures()) {
+			if(feature instanceof DataPort){
+				classifiers.add(getClassifier(feature));
+				if(isIncoming(feature) && isRefined(feature))
+					classifiers.add(getRefinedClassifier(feature));
+			}
+		}
+		return classifiers;
+	}
+	
+	public static boolean hasInOutDataPort(ComponentClassifier cc){
+		boolean result = false;
+		for (Feature feature : getFeatures(cc)) {
+			if(isIncoming(feature) && isOutgoing(feature)){
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
+	
+	public static boolean hasInDataPort(ComponentClassifier cc){
+		boolean result = false;
+		for (Feature feature : getFeatures(cc)) {
+			if(isIncoming(feature)){
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
+	
+	public static boolean hasOutDataPort(ComponentClassifier cc){
+		boolean result = false;
+		for (Feature feature : getFeatures(cc)) {
+			if(isOutgoing(feature)){
+				result = true;
+				break;
+			}
+		}
+		return result;
 	}
 }

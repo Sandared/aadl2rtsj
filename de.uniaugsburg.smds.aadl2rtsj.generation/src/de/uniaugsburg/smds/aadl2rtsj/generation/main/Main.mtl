@@ -19,12 +19,11 @@
 
 [template public generateComponent(cc : ComponentClassifier)]
 	[comment generate the component itself. Each Generator decides if the given object is the right one /]
-	[generateThread(cc)/]
+	[generateThreadClassifier(cc)/]
 [/template]
 
 [template public generateComponent(ci : ComponentInstance)]
-	[comment generate the component itself. Each Generator decides if the given object is the right one /]
-	[generateThread(ci)/]
+	[comment generate the component itself. Each Generator decides if the given object is the righgenerateThreadInstanceerateThread(ci)/]
 	[generateData(getClassifier(ci))/]
 	[comment generate the features for this component /]
 	[for (fi : FeatureInstance | getFeatures(ci))]
