@@ -1,0 +1,36 @@
+s[comment encoding = UTF-8 /]
+[module DataImplementationGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+
+[template public generateDataImplementation(data : ComponentClassifier)]
+[let dataImpl : DataImplementation = data]
+[file(dataImpl.getPackageName().substitute('.', '/').concat('/').concat(dataImpl.getClassName()).concat('.java') , false, 'UTF-8')]
+package [dataImpl.getPackageName()/];
+
+//########## Subcomponent Classifier Imports ###########
+	[for (subcomponent: ComponentClassifier | dataImpl.getSubComponentClassifiers()->select(oclIsTypeOf(DataClassifier)))]
+import [subcomponent.getPackageName()/].[subcomponent.getClassName()/];
+	[/for]
+
+	[comment import the extended type if necessary/]
+	[if (dataImpl.getExtendedClassifier() <> null)]
+//########## Extends Classifier Imports ##########
+import [dataImpl.getExtendedClassifier().getPackageName()/].[dataImpl.getExtendedClassifier().getClassName()/];
+	[/if]
+
+	[comment import the implemented type /]
+//########## Realized Classifier Import ##########
+import [dataImpl.getRealizedClassifier().getPackageName()/].[dataImpl.getRealizedClassifier().getClassName()/];
+
+
+public class [dataImpl.getClassName()/][if (dataImpl.getExtendedClassifier() <> null)] extends [dataImpl.getExtendedClassifier().getClassName()/][/if] implements [dataImpl.getRealizedClassifier().getClassName()/]{
+
+	//########### Subcomponents ###########
+	[for (subcomponent : Subcomponent | dataImpl.getSubComponents()->select(oclIsTypeOf(DataSubcomponent)))]
+	[comment create a member statement for each subcomponent /]
+	private [subcomponent.getClassifier().getClassName()/] [subcomponent.name/] = new [subcomponent.getClassifier().getClassName()/]();
+	[/for]	
+}
+[/file]
+[/let]
+[/template]

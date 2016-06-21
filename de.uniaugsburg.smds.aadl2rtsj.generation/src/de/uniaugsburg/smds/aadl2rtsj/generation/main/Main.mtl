@@ -4,10 +4,14 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::features::ports::PortGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::connections::ConnectionGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::features::util::io::IOHandlerGenerator /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::components::data::DataGenerator /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::ClassifierGenerator /]
-
+[import de::uniaugsburg::smds::aadl2rtsj::generation::util::DataPortGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+
+[import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::data::DataImplementationGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::data::DataTypeGenerator /]
+
+[import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::thread::ThreadImplementationGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::thread::ThreadTypeGenerator /]
 
 [template public Main(system : SystemInstance, classifiers : Set(ComponentClassifier))]
 	[comment @main /]
@@ -15,21 +19,25 @@
 		[generateComponent(cc)/]
 	[/for]
 	[generateComponent(system)/]
+
+	[comment generate utils /]
+	[generateGenericDataPort()/]
 [/template]
 
 [template public generateComponent(cc : ComponentClassifier)]
 	[comment generate the component itself. Each Generator decides if the given object is the right one /]
-	[generateThreadClassifier(cc)/]
+	[generateThreadImplementation(cc)/]
+	[generateThreadType(cc)/]
+	[generateDataImplementation(cc)/]
+	[generateDataType(cc)/]
 [/template]
 
 [template public generateComponent(ci : ComponentInstance)]
-	[comment generate the component itself. Each Generator decides if the given object is the righgenerateThreadInstanceerateThread(ci)/]
-	[generateData(getClassifier(ci))/]
+	[comment generate the component itself. Each Generator decides if the given object is the right one/ ]
+	[generateThreadInstance(ci)/]
 	[comment generate the features for this component /]
 	[for (fi : FeatureInstance | getFeatures(ci))]
 		[generateFeature(fi)/]
-		[comment each Feature might have a datatype. This might lead to doubled generation of the same datatype?/]
-		[generateData(getClassifier(fi))/]
 		[comment generate IOHandler if necessary /]
 		[for (time : OffsetTime | getTimes(fi))]
 			[comment only do something if there is an offset or if it is at deadline, at deadline we always have to use handlers/]

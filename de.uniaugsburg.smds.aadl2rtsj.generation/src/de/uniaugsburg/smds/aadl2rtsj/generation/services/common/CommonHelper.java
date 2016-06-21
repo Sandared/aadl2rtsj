@@ -509,6 +509,7 @@ public class CommonHelper {
 		return subcomponents;
 	}
 	
+	
 	public static EList<FeatureInstance> getFeatures(ComponentInstance ci){
 		return ci.getFeatureInstances();
 	}
@@ -543,10 +544,26 @@ public class CommonHelper {
 		return ciClassifier.basicGetType();
 	}
 	
-	public static EList<ComponentClassifier> getDataSubcomponents(DataImplementation dataImpl){
-		EList<ComponentClassifier> classifiers = new BasicEList<ComponentClassifier>();
-		for (Subcomponent subcomponent : dataImpl.getOwnedDataSubcomponents()) {
-			classifiers.add(subcomponent.getClassifier());
+	public static EList<Subcomponent> getSubComponents(ComponentImplementation ci){
+		return ci.getAllSubcomponents();
+	}
+	
+	/**
+	 * All subcomponents of ci are traversed and their classifiers are added to the resulting Set </br>
+	 * The respective classifier is not added if:</br>
+	 * - the same classifier is already in the Set</br>
+	 * - the classifier is a BaseType
+	 * @param ci
+	 * @return a Set of unique ComponentClassifiers for the subcomponents of the given ci
+	 */
+	public static Set<ComponentClassifier> getSubComponentClassifiers(ComponentImplementation ci){
+		Set<ComponentClassifier> classifiers = new TreeSet<ComponentClassifier>(new ClassifierComparator());
+		for (Subcomponent subcomponent : getSubComponents(ci)) {
+			ComponentClassifier classifier = subcomponent.getClassifier();
+			if(classifier != null && !isBaseType(classifier))
+				classifiers.add(classifier);
+			else
+				log.warning("No classifier was given for subcomponent " + subcomponent);
 		}
 		return classifiers;
 	}
@@ -665,23 +682,25 @@ public class CommonHelper {
 		return (ComponentClassifier) f.getClassifier();
 	}
 	
+	public static ComponentClassifier getClassifier(Subcomponent sc){
+		return sc.getClassifier();
+	}
+	
 	/**
 	 * All features of cc are traversed and their classifiers are added to the resulting Set </br>
+	 * Additionally, if the feature is refined, then the refined classifier is added too</br>
 	 * The respective classifier is not added if:</br>
-	 * - the Feature is not a DataPort</br>
 	 * - the same classifier is already in the Set</br>
 	 * - the classifier is a BaseType
 	 * @param cc 
 	 * @return A Set of unique DataPort Classifiers for the given ComponentClassifier
 	 */
-	public static Set<ComponentClassifier> getDataPortClassifiers(ComponentClassifier cc){
+	public static Set<ComponentClassifier> getFeatureClassifiers(ComponentClassifier cc){
 		Set<ComponentClassifier> classifiers = new TreeSet<ComponentClassifier>(new ClassifierComparator());
 		for (Feature feature : cc.getAllFeatures()) {
-			if(feature instanceof DataPort){
-				classifiers.add(getClassifier(feature));
-				if(isIncoming(feature) && isRefined(feature))
-					classifiers.add(getRefinedClassifier(feature));
-			}
+			classifiers.add(getClassifier(feature));
+			if(isIncoming(feature) && isRefined(feature))
+				classifiers.add(getRefinedClassifier(feature));
 		}
 		return classifiers;
 	}

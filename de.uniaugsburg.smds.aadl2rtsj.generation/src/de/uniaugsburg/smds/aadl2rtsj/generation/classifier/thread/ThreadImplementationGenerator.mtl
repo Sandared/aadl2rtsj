@@ -1,0 +1,58 @@
+[comment encoding = UTF-8 /]
+[module ThreadImplementationGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+
+[template public generateThreadImplementation(thread : ComponentClassifier)]
+[let threadImpl : ThreadImplementation = thread]
+[file(getPackageName(threadImpl).substitute('.', '/').concat('/').concat(getClassName(threadImpl)).concat('.java') , false, 'UTF-8')]
+package [getPackageName(threadImpl)/];
+
+//########## Feature Classifier Imports ##########
+	[comment import all classifiers of the features, but only once for each classifier/]
+	[for (featureClassifier : ComponentClassifier | threadImpl.getFeatureClassifiers())]
+import [featureClassifier.getPackageName()/].[featureClassifier.getClassName()/];
+	[/for]
+
+//########## Port Variable Imports ##########
+	[comment if this component has in, out or in/out ports we have to import the respective port type/]
+	[if (threadImpl.getFeatures()->select(oclIsTypeOf(DataPort))->size() > 0)]
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
+	[/if]
+
+	[comment import the extended type if necessary/]
+	[if (threadImpl.getExtendedClassifier() <> null)]
+//########## Extends Classifier Import ##########
+import [threadImpl.getExtendedClassifier().getPackageName()/].[threadImpl.getExtendedClassifier().getClassName()/];
+	[/if]
+
+	[comment import the implemented type /]
+//########## Realized Classifier Import ##########
+import [threadImpl.getRealizedClassifier().getPackageName()/].[threadImpl.getRealizedClassifier().getClassName()/];
+
+public class [threadImpl.getClassName()/][if (threadImpl.getExtendedClassifier() <> null)] extends [threadImpl.getExtendedClassifier().getClassName()/][/if] implements [threadImpl.getRealizedClassifier().getClassName()/]{
+
+	[comment create a data port variable for each dataport /]
+	//########## Data Port Variables ###########
+	[for (dataPort : DataPort | threadImpl.getFeatures()->select(oclIsTypeOf(DataPort)))]
+	protected DataPort<[dataPort.getClassifier().getClassName()/]> [dataPort.name/] = new DataPort<[dataPort.getClassifier().getClassName()/]>();
+	[/for]
+
+	//########## Inherited Methods from [threadImpl.getRealizedClassifier().getClassName()/] ###########
+	[for (dataPort : DataPort | threadImpl.getFeatures()->select(oclIsTypeOf(DataPort)))]
+		[if (dataPort.isIncoming())]
+	@Override
+	public void set[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
+		[dataPort.name/].setData(data);
+	}
+		[/if]
+		[if (dataPort.isOutgoing())]
+	@Override
+	public [dataPort.getClassifier().getClassName()/] get[dataPort.name.toUpperFirst()/](){
+		return [dataPort.name/].getData();
+	} 
+		[/if]
+	[/for]
+}
+[/file]	
+[/let]
+[/template]

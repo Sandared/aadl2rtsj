@@ -16,13 +16,3 @@
 	[comment generateSporadicThread(ci) TODO/]
 	[comment generateAperiodicThread(ci) TODO/]
 [/template]
-
-[template public generateThreadClassifier(cf : ComponentClassifier)]
-[let thread : ThreadClassifier = cf]
-	[comment Each ThreadGenerator decides if it's the right one for himself /]
-	[generateThreadImplementation(thread)/]
-	[generateThreadType(thread)/]
-	[comment generateSporadicThread(ci) TODO/]
-	[comment generateAperiodicThread(ci) TODO/]
-[/let]
-[/template]

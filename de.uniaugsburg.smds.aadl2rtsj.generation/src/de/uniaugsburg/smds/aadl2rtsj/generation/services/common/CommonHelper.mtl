@@ -137,8 +137,12 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getRealizedTypeClassifier(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
-[query public getDataSubcomponents(arg0 : DataImplementation) : Sequence(ComponentClassifier)
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getDataSubcomponents(org.osate.aadl2.DataImplementation)', Sequence{arg0})
+[query public getSubComponents(arg0 : ComponentImplementation) : Sequence(Subcomponent)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getSubComponents(org.osate.aadl2.ComponentImplementation)', Sequence{arg0})
+/]
+
+[query public getSubComponentClassifiers(arg0 : ComponentImplementation) : Set(ComponentClassifier)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getSubComponentClassifiers(org.osate.aadl2.ComponentImplementation)', Sequence{arg0})
 /]
 
 [query public getConnectionInstances(arg0 : ComponentInstance) : Sequence(ConnectionInstance)
@@ -189,8 +193,12 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getClassifier(org.osate.aadl2.Feature)', Sequence{arg0})
 /]
 
-[query public getDataPortClassifiers(arg0 : ComponentClassifier) : Set(ComponentClassifier)
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getDataPortClassifiers(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+[query public getClassifier(arg0 : Subcomponent) : ComponentClassifier
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getClassifier(org.osate.aadl2.Subcomponent)', Sequence{arg0})
+/]
+
+[query public getFeatureClassifiers(arg0 : ComponentClassifier) : Set(ComponentClassifier)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getFeatureClassifiers(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
 /]
 
 [query public hasInOutDataPort(arg0 : ComponentClassifier) : Boolean

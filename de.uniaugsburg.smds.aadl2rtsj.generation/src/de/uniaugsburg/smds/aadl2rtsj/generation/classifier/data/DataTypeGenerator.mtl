@@ -1,0 +1,22 @@
+[comment encoding = UTF-8 /]
+[module DataTypeGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+
+
+[template public generateDataType(data : ComponentClassifier)]
+[let dataType : DataType = data]
+[file(dataType.getPackageName().substitute('.', '/').concat('/').concat(dataType.getClassName()).concat('.java') , false, 'UTF-8')]
+package [dataType.getPackageName()/];
+
+	[comment import the extended type if necessary/]
+	[if (dataType.getExtendedClassifier() <> null)]
+//########## Extends Classifier Imports ##########
+import [dataType.getExtendedClassifier().getPackageName()/].[dataType.getExtendedClassifier().getClassName()/];
+	[/if]
+
+public interface [dataType.getClassName()/][if (dataType.getExtendedClassifier() <> null)] extends [dataType.getExtendedClassifier().getClassName()/][/if] {
+
+}
+[/file]
+[/let]
+[/template]
