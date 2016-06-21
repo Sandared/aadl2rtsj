@@ -10,18 +10,25 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.osate.aadl2.Classifier;
 import org.osate.aadl2.ComponentCategory;
+import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.ComponentImplementation;
+import org.osate.aadl2.ComponentType;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.DataImplementation;
 import org.osate.aadl2.DataSubcomponent;
+import org.osate.aadl2.DirectedFeature;
 import org.osate.aadl2.DirectionType;
 import org.osate.aadl2.EnumerationLiteral;
+import org.osate.aadl2.Feature;
 import org.osate.aadl2.IntegerLiteral;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.NamedValue;
+import org.osate.aadl2.Namespace;
 import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.RangeValue;
 import org.osate.aadl2.RecordValue;
+import org.osate.aadl2.Subcomponent;
+import org.osate.aadl2.ThreadImplementation;
 import org.osate.aadl2.impl.ComponentImplementationImpl;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
@@ -40,7 +47,8 @@ public class CommonHelper {
 	
 	private static final Logger log = Logger.getLogger(CommonHelper.class.getName());
 	
-	public static String getClassName(NamedElement object){
+	public static String getClassName(InstanceObject io){
+		NamedElement object = io; // need the broader reference for stuff like connections
 		if(object instanceof ConnectionInstance)
 			object = getConnection((ConnectionInstance) object);
 		// Data is a special case, as its "class" is always determined by the classifier
@@ -71,35 +79,84 @@ public class CommonHelper {
 		return b.toString();
 	}
 	
+	public static String getClassName(ComponentClassifier cf){
+		if(cf instanceof ComponentImplementation)
+			return ((ComponentImplementation) cf).getImplementationName();
+		return cf.getName();
+	}
+	
 	public static String getObjectName(NamedElement object){
 		if(object instanceof ConnectionInstance)//
 			object = getConnection((ConnectionInstance) object);
 		return object.getName();
 	}
 	
-	public static String getPackageName(NamedElement element){
+	public static String getPackageName(InstanceObject element){
 		StringBuffer pkg = new StringBuffer();
 		
-		if(element instanceof InstanceObject){
-			// special case: Data- InstanceObject: we need just the data package 
-			if(element instanceof ComponentInstance && ((ComponentInstance)element).getCategory().equals(ComponentCategory.DATA)){
-				Classifier classifier = ((ComponentInstance)element).getComponentClassifier();
-				if(classifier instanceof DataImplementation)
-					pkg.append("data");
-				//else: do nothing, because the aadl model was not specific enough and we just use Object, where no package is needed
-				//TODO: log warning?
-			}
-				
-			else{
-				//in case of an instanceobject we need its path within the model
-				pkg.append("instance.");
-				pkg.append(getHierarchyName((InstanceObject) element));
-			}
-		}else{
-			// in case of a type we merely need the data package
-			pkg.append("data");
+		// special case: Data- InstanceObject: we need just the data package 
+		if(element instanceof ComponentInstance && ((ComponentInstance)element).getCategory().equals(ComponentCategory.DATA)){
+			ComponentClassifier cc = ((ComponentInstance)element).getComponentClassifier();
+			if(cc instanceof DataImplementation)
+				return getPackageName(cc);
+			//else: do nothing, because the aadl model was not specific enough and we just use Object, where no package is needed
+			//TODO: log warning?
 		}
+		else{
+			//in case of an instanceobject we need its path within the model
+			pkg.append("instance.");
+			pkg.append(getHierarchyName((InstanceObject) element));
+		}
+		
 		return pkg.toString().toLowerCase();
+	}
+	
+	/**
+	 * A ComponentClassifier is always put into the package 'types'. The rest o f the packagename is constructed as follows:</br>
+	 * We take two values of the AADL model into consideration:</br>
+	 * - <code>cc.getNamespace.getName()</code> which is in the form 'packagename'_'visibility'</br>
+	 * - <code>cc.getQualifiedName()</code> which is in the form 'packagename'::'typename</br>
+	 * 'visibility' public/private is replaced by internal/external in order to form a valid java package identifier
+	 * The concatenated String is composed in the form of 'packagename'+'visibility'+'typename'</br>
+	 * All '_' in packagename and visibility are replaced by '.'</br>
+	 * All '::' in packagename and visibility are replaced by '.' </br> 
+	 * @param cc 
+	 * @return a valid java namespace for cc. 
+	 */
+	public static String getPackageName(ComponentClassifier cc){
+		StringBuilder sb = new StringBuilder();
+		sb.append("types");//it's a classifier so it gets into the type package
+		sb.append(".");
+		sb.append(getAADLPackageName(cc));		
+		return sb.toString().toLowerCase();
+	}
+	
+
+	private static String getAADLPackageName(ComponentClassifier cc){
+		//if it is an Implementation it gets the same package as its type
+		if(cc instanceof ComponentImplementation)
+			cc = ((ComponentImplementation) cc).getType();
+		
+		String aadlPkg = cc.getNamespace().getName();
+		
+		int visibilityIndex = aadlPkg.lastIndexOf("_"); // namespace looks always like 'some::name::space'_'visibility'
+		String visibility = aadlPkg.substring(visibilityIndex + 1);
+		if(visibility.equals("public"))
+			visibility = "external";
+		else
+			visibility = "internal";
+		aadlPkg = aadlPkg.substring(0, visibilityIndex);
+		
+		String typeName = cc.getQualifiedName();
+		
+		int typeIndex = typeName.lastIndexOf("::"); // qualified name always looks like 'some::name::space'::'typeName'
+		typeName = typeName.substring(typeIndex + 2);
+		
+		aadlPkg = aadlPkg + "." + visibility + ".";
+		aadlPkg = aadlPkg.replace("::", ".");
+		aadlPkg = aadlPkg.replace("_", ".");
+		
+		return aadlPkg.toLowerCase() + typeName.toLowerCase();
 	}
 	
 	private static String getHierarchyName(InstanceObject object){
@@ -137,7 +194,7 @@ public class CommonHelper {
 	}
 	
 	public static String getDataType(FeatureInstance feature){
-		Classifier classifier = feature.getFeature().getClassifier();
+		ComponentClassifier classifier = (ComponentClassifier) feature.getFeature().getClassifier();
 		//if no classifier is given, then return default type object
 		if(classifier == null)
 			return "Object";
@@ -390,6 +447,12 @@ public class CommonHelper {
 		return fi.getDirection().incoming();
 	}
 	
+	public static boolean isIncoming(Feature f){
+		if(f instanceof DirectedFeature)
+			return ((DirectedFeature) f).getDirection().incoming();
+		return true;// Default
+	}
+	
 	public static boolean isOutgoing(FeatureInstance fi){
 		return fi.getDirection().outgoing();
 	}
@@ -399,11 +462,15 @@ public class CommonHelper {
 	}
 	
 	public static boolean isData(Classifier c){
-		return c instanceof DataImplementation; // we only consider dataImpleentation at the moment as classifiers
+		return c instanceof DataImplementation; // we only consider dataImplementation at the moment as classifiers
 	}
 	
 	public static boolean isPeriodic(ComponentInstance ci){
 		return getDispatchProtocol(ci).equals(Thread_Properties_Dispatch_Protocol_Periodic);
+	}
+	
+	public static boolean isPeriodic(ComponentClassifier ti){
+		return getDispatchProtocol(ti).equals(Thread_Properties_Dispatch_Protocol_Periodic);
 	}
 	
 	public static boolean isImmediate(ConnectionInstance connection){
@@ -428,6 +495,10 @@ public class CommonHelper {
 		return ci.getFeatureInstances();
 	}
 	
+	public static EList<Feature> getFeatures(ComponentClassifier cc){
+		return cc.getAllFeatures();
+	}
+	
 	public static ConnectionInstanceEnd getConnectionDestination(ConnectionInstance coni){
 		return coni.getDestination();
 	}
@@ -440,11 +511,11 @@ public class CommonHelper {
 		return fi.getSrcConnectionInstances();
 	}
 	
-	public static Classifier getClassifier(FeatureInstance fi){
-		return fi.getFeature().getClassifier();
+	public static ComponentClassifier getClassifier(FeatureInstance fi){
+		return (ComponentClassifier) fi.getFeature().getClassifier();
 	}
 	
-	public static Classifier getClassifier(ComponentInstance ci){
+	public static ComponentClassifier getClassifier(ComponentInstance ci){
 		return ci.getComponentClassifier();
 	}
 	
@@ -454,8 +525,12 @@ public class CommonHelper {
 		return ciClassifier.basicGetType();
 	}
 	
-	public static EList<DataSubcomponent> getDataSubcomponents(DataImplementation dataImpl){
-		return dataImpl.getOwnedDataSubcomponents();
+	public static EList<ComponentClassifier> getDataSubcomponents(DataImplementation dataImpl){
+		EList<ComponentClassifier> classifiers = new BasicEList<ComponentClassifier>();
+		for (Subcomponent subcomponent : dataImpl.getOwnedDataSubcomponents()) {
+			classifiers.add(subcomponent.getClassifier());
+		}
+		return classifiers;
 	}
 	
 	public static EList<ConnectionInstance> getConnectionInstances(ComponentInstance ci){
@@ -492,6 +567,23 @@ public class CommonHelper {
 		}
 		if(dispatchProtocol.equals(""))
 			log.warning("No Thread_Properties::Dispatch_Protocol was given for " + ci.getName() + ". Default is periodic");
+		return Thread_Properties_Dispatch_Protocol_Periodic;
+	}
+	
+	public static String getDispatchProtocol(ComponentClassifier cf){
+		String dispatchProtocol = "";
+		// get Thread Type: Periodic, Aperiodic, Sporadic, Hybrid, Timed or Background
+		List<PropertyExpression> dispatchProtocolPropertyList = cf.getPropertyValues(Thread_Properties, Thread_Properties_Dispatch_Protocol);
+		// only do something if the type of thread was defined
+		if(dispatchProtocolPropertyList.size() > 0){
+			PropertyExpression dispatchProtocolProperty = dispatchProtocolPropertyList.get(0); //TODO we don't consider modes at the moment
+			if(dispatchProtocolProperty instanceof NamedValue){
+				EnumerationLiteral namedValue = (EnumerationLiteral)((NamedValue)dispatchProtocolProperty).getNamedValue();
+				dispatchProtocol = namedValue.getName();// should be "Periodic" or "Aperiodic" or one of the others
+			}
+		}
+		if(dispatchProtocol.equals(""))
+			log.warning("No Thread_Properties::Dispatch_Protocol was given for " + cf.getName() + ". Default is periodic");
 		return Thread_Properties_Dispatch_Protocol_Periodic;
 	}
 	

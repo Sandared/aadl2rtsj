@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.util.BasicMonitor;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -26,12 +27,15 @@ import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstallType;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.osate.aadl2.Classifier;
+import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.Element;
 import org.osate.aadl2.instance.InstanceObject;
 import org.osate.aadl2.instance.SystemInstance;
+import org.osate.aadl2.modelsupport.modeltraversal.AadlProcessingSwitchWithProgress;
 import org.osate.ui.actions.AaxlReadOnlyActionAsJob;
 
 import de.uniaugsburg.smds.aadl2rtsj.generation.main.Main;
+import de.uniaugsburg.smds.aadl2rtsj.generation.AADL2RTSJInstanceSwitch;
 
 //import de.uniaugsburg.smds.aadl2rtsj.converter.MainConverter;
 //import de.uniaugsburg.smds.aadl2rtsj.utils.Utils;
@@ -66,11 +70,25 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 		// run traversal which does the actual generation
 		if (si != null) {
 			
-			// Use Acceleo instead of Osate Switches and JET
+			// create instance switch to collect all used classifiers
+			AADL2RTSJInstanceSwitch myInstanceSwitch = new AADL2RTSJInstanceSwitch();
+			AadlProcessingSwitchWithProgress mySwitch = new AadlProcessingSwitchWithProgress(monitor, errManager) {
+
+				@Override
+				protected void initSwitches() {
+					instanceSwitch = myInstanceSwitch;
+				}
+			};
+			// Resolve all proxies
+			EcoreUtil.resolveAll(si);
+			//collect all used classifiers
+			mySwitch.defaultTraversal(si);
+			
+			// Use Acceleo to generate code
 			try {
 				File srcFolder = new File(root.getCorrespondingResource().getLocationURI());
-				//We need a list to save all classifiers that are used during generation
-				List<Classifier> classifier = new ArrayList<Classifier>();
+				//retrieve the list of all used classifiers and give it to the generation
+				Set<ComponentClassifier> classifier = myInstanceSwitch.getUsedClassifer();
 				List<Object> arguments = new ArrayList<Object>();
 				arguments.add(classifier);
 				Main main = new Main(si, srcFolder, arguments);

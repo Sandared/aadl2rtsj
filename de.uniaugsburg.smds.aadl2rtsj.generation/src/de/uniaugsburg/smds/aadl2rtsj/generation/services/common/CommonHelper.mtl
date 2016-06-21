@@ -1,16 +1,24 @@
 [comment encoding = UTF-8 /]
 [module CommonHelper('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')/]
 
-[query public getClassName(arg0 : NamedElement) : String
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getClassName(org.osate.aadl2.NamedElement)', Sequence{arg0})
+[query public getClassName(arg0 : InstanceObject) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getClassName(org.osate.aadl2.instance.InstanceObject)', Sequence{arg0})
+/]
+
+[query public getClassName(arg0 : ComponentClassifier) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getClassName(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
 /]
 
 [query public getObjectName(arg0 : NamedElement) : String
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getObjectName(org.osate.aadl2.NamedElement)', Sequence{arg0})
 /]
 
-[query public getPackageName(arg0 : NamedElement) : String
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getPackageName(org.osate.aadl2.NamedElement)', Sequence{arg0})
+[query public getPackageName(arg0 : InstanceObject) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getPackageName(org.osate.aadl2.instance.InstanceObject)', Sequence{arg0})
+/]
+
+[query public getPackageName(arg0 : ComponentClassifier) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getPackageName(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
 /]
 
 [query public getHandlerClassName(arg0 : FeatureInstance, arg1 : OffsetTime) : String
@@ -69,6 +77,10 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'isPeriodic(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
+[query public isPeriodic(arg0 : ComponentClassifier) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'isPeriodic(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
 [query public isImmediate(arg0 : ConnectionInstance) : Boolean
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'isImmediate(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
 /]
@@ -89,6 +101,10 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getFeatures(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
+[query public getFeatures(arg0 : ComponentClassifier) : Sequence(Feature)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getFeatures(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
 [query public getConnectionDestination(arg0 : ConnectionInstance) : ConnectionInstanceEnd
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getConnectionDestination(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
 /]
@@ -101,11 +117,11 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getSrcConnectionInstances(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
 /]
 
-[query public getClassifier(arg0 : FeatureInstance) : Classifier
+[query public getClassifier(arg0 : FeatureInstance) : ComponentClassifier
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getClassifier(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
 /]
 
-[query public getClassifier(arg0 : ComponentInstance) : Classifier
+[query public getClassifier(arg0 : ComponentInstance) : ComponentClassifier
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getClassifier(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
@@ -113,7 +129,7 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getRealizedTypeClassifier(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
-[query public getDataSubcomponents(arg0 : DataImplementation) : Sequence(DataSubcomponent)
+[query public getDataSubcomponents(arg0 : DataImplementation) : Sequence(ComponentClassifier)
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getDataSubcomponents(org.osate.aadl2.DataImplementation)', Sequence{arg0})
 /]
 
@@ -127,6 +143,10 @@
 
 [query public getDispatchProtocol(arg0 : ComponentInstance) : String
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getDispatchProtocol(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
+[query public getDispatchProtocol(arg0 : ComponentClassifier) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper', 'getDispatchProtocol(org.osate.aadl2.Classifier)', Sequence{arg0})
 /]
 
 [query public getPeriodMilliSeconds(arg0 : ComponentInstance) : String

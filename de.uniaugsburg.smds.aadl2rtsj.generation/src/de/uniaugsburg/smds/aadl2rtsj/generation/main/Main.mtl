@@ -9,14 +9,20 @@
 
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
 
-[template public Main(system : SystemInstance, classifiers : Sequence(Classifier))]
+[template public Main(system : SystemInstance, classifiers : Set(ComponentClassifier))]
 	[comment @main /]
+	[for (cc : ComponentClassifier | classifiers)]
+		[generateComponent(cc)/]
+	[/for]
 	[generateComponent(system)/]
 [/template]
 
+[template public generateComponent(cc : ComponentClassifier)]
+	[comment generate the component itself. Each Generator decides if the given object is the right one /]
+	[generateThread(cc)/]
+[/template]
+
 [template public generateComponent(ci : ComponentInstance)]
-	[comment for each component we have to generate the classifier, i.e., its implementation declaration and type declaration /]
-	[generateClassifier(getClassifier(ci))/]
 	[comment generate the component itself. Each Generator decides if the given object is the right one /]
 	[generateThread(ci)/]
 	[generateData(getClassifier(ci))/]

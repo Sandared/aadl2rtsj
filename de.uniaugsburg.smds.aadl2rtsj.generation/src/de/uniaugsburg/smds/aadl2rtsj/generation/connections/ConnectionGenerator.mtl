@@ -9,7 +9,7 @@ package [getPackageName(connection)/];
 [comment we don't consider splitting or aggregation of data types currently, so it's sufficient to check one connectionend for its datatype/]
 [comment the end must be a FeatureInstance as we only consider data ports at the moment/]
 [let feature : FeatureInstance = connection.source.oclAsType(FeatureInstance)]
-	[let classifier : Classifier = feature.feature.classifier]
+	[let classifier : ComponentClassifier = getClassifier(feature)]
 		[comment if it is a base type, then we don't have to import anything, as Integer, Boolean etc are part of java.lang /]		
 		[if (isBaseType(classifier) <> true)]
 import [getPackageName(classifier)/].[getClassName(classifier)/];

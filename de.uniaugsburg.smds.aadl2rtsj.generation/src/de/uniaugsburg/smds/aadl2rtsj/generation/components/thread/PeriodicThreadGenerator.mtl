@@ -5,6 +5,48 @@
 [module PeriodicThreadGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
 
+[template public generateThreadType(thread : ThreadClassifier)]
+[let threadType : ThreadType = thread]
+[file(getPackageName(threadType).substitute('.', '/').concat('/').concat(getClassName(threadType)).concat('.java') , false, 'UTF-8')]
+package [getPackageName(threadType)/];
+//TODO: imports (classifier der features, UnsupportedOperationException if refined Features present)
+public interface [getClassName(threadType)/][if (threadType.extended <> null)] extends [getClassName(threadType.extended)/][/if]{
+	[for (feature : Feature | getFeatures(threadType))]
+		[let dataPort : DataPort = feature]
+			[if (isIncoming(dataPort))]
+				[if (isRefined(dataPort))]
+	@Override
+	default void set[dataPort.name/]([getRefinedClassifier(dataPort)/] data){
+		throw new UnsupportedOperationException();
+	}
+
+				[/if]
+	void set[dataPort.name/]([getClassifier(dataPort)/] data);
+			[/if]
+			[if (isOutgoing(dataPort))]
+				[if (isRefined(dataPort))]
+	@Override
+				[/if]
+	[getClassifier(dataPort)/] get[dataPort.name/](); 
+			[/if]
+		[/let]
+	[/for]
+}
+[/file]	
+[/let]
+[/template]
+
+[template public generateThreadImplementation(thread : ThreadClassifier)]
+[let threadImpl : ThreadImplementation = thread]
+[file(getPackageName(threadImpl).substitute('.', '/').concat('/').concat(getClassName(threadImpl)).concat('.java') , false, 'UTF-8')]
+package [getPackageName(threadImpl)/];
+//TODO: imports (classifier der features, generische ports falls entsprechende features vorhanden)
+public class [getClassName(threadImpl)/]{
+
+}
+[/file]	
+[/let]
+[/template]
 
 [template public generatePeriodicThread(thread : ComponentInstance)? (isPeriodic(thread)) ]
 [file(getPackageName(thread).substitute('.', '/').concat('/').concat(getClassName(thread)).concat('.java') , false, 'UTF-8')]

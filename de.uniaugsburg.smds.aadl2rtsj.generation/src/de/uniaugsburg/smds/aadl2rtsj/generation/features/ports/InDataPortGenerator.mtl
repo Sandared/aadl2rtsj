@@ -2,7 +2,7 @@
 [module InDataPortGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
 
-[template public generateInDataPort(dataPort : FeatureInstance)? (isIncoming(dataPort)) { classifier : Classifier = getClassifier(dataPort); } ]
+[template public generateInDataPort(dataPort : FeatureInstance)? (isIncoming(dataPort)) { classifier : ComponentClassifier = getClassifier(dataPort); } ]
 [file(getPackageName(dataPort).substitute('.', '/').concat('/').concat(getClassName(dataPort)).concat('.java') , false, 'UTF-8')]
 package [getPackageName(dataPort)/];
 
