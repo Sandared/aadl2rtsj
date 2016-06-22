@@ -1,6 +1,6 @@
 [comment encoding = UTF-8 /]
 [module ThreadImplementationGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
 
 [template public generateThreadImplementation(thread : ComponentClassifier)]
 [let threadImpl : ThreadImplementation = thread]

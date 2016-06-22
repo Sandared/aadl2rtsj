@@ -28,5 +28,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
 Export-Package: de.uniaugsburg.smds.aadl2rtsj.generation.main,
- de.uniaugsburg.smds.aadl2rtsj.generation.services.common
+ de.uniaugsburg.smds.aadl2rtsj.generation.services
 

@@ -35,7 +35,7 @@ import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.instance.SystemOperationMode;
 import org.osate.aadl2.instance.util.InstanceSwitch;
 
-import de.uniaugsburg.smds.aadl2rtsj.generation.services.common.CommonHelper;
+import de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper;
 
 public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	
@@ -77,7 +77,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	}
 	
 	private void addHierarchyClassifers(ComponentClassifier classifier){
-		if(classifier != null && !CommonHelper.isBaseType(classifier)){
+		if(classifier != null && !ComponentClassifierHelper.isBaseType(classifier)){
 			EcoreUtil.resolveAll(classifier);// resolve possible proxies
 			usedClassifier.add(classifier);
 			ComponentClassifier extension = (ComponentClassifier) classifier.getExtended();// Extension

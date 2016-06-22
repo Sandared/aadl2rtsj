@@ -1,0 +1,71 @@
+[comment encoding = UTF-8 /]
+[module ComponentClassifierHelper('http://aadl.info/AADL/2.0/instance', 'http://aadl.info/AADL/2.0', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')/]
+
+[query public getClassName(arg0 : ComponentClassifier) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getClassName(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public getPackageName(arg0 : ComponentClassifier) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getPackageName(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public isIncoming(arg0 : Feature) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'isIncoming(org.osate.aadl2.Feature)', Sequence{arg0})
+/]
+
+[query public isOutgoing(arg0 : Feature) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'isOutgoing(org.osate.aadl2.Feature)', Sequence{arg0})
+/]
+
+[query public isData(arg0 : ComponentClassifier) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'isData(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public isPeriodic(arg0 : ComponentClassifier) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'isPeriodic(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public getFeatures(arg0 : ComponentClassifier) : Sequence(Feature)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getFeatures(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public getSubComponents(arg0 : ComponentImplementation) : Sequence(Subcomponent)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getSubComponents(org.osate.aadl2.ComponentImplementation)', Sequence{arg0})
+/]
+
+[query public getSubComponentClassifiers(arg0 : ComponentImplementation) : Set(ComponentClassifier)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getSubComponentClassifiers(org.osate.aadl2.ComponentImplementation)', Sequence{arg0})
+/]
+
+[query public isBaseType(arg0 : ComponentClassifier) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'isBaseType(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public isRefined(arg0 : Feature) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'isRefined(org.osate.aadl2.Feature)', Sequence{arg0})
+/]
+
+[query public getRefinedClassifier(arg0 : Feature) : ComponentClassifier
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getRefinedClassifier(org.osate.aadl2.Feature)', Sequence{arg0})
+/]
+
+[query public getExtendedClassifier(arg0 : ComponentClassifier) : ComponentClassifier
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getExtendedClassifier(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public getRealizedClassifier(arg0 : ComponentImplementation) : ComponentClassifier
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getRealizedClassifier(org.osate.aadl2.ComponentImplementation)', Sequence{arg0})
+/]
+
+[query public getClassifier(arg0 : Feature) : ComponentClassifier
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getClassifier(org.osate.aadl2.Feature)', Sequence{arg0})
+/]
+
+[query public getClassifier(arg0 : Subcomponent) : ComponentClassifier
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getClassifier(org.osate.aadl2.Subcomponent)', Sequence{arg0})
+/]
+
+[query public getFeatureClassifiers(arg0 : ComponentClassifier) : Set(ComponentClassifier)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getFeatureClassifiers(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+

@@ -1,6 +1,7 @@
 [comment encoding = UTF-8 /]
 [module OutDataPortGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 
 [template public generateOutDataPort(dataPort : FeatureInstance)? (isOutgoing(dataPort)) { classifier : ComponentClassifier = getClassifier(dataPort); } ]
 [file(getPackageName(dataPort).substitute('.', '/').concat('/').concat(getClassName(dataPort)).concat('.java') , false, 'UTF-8')]

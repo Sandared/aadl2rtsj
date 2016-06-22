@@ -1,30 +1,32 @@
 [comment encoding = UTF-8 /]
 [module Main('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')/]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::components::thread::ThreadGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::features::ports::PortGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::connections::ConnectionGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::features::util::io::IOHandlerGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::DataPortGenerator /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
 
 [import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::data::DataImplementationGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::data::DataTypeGenerator /]
 
 [import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::thread::ThreadImplementationGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::thread::ThreadTypeGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::instance::thread::ThreadInstanceGenerator /]
+
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 
 [template public Main(system : SystemInstance, classifiers : Set(ComponentClassifier))]
 	[comment @main /]
 	[for (cc : ComponentClassifier | classifiers)]
-		[generateComponent(cc)/]
+		[generateClassifier(cc)/]
 	[/for]
-	[generateComponent(system)/]
+
+	[generateInstance(system)/]
 
 	[comment generate utils /]
 	[generateGenericDataPort()/]
 [/template]
 
-[template public generateComponent(cc : ComponentClassifier)]
+[template public generateClassifier(cc : ComponentClassifier)]
 	[comment generate the component itself. Each Generator decides if the given object is the right one /]
 	[generateThreadImplementation(cc)/]
 	[generateThreadType(cc)/]
@@ -32,7 +34,7 @@
 	[generateDataType(cc)/]
 [/template]
 
-[template public generateComponent(ci : ComponentInstance)]
+[template public generateInstance(ci : ComponentInstance)]
 	[comment generate the component itself. Each Generator decides if the given object is the right one/ ]
 	[generateThreadInstance(ci)/]
 	[comment generate the features for this component /]
@@ -54,7 +56,7 @@
 	[comment generate all subcomponents recursively  /]
 	[for (subcomponent : ComponentInstance | getSubcomponents(ci) )]
 		[if (subcomponent <> ci)]
-			[generateComponent(subcomponent)/]
+			[generateInstance(subcomponent)/]
 		[/if]
 	[/for]
 [/template]

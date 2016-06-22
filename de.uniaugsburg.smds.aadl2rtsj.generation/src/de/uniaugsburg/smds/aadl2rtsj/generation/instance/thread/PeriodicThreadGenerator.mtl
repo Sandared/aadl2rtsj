@@ -3,13 +3,11 @@
  * The documentation of the module generate.
  */]
 [module PeriodicThreadGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::services::common::CommonHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::PropertyHelper /]
 
-
-
-
-
-[template public generatePeriodicThread(thread : ComponentInstance)? (isPeriodic(thread)) ]
+[template public generatePeriodicThread(thread : ComponentInstance)? (isPeriodic(thread)) { classifier : ComponentClassifier = thread.getClassifier(); }]
 [file(getPackageName(thread).substitute('.', '/').concat('/').concat(getClassName(thread)).concat('.java') , false, 'UTF-8')]
 package [getPackageName(thread)/];
 
@@ -26,9 +24,34 @@ import javax.realtime.PriorityParameters;
 import [getPackageName(subcomponent)/].[getClassName(subcomponent)/];
 [/for]
 
-[comment if this thread has an immediate connection where it is the target, it has to wait and therefore needs to be a BoundAsyncEventHandler. Otherwise it's just an AsyncEventHandler /]
-public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
-	private Timer timer;
+[if (classifier.oclIsTypeOf(ComponentType))]
+//########## Feature Classifier Imports ##########
+	[comment import all classifiers of the features, but only once for each classifier/]
+	[for (featureClassifier : ComponentClassifier | classifier.getFeatureClassifiers())]
+import [featureClassifier.getPackageName()/].[featureClassifier.getClassName()/];
+	[/for]
+
+//########## Port Variable Imports ##########
+	[comment if this component has in, out or in/out ports we have to import the respective port type/]
+	[if (classifier.getFeatures()->select(oclIsTypeOf(DataPort))->size() > 0)]
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
+	[/if]
+[/if]
+
+[comment TODO: types importieren, falls das noch umgesetzt wird /]
+import [classifier.getPackageName()/].[classifier.getClassName()/];
+
+public class [getClassName(thread)/][if (classifier.oclIsTypeOf(ComponentType))] implements [else] extends [/if][classifier.getClassName()/]{	
+	[if (classifier.oclIsTypeOf(ComponentType))]
+		[comment create a data port variable for each dataport /]
+		//########## Data Port Variables ###########
+		[for (dataPort : DataPort | classifier.getFeatures()->select(oclIsTypeOf(DataPort)))]
+	protected DataPort<[dataPort.getClassifier().getClassName()/]> [dataPort.name/] = new DataPort<[dataPort.getClassifier().getClassName()/]>();
+		[/for]
+	[/if]
+	private AsyncEventHandler handler = new InnerAsyncEventHandler();
+	private Timer timer = new PeriodicTimer(new RelativeTime(), new RelativeTime([getPeriodMilliSeconds(thread)/], [getPeriodNanoSeconds(thread)/]), handler);
+	
 	[comment Create a Member Statement for each Subcomponent /]
 	[for (subcomponent : ComponentInstance | getSubcomponents(thread))]
 	private [getClassName(subcomponent)/] [getObjectName(subcomponent)/];
@@ -43,11 +66,6 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 	[/let]	
 
 	public [getClassName(thread)/]([getConstructorParameters(thread)/]){
-		super();
-		setDaemon(false);
-		setSchedulingParameters(new PriorityParameters([getPriority(thread)/]));
-		timer = new PeriodicTimer(new RelativeTime(), new RelativeTime([getPeriodMilliSeconds(thread)/], [getPeriodNanoSeconds(thread)/]), this);
-		
 		[comment for each feature we have to create an Assignment Statement/]
 		[for (feature : FeatureInstance | getFeatures(thread))]
 		this.[getObjectName(feature)/] = [getObjectName(feature)/];
@@ -68,30 +86,24 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 		this.[getSynchronisationObjectName(connection)/] = [getSynchronisationObjectName(connection)/];
 		[/let]		
 	}
-	
+
+	[if (classifier.oclIsTypeOf(ComponentType))]
+	//########## Inherited Methods from [classifier.getClassName()/] ###########
+		[for (dataPort : DataPort | classifier.getFeatures()->select(oclIsTypeOf(DataPort)))]
+			[if (dataPort.isIncoming())]
 	@Override
-	public void handleAsyncEvent() {
-		[comment add a wait statement if we have to /]
-		[let connection : ConnectionInstance = getImmediateConnection(thread)]
-			[comment we do this only if we are the target, which has to wait/]
-			[if (getComponentInstance(connection.destination) = thread)]
-		synchronized([getSynchronisationObjectName(connection)/]){
-			try{
-				// TODO: not yet sure how to solve synchronization for immediate connections 
-				//while(![getObjectName(connection)/].isDirty()){
-					[getSynchronisationObjectName(connection)/].wait();
-				//}
-			}catch(InterruptedException e){
-				e.printStackTrace();
-			}
-		}
-			[/if]
-		[/let]	
-		dispatch();
-		start();
-		compute();
-		completion();
+	public void set[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
+		[dataPort.name/].setData(data);
 	}
+			[/if]
+			[if (dataPort.isOutgoing())]
+	@Override
+	public [dataPort.getClassifier().getClassName()/] get[dataPort.name.toUpperFirst()/](){
+		return [dataPort.name/].getData();
+	} 
+			[/if]
+		[/for]
+	[/if]
 	
 	private final void dispatch() {
 		[getStatementsForReferenceTime(thread, getProperty('Communication_Properties_IO_Reference_Time_Dispatch'))/]
@@ -124,8 +136,40 @@ public class [getClassName(thread)/] extends [getHandlerType(thread)/]{
 	public void stopExcution(){
 		timer.stop();
 	}
+
+	[getHandlerClass(thread)/]
 }
 [/file]
+[/template]
+
+[template private getHandlerClass(thread : ComponentInstance) post (trim()) {connection : ConnectionInstance = getImmediateConnection(thread);}]
+	
+class InnerAsyncEventHandler extends [if ((connection <> null) and (getComponentInstance(getConnectionDestination(connection)) = thread))]Bound[/if]AsyncEventHandler{
+	public InnerAsyncEventHandler(){
+		setDaemon(false);
+		setSchedulingParameters(new PriorityParameters([getPriority(thread)/]));
+	}
+
+	@Override
+	public void handleAsyncEvent() {
+	[if ((connection <> null) and (getComponentInstance(getConnectionDestination(connection)) = thread))]
+		synchronized([getSynchronisationObjectName(connection)/]){
+			try{
+				// TODO: not yet sure how to solve synchronization for immediate connections 
+				//while(![getObjectName(connection)/].isDirty()){
+					[getSynchronisationObjectName(connection)/].wait();
+				//}
+			}catch(InterruptedException e){
+				e.printStackTrace();
+			}
+		}
+	[/if]
+		dispatch();
+		start();
+		compute();
+		completion();
+	}
+}
 [/template]
 
 [template private getHandlerType(thread : ComponentInstance) post (trim()) {connection : ConnectionInstance = getImmediateConnection(thread);}]
