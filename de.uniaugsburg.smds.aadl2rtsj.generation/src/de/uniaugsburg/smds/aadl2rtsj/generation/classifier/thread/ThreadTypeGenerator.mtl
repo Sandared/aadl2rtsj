@@ -7,35 +7,28 @@
 [file(getPackageName(threadType).substitute('.', '/').concat('/').concat(getClassName(threadType)).concat('.java') , false, 'UTF-8')]
 package [getPackageName(threadType)/];
 
-//########## Feature Classifier ##########
-	[comment import all classifiers of the features, but only once for each classifier/]
-	[for (featureClassifier : ComponentClassifier | threadType.getFeatureClassifiers())]
-import [featureClassifier.getPackageName()/].[featureClassifier.getClassName()/];
+//########## Classifier Import##########
+	[comment import all classifiers for this component, but only once for each classifier/]
+	[for (classifier : ComponentClassifier | threadType.getAllClassifiers())]
+import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 
-	[comment import the extended type if necessary/]
-	[if (threadType.getExtendedClassifier() <> null)]
-//########## Extends Classifier ##########
-import [threadType.getExtendedClassifier().getPackageName()/].[threadType.getExtendedClassifier().getClassName()/];
+	[comment import the ConnectionBrokerable Interface if there is no more extended classifier/]
+	[if (threadType.getExtendedClassifier() = null)]
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBrokerable;
 	[/if]
 
-public interface [threadType.getClassName()/][if (threadType.getExtendedClassifier() <> null)] extends [threadType.getExtendedClassifier().getClassName()/][/if]{
+public interface [threadType.getClassName()/] extends[if (threadType.getExtendedClassifier() <> null)] [threadType.getExtendedClassifier().getClassName()/][else]ConnectionBrokerable[/if]{
 	[for (feature : Feature | threadType.getFeatures())]
 		[let dataPort : DataPort = feature]
 			[if (dataPort.isIncoming())]
 				[if (dataPort.isRefined())]
 	@Override
-	default void set[dataPort.name.toUpperFirst()/]([dataPort.getRefinedClassifier().getClassName()/] data){
+	default void in[dataPort.name.toUpperFirst()/]([dataPort.getRefinedClassifier().getClassName()/] data){
 		throw new UnsupportedOperationException();
 	}
 				[/if]
-	void set[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data);
-			[/if]
-			[if (dataPort.isOutgoing())]
-				[if (dataPort.isRefined())]
-	@Override
-				[/if]
-	[dataPort.getClassifier().getClassName()/] get[dataPort.name.toUpperFirst()/](); 
+	void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data);
 			[/if]
 		[/let]
 	[/for]

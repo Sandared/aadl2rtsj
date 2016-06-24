@@ -1,0 +1,13 @@
+[comment encoding = UTF-8 /]
+[module ConnectionBrokerableGenerator('http://aadl.info/AADL/2.0/instance')]
+[template public generateConnectionBrokerableInterface()]
+[file ('de/uniaugsburg/smds/aadl2rtsj/generation/util/ConnectionBrokerable.java', false, 'UTF-8')]
+package de.uniaugsburg.smds.aadl2rtsj.generation.util;
+
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
+
+public interface ConnectionBrokerable{
+	void setParentConnectionBroker(ConnectionBroker broker);
+}
+[/file]
+[/template]

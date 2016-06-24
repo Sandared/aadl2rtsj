@@ -16,6 +16,11 @@ public class DataPort<T>{
 	public T getData(){
 		return data;
 	} 
+
+	public void receiveData(){
+		//freezes Data (clones it ? )
+		
+	}
 }
 [/file]
 [/template]

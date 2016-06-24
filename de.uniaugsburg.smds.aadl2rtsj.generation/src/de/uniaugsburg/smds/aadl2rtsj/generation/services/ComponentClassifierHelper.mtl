@@ -1,5 +1,5 @@
 [comment encoding = UTF-8 /]
-[module ComponentClassifierHelper('http://aadl.info/AADL/2.0/instance', 'http://aadl.info/AADL/2.0', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')/]
+[module ComponentClassifierHelper('http://aadl.info/AADL/2.0')/]
 
 [query public getClassName(arg0 : ComponentClassifier) : String
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getClassName(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
@@ -31,6 +31,10 @@
 
 [query public getSubComponents(arg0 : ComponentImplementation) : Sequence(Subcomponent)
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getSubComponents(org.osate.aadl2.ComponentImplementation)', Sequence{arg0})
+/]
+
+[query public getOwnSubcomponents(arg0 : ComponentImplementation) : Sequence(Subcomponent)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getOwnSubcomponents(org.osate.aadl2.ComponentImplementation)', Sequence{arg0})
 /]
 
 [query public getSubComponentClassifiers(arg0 : ComponentImplementation) : Set(ComponentClassifier)
@@ -67,5 +71,29 @@
 
 [query public getFeatureClassifiers(arg0 : ComponentClassifier) : Set(ComponentClassifier)
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getFeatureClassifiers(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public getAllConnections(arg0 : ComponentImplementation) : Sequence(Connection)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getAllConnections(org.osate.aadl2.ComponentImplementation)', Sequence{arg0})
+/]
+
+[query public getTargetComponent(arg0 : Connection) : NamedElement
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getTargetComponent(org.osate.aadl2.Connection)', Sequence{arg0})
+/]
+
+[query public getTargetFeature(arg0 : Connection) : Context
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getTargetFeature(org.osate.aadl2.Connection)', Sequence{arg0})
+/]
+
+[query public getSourceFeature(arg0 : Connection) : Context
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getSourceFeature(org.osate.aadl2.Connection)', Sequence{arg0})
+/]
+
+[query public getAllClassifiers(arg0 : ComponentClassifier) : Set(ComponentClassifier)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getAllClassifiers(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+
+[query public getOutgoingConnections(arg0 : Context, arg1 : ComponentImplementation) : Sequence(Connection)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getOutgoingConnections(org.osate.aadl2.Context, org.osate.aadl2.ComponentImplementation)', Sequence{arg0, arg1})
 /]
 

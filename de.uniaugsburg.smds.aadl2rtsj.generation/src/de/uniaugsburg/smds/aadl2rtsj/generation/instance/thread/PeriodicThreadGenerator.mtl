@@ -37,8 +37,6 @@ import [featureClassifier.getPackageName()/].[featureClassifier.getClassName()/]
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
 	[/if]
 [/if]
-
-[comment TODO: types importieren, falls das noch umgesetzt wird /]
 import [classifier.getPackageName()/].[classifier.getClassName()/];
 
 public class [getClassName(thread)/][if (classifier.oclIsTypeOf(ComponentType))] implements [else] extends [/if][classifier.getClassName()/]{	
@@ -260,7 +258,8 @@ timerFor[getHandlerClassName(feature, offsetTime)/].start();
 				[elseif ((offsetTime.ms = 0) and (offsetTime.ns = 0))]
 					[comment send output, but only for this specific connection via simple statement/]
 					[comment see AADL Standard 8.3.2 (29)/]
-[getObjectName(feature)/].sendOutputOn[getClassName(connection)/]();
+[comment getObjectName(feature)/][ comment .sendOutputOn[getClassName(connection)/][comment ();/]
+parentBroker.sendOnConnection("[connection.getObjectName()/]", [feature.getObjectName()/].getData());
 				[else]
 					[comment we need to generate a statement for handling via handler/]
 Timer timerFor[getHandlerClassName(feature, offsetTime)/] = new OneShotTimer(new RelativeTime([offsetTime.ms/], [offsetTime.ns/]), new [getHandlerClassName(feature, offsetTime)/]([getObjectName(feature)/]));

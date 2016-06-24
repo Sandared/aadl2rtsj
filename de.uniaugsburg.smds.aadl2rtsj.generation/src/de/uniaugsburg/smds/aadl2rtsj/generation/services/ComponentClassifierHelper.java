@@ -2,6 +2,9 @@ package de.uniaugsburg.smds.aadl2rtsj.generation.services;
 
 import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.Thread_Properties_Dispatch_Protocol_Periodic;
 
+import java.awt.Component;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
@@ -9,9 +12,14 @@ import java.util.logging.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.ComponentImplementation;
+import org.osate.aadl2.Connection;
+import org.osate.aadl2.Context;
 import org.osate.aadl2.DataImplementation;
+import org.osate.aadl2.DataPort;
 import org.osate.aadl2.DirectedFeature;
 import org.osate.aadl2.Feature;
+import org.osate.aadl2.NamedElement;
+import org.osate.aadl2.Port;
 import org.osate.aadl2.Subcomponent;
 
 import de.uniaugsburg.smds.aadl2rtsj.generation.ClassifierComparator;
@@ -100,12 +108,16 @@ public class ComponentClassifierHelper {
 		return PropertyHelper.getDispatchProtocol(ti).equals(Thread_Properties_Dispatch_Protocol_Periodic);
 	}
 	
-	public static EList<Feature> getFeatures(ComponentClassifier cc){
+	public static List<Feature> getFeatures(ComponentClassifier cc){
 		return cc.getAllFeatures();
 	}
 	
-	public static EList<Subcomponent> getSubComponents(ComponentImplementation ci){
+	public static List<Subcomponent> getSubComponents(ComponentImplementation ci){
 		return ci.getAllSubcomponents();
+	}
+	
+	public static List<Subcomponent> getOwnSubcomponents(ComponentImplementation ci){
+		return ci.getOwnedSubcomponents();
 	}
 	
 	/**
@@ -187,6 +199,78 @@ public class ComponentClassifierHelper {
 			}
 		}
 		return classifiers;
+	}
+	
+	public static List<Connection> getAllConnections(ComponentImplementation ci){
+		return ci.getAllConnections();
+	}
+	
+	/**
+	 * @param c
+	 * @return either the Subcomponent or the ComponentImplementation that contains the port, that is the target of c
+	 */
+	public static NamedElement getTargetComponent(Connection c){
+		return c.getAllDstContextComponent();
+	}
+	
+	/**
+	 * @param c
+	 * @return the target feature of c, which is either a DataPort or an EventDataPort, or an EventPort, or...
+	 */
+	public static Context getTargetFeature(Connection c){
+		return c.getAllDestinationContext();
+	}
+	
+	/**
+	 * @param c
+	 * @return the source feature of c, which is either a DataPort or an EventDataPort, or an EventPort, or...
+	 */
+	public static Context getSourceFeature(Connection c){
+		return c.getAllSourceContext();
+	}
+	
+	/**
+	 * Internally calls:</br>
+	 * - getAllFeatureClassifiers(cc)</br>
+	 * - getExtendedClassifier(cc)</br>
+	 * And, only if <code>(cc instanceof ComponentImplementation) == true):</code></br>
+	 * - getRealizedClassifier(cc)</br>
+	 * - getAllSubcomponentClassifiers(cc)</br>
+	 * - for each Subcomponent sc: getAllFeatureClassifiers(sc).
+	 * @param cc
+	 * @return a Set of unique ComponentClassifiers that contains all Classifiers that have to be imported by a Component.
+	 */
+	public static Set<ComponentClassifier> getAllClassifiers(ComponentClassifier cc){
+		Set<ComponentClassifier> classifiers = new TreeSet<ComponentClassifier>(new ClassifierComparator());
+		classifiers.addAll(getFeatureClassifiers(cc));
+		if (cc instanceof ComponentImplementation) {
+			ComponentImplementation ci = (ComponentImplementation)cc;
+			classifiers.add(getRealizedClassifier(ci));
+			for (Subcomponent sc : getSubComponents(ci)) {
+				ComponentClassifier scc = sc.getClassifier();
+				if (scc != null && !isBaseType(scc)) {
+					classifiers.add(scc);
+					classifiers.addAll(getFeatureClassifiers(scc));
+				}
+			}
+		}
+		if(getExtendedClassifier(cc) != null)
+			classifiers.add(getExtendedClassifier(cc));
+		return classifiers;
+	}
+	
+	/**
+	 * @param source Feature we want the outgoing connections for
+	 * @param parent the parent ComponentImpl of the ComponentImpl which contains the source Feature
+	 * @return A List of connections within parent that have source as their sourceContext
+	 */
+	public static List<Connection> getOutgoingConnections(Context source, ComponentImplementation parent){
+		List<Connection> outgoing = new ArrayList<Connection>();
+		for (Connection connection : getAllConnections(parent)) {
+			if(connection.getAllSourceContext().equals(source))
+				outgoing.add(connection);
+		}
+		return outgoing;
 	}
 
 }

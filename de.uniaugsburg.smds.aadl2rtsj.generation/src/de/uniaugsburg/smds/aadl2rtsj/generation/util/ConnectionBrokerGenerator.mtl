@@ -1,0 +1,12 @@
+[comment encoding = UTF-8 /]
+[module ConnectionBrokerGenerator('http://aadl.info/AADL/2.0/instance')]
+[template public generateConnectionBroker()]
+[file ('de/uniaugsburg/smds/aadl2rtsj/generation/util/ConnectionBroker.java', false, 'UTF-8')]
+package de.uniaugsburg.smds.aadl2rtsj.generation.util;
+
+public interface ConnectionBroker{
+	void sendOnConnection(String connection, Object data);
+	void sendOnPort(String port, Object data);
+}
+[/file]
+[/template]
