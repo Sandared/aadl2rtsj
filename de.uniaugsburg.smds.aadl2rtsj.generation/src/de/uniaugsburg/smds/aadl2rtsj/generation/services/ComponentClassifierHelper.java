@@ -191,8 +191,9 @@ public class ComponentClassifierHelper {
 	 */
 	public static Set<ComponentClassifier> getFeatureClassifiers(ComponentClassifier cc){
 		Set<ComponentClassifier> classifiers = new TreeSet<ComponentClassifier>(new ClassifierComparator());
-		if (!isBaseType(cc)) {
-			for (Feature feature : cc.getAllFeatures()) {
+		for (Feature feature : cc.getAllFeatures()) {
+			ComponentClassifier classifier = getClassifier(feature);
+			if (!isBaseType(classifier)) {
 				classifiers.add(getClassifier(feature));
 				if(isIncoming(feature) && isRefined(feature))
 					classifiers.add(getRefinedClassifier(feature));
@@ -262,11 +263,25 @@ public class ComponentClassifierHelper {
 	/**
 	 * @param source Feature we want the outgoing connections for
 	 * @param parent the parent ComponentImpl of the ComponentImpl which contains the source Feature
-	 * @return A List of connections within parent that have source as their sourceContext
+	 * @return A list of connections within parent that have source as their sourceContext
 	 */
-	public static List<Connection> getOutgoingConnections(Context source, ComponentImplementation parent){
+	public static List<Connection> getExternalOutgoingConnections(Context source, ComponentImplementation parent){
 		List<Connection> outgoing = new ArrayList<Connection>();
 		for (Connection connection : getAllConnections(parent)) {
+			if(connection.getAllSourceContext().equals(source))
+				outgoing.add(connection);
+		}
+		return outgoing;
+	}
+	
+	/**
+	 * @param source Feature we want the outgoing connections for
+	 * @param parent the ComponentImpl which contains the source Feature
+	 * @return A list of connections within t that have source as their sourceContext
+	 */
+	public static List<Connection> getInternalOutgoingConnections(Context source, ComponentImplementation component){
+		List<Connection> outgoing = new ArrayList<Connection>();
+		for (Connection connection : getAllConnections(component)) {
 			if(connection.getAllSourceContext().equals(source))
 				outgoing.add(connection);
 		}

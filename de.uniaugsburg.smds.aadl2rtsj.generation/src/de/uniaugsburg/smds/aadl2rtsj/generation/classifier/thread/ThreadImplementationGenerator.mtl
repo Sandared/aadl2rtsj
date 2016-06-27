@@ -52,13 +52,13 @@ public class [threadImpl.getClassName()/][if (threadImpl.getExtendedClassifier()
 		[if (dataPort.isIncoming())]
 	@Override
 	public void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
-		//TODO
-	}
+		[if (getInternalOutgoingConnections(dataPort, threadImpl)-> size() > 0)]
+			[for (connection : Connection | getInternalOutgoingConnections(dataPort, threadImpl))]
+		broker.sendOnConnection("[connection.name/]", data);	
+			[/for]
+		[else]
+		this.[dataPort.name/].setData(data);
 		[/if]
-		[if (dataPort.isOutgoing())]
-	private void out[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
-		[comment broadcast über den parentBroker /]
-		parentBroker.sendOnPort("[dataPort.name/]", data);
 	}
 		[/if]
 	[/for]
@@ -100,7 +100,7 @@ public class [threadImpl.getClassName()/][if (threadImpl.getExtendedClassifier()
 		[for (subcomponent : ComponentClassifier | threadImpl.getSubComponentClassifiers())]
 			[for (dataPort : DataPort | subcomponent.getFeatures()->select(oclIsTypeOf(DataPort)))]
 				[if (dataPort.isOutgoing())]
-				case [dataPort.name/]:
+				case "[subcomponent.name/].[dataPort.name/]":
 					[for (connection : Connection | threadImpl.getAllConnections())]
 						[if (connection.getSourceFeature() = dataPort)]
 							[let target : DataPort = connection.getTargetFeature()]
@@ -117,7 +117,6 @@ public class [threadImpl.getClassName()/][if (threadImpl.getExtendedClassifier()
 				break;
 			}
 		}
-		
 	}
 	[/if]
 }

@@ -90,18 +90,23 @@ public class [getClassName(thread)/][if (classifier.oclIsTypeOf(ComponentType))]
 		[for (dataPort : DataPort | classifier.getFeatures()->select(oclIsTypeOf(DataPort)))]
 			[if (dataPort.isIncoming())]
 	@Override
-	public void set[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
+	public void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
 		[dataPort.name/].setData(data);
 	}
 			[/if]
-			[if (dataPort.isOutgoing())]
-	@Override
-	public [dataPort.getClassifier().getClassName()/] get[dataPort.name.toUpperFirst()/](){
-		return [dataPort.name/].getData();
-	} 
-			[/if]
 		[/for]
 	[/if]
+
+	[comment we have to implement the outPort here, becaus we only know within an instance, which name this component got as subcompnent /]
+	[for (dataPort : DataPort | classifier.getFeatures()->select(oclIsTypeOf(DataPort)))]
+		[if (dataPort.isOutgoing())]
+	private void out[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
+		[comment broadcast über den parentBroker /]
+		parentBroker.sendOnPort("[thread.name/].[dataPort.name/]", data);
+	}
+		[/if]
+	[/for]
+
 	
 	private final void dispatch() {
 		[getStatementsForReferenceTime(thread, getProperty('Communication_Properties_IO_Reference_Time_Dispatch'))/]

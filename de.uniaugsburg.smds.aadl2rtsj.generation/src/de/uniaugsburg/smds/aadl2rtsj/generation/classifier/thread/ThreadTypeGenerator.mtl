@@ -18,7 +18,7 @@ import [classifier.getPackageName()/].[classifier.getClassName()/];
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBrokerable;
 	[/if]
 
-public interface [threadType.getClassName()/] extends[if (threadType.getExtendedClassifier() <> null)] [threadType.getExtendedClassifier().getClassName()/][else]ConnectionBrokerable[/if]{
+public interface [threadType.getClassName()/] extends [if (threadType.getExtendedClassifier() <> null)][threadType.getExtendedClassifier().getClassName()/][else]ConnectionBrokerable[/if]{
 	[for (feature : Feature | threadType.getFeatures())]
 		[let dataPort : DataPort = feature]
 			[if (dataPort.isIncoming())]
