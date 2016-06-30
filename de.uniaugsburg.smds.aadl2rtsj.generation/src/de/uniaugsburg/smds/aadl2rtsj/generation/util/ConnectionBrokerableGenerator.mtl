@@ -8,6 +8,7 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
 
 public interface ConnectionBrokerable{
 	void setParentConnectionBroker(ConnectionBroker broker);
+	ConnectionBroker getConnectionBroker();
 }
 [/file]
 [/template]

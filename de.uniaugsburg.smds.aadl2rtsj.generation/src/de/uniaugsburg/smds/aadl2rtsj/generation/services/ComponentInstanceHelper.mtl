@@ -57,6 +57,11 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'isThread(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
+[query public isProcess(arg0 : ComponentInstance) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'isProcess(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
+
 [query public isPeriodic(arg0 : ComponentInstance) : Boolean
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'isPeriodic(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]

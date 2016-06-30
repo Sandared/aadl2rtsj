@@ -1,0 +1,20 @@
+[comment encoding = UTF-8 /]
+[module BasicConnectionBrokerGenerator('http://aadl.info/AADL/2.0/instance')]
+
+[template public generateBasicConnectionBroker()]
+[file ('de/uniaugsburg/smds/aadl2rtsj/generation/util/BasicConnectionBroker.java', false, 'UTF-8')]
+package de.uniaugsburg.smds.aadl2rtsj.generation.util;
+import java.util.Map;
+import java.util.HashMap;
+
+public abstract class BasicConnectionBroker implements ConnectionBroker{
+	private Map<String, ConnectionBroker> childBrokers = new HashMap<String, ConnectionBroker>(); 
+	
+	@Override
+	public void addChildBroker(String childName, ConnectionBroker broker){
+		childBrokers.put(childName, broker);
+	}
+}
+[/file]
+[/template]
+

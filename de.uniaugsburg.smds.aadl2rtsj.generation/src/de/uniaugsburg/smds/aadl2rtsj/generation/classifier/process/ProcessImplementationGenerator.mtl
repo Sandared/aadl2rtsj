@@ -1,47 +1,47 @@
 [comment encoding = UTF-8 /]
-[module ThreadImplementationGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[module ProcessImplementationGenerator('http://aadl.info/AADL/2.0/instance', 'http://aadl.info/AADL/2.0')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
 
-[template public generateThreadImplementation(thread : ComponentClassifier)]
-[let threadImpl : ThreadImplementation = thread]
-[file(threadImpl.getPackageName().substitute('.', '/').concat('/').concat(threadImpl.getClassName()).concat('.java') , false, 'UTF-8')]
-package [threadImpl.getPackageName()/];
+[template public generateProcessImplementation(process : ComponentClassifier)]
+[let processImpl : ProcessImplementation = process]
+[file(processImpl.getPackageName().substitute('.', '/').concat('/').concat(processImpl.getClassName()).concat('.java') , false, 'UTF-8')]
+package [processImpl.getPackageName()/];
 
 //########## Classifier Imports ##########
 	[comment import all classifiers of this ThreadImplementation, but only once for each classifier/]
-	[for (classifier : ComponentClassifier | threadImpl.getAllClassifiers())]
+	[for (classifier : ComponentClassifier | processImpl.getAllClassifiers())]
 import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 
 //########## Port Variable Import ##########
 	[comment if this component has in, out or in/out ports we have to import DataPort/]
-	[if (threadImpl.getFeatures()->select(oclIsTypeOf(DataPort))->size() > 0)]
+	[if (processImpl.getFeatures()->select(oclIsTypeOf(DataPort))->size() > 0)]
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
 	[/if]
 
-public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedClassifier() <> null)] extends [threadImpl.getExtendedClassifier().getClassName()/][/if] implements [threadImpl.getRealizedClassifier().getClassName()/]{
+public abstract class [processImpl.getClassName()/][if (processImpl.getExtendedClassifier() <> null)] extends [processImpl.getExtendedClassifier().getClassName()/][/if] implements [processImpl.getRealizedClassifier().getClassName()/]{
 
 	//########## Subcomponent Variables ##########
-	[for (subcomponent : Subcomponent | threadImpl.getOwnSubcomponents())]
+	[for (subcomponent : Subcomponent | processImpl.getOwnSubcomponents())]
 	protected [subcomponent.getClassifier().getClassName()/] [subcomponent.name/];
 	[/for]
 
 	[comment create a data port variable for each IN DATAPORT that has no connections within this component/]
 	[comment TODO maybe we need the port variable although there is a connection? /]
 	//########## Data Port Variables ###########
-	[for (dataPort : DataPort | threadImpl.getFeatures()->select(oclIsTypeOf(DataPort)))]
-		[if (getInternalOutgoingConnections(dataPort, threadImpl) -> size() = 0)]
+	[for (dataPort : DataPort | processImpl.getFeatures()->select(oclIsTypeOf(DataPort)))]
+		[if (getInternalOutgoingConnections(dataPort, processImpl)->size() = 0)]
 	protected DataPort<[dataPort.getClassifier().getClassName()/]> [dataPort.name/] = new DataPort<[dataPort.getClassifier().getClassName()/]>();
 		[/if]
 	[/for]
 
-	//########## Inherited Methods from [threadImpl.getRealizedClassifier().getClassName()/] ###########
-	[for (dataPort : DataPort | threadImpl.getFeatures()->select(oclIsTypeOf(DataPort)))]
+	//########## Inherited Methods from [processImpl.getRealizedClassifier().getClassName()/] ###########
+	[for (dataPort : DataPort | processImpl.getFeatures()->select(oclIsTypeOf(DataPort)))]
 		[if (dataPort.isIncoming())]
 	@Override
 	public void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
-			[if (getInternalOutgoingConnections(dataPort, threadImpl)-> size() > 0)]
-				[for (connection : Connection | getInternalOutgoingConnections(dataPort, threadImpl))]
+			[if (getInternalOutgoingConnections(dataPort, processImpl)->size() > 0)]
+				[for (connection : Connection | getInternalOutgoingConnections(dataPort, processImpl))]
 		broker.sendOnConnection("[connection.name/]", data);	
 				[/for]
 			[else]

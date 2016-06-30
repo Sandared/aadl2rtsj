@@ -7,6 +7,9 @@ package de.uniaugsburg.smds.aadl2rtsj.generation.util;
 public interface ConnectionBroker{
 	void sendOnConnection(String connection, Object data);
 	void sendOnPort(String port, Object data);
+	void addChildBroker(String childName, ConnectionBroker broker);
+	Object getSynchronisationObjectForConnection(String connection);
+	Object getSynchronisationObjectForPort(String port);
 }
 [/file]
 [/template]

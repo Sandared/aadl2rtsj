@@ -1,6 +1,6 @@
 package de.uniaugsburg.smds.aadl2rtsj.generation.services;
 
-import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.Thread_Properties_Dispatch_Protocol_Periodic;
+import static de.uniaugsburg.smds.aadl2rtsj.generation.util.Constants.Thread_Properties_Dispatch_Protocol_Periodic;
 
 import java.awt.Component;
 import java.util.ArrayList;
@@ -10,9 +10,12 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import org.eclipse.emf.common.util.EList;
+import org.osate.aadl2.Classifier;
 import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.ComponentImplementation;
+import org.osate.aadl2.ConnectedElement;
 import org.osate.aadl2.Connection;
+import org.osate.aadl2.ConnectionEnd;
 import org.osate.aadl2.Context;
 import org.osate.aadl2.DataImplementation;
 import org.osate.aadl2.DataPort;
@@ -187,7 +190,7 @@ public class ComponentClassifierHelper {
 	 * - the same classifier is already in the Set</br>
 	 * - the classifier is a BaseType
 	 * @param cc 
-	 * @return A Set of unique DataPort Classifiers for the given ComponentClassifier
+	 * @return A Set of unique Feature Classifiers for the given ComponentClassifier
 	 */
 	public static Set<ComponentClassifier> getFeatureClassifiers(ComponentClassifier cc){
 		Set<ComponentClassifier> classifiers = new TreeSet<ComponentClassifier>(new ClassifierComparator());
@@ -211,6 +214,13 @@ public class ComponentClassifierHelper {
 	 * @return either the Subcomponent or the ComponentImplementation that contains the port, that is the target of c
 	 */
 	public static NamedElement getTargetComponent(Connection c){
+		ConnectedElement destination = c.getDestination();
+		ConnectionEnd allDestination = c.getAllDestination();
+		Context allDestinationContext = c.getAllDestinationContext();
+		NamedElement allDstContextComponent = c.getAllDstContextComponent();
+		Classifier containingClassifier = destination.getContainingClassifier();
+		ComponentImplementation containingComponentImpl = destination.getContainingComponentImpl();
+		Context context = destination.getContext();
 		return c.getAllDstContextComponent();
 	}
 	
@@ -218,17 +228,25 @@ public class ComponentClassifierHelper {
 	 * @param c
 	 * @return the target feature of c, which is either a DataPort or an EventDataPort, or an EventPort, or...
 	 */
-	public static Context getTargetFeature(Connection c){
-		return c.getAllDestinationContext();
+	public static ConnectionEnd getTargetFeature(Connection c){
+		return c.getAllDestination();
 	}
 	
 	/**
 	 * @param c
 	 * @return the source feature of c, which is either a DataPort or an EventDataPort, or an EventPort, or...
 	 */
-	public static Context getSourceFeature(Connection c){
-		return c.getAllSourceContext();
+	public static ConnectionEnd getSourceFeature(Connection c){
+		return c.getAllSource();
 	}
+
+	/**
+	 * @param c
+	 * @return either the Subcomponent or the ComponentImplementation that contains the port, that is the source of c
+	 */
+	public static NamedElement getSourceComponent(Connection c){
+		return c.getAllSrcContextComponent();
+	}	
 	
 	/**
 	 * Internally calls:</br>
@@ -282,10 +300,25 @@ public class ComponentClassifierHelper {
 	public static List<Connection> getInternalOutgoingConnections(Context source, ComponentImplementation component){
 		List<Connection> outgoing = new ArrayList<Connection>();
 		for (Connection connection : getAllConnections(component)) {
-			if(connection.getAllSourceContext().equals(source))
+			if(connection.getAllSourceContext() != null && connection.getAllSourceContext().equals(source))
 				outgoing.add(connection);
 		}
 		return outgoing;
 	}
+	
+	/**
+	 * @param destination Feature we want the incoming connections for
+	 * @param parent the ComponentImpl which contains the source Feature
+	 * @return A list of connections within t that have destination as their destinationContext
+	 */
+	public static List<Connection> getInternalIncomingConnections(Context destination, ComponentImplementation component){
+		List<Connection> incoming = new ArrayList<Connection>();
+		for (Connection connection : getAllConnections(component)) {
+			if(connection.getAllDestinationContext().equals(destination))
+				incoming.add(connection);
+		}
+		return incoming;
+	}
+
 
 }

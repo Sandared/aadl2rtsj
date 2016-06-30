@@ -1,6 +1,7 @@
 [comment encoding = UTF-8 /]
 [module IOHandlerGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::PropertyHelper /]
 
 [template public generateIOHandler(component : ComponentInstance, feature : FeatureInstance, time : OffsetTime)]
@@ -12,21 +13,23 @@ import javax.realtime.OneShotTimer;
 import javax.realtime.RelativeTime;
 import javax.realtime.PriorityParameters;
 import javax.realtime.BoundAsyncEventHandler;
-import [getPackageName(feature)/].[getClassName(feature)/];
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
+import [feature.getClassifier().getPackageName()/].[feature.getClassifier().getClassName()/];
 
 public class [getHandlerClassName(feature, time)/] extends BoundAsyncEventHandler{
-	private [getClassName(feature)/] [getObjectName(feature)/];
+	private DataPort<[feature.getClassifier().getClassName()/]> port;
 	
-	public [getHandlerClassName(feature, time)/]([getClassName(feature)/] [getObjectName(feature)/]){
-		this.[getObjectName(feature)/] = [getObjectName(feature)/];
-		setSchedulingParameters(new PriorityParameters([getPriority(component)/]));
-		// TODO: AperiodicParameters for deadline/cost/misshandler/overrunhandler?
+	public [getHandlerClassName(feature, time)/](DataPort<[feature.getClassifier().getClassName()/]> port){
+		this.port =  port;
+		setSchedulingParameters(new PriorityParameters([component.getPriority()/]));
+		// TODO: PeriodicParameters for deadline/cost/misshandler/overrunhandler?
+		Timer timerFor[getHandlerClassName(feature, time)/] = new OneShotTimer(new RelativeTime([time.ms.toString()/], [time.ns.toString()/]), this);
+		timerFor[getHandlerClassName(feature, time)/].start();
 	}
 	
 	@Override
 	public void handleAsyncEvent() {
-		Timer timerFor[getHandlerClassName(feature, time)/] = new OneShotTimer(new RelativeTime([time.ms.toString()/], [time.ns.toString()/]), new [getHandlerClassName(feature, time)/]([getObjectName(feature)/]));
-		timerFor[getHandlerClassName(feature, time)/].start();
+		//TODO
 	}
 }
 [/file]

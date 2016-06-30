@@ -1,6 +1,6 @@
 package de.uniaugsburg.smds.aadl2rtsj.generation.services;
 
-import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.*;
+import static de.uniaugsburg.smds.aadl2rtsj.generation.util.Constants.*;
 
 import java.util.List;
 import java.util.logging.Logger;

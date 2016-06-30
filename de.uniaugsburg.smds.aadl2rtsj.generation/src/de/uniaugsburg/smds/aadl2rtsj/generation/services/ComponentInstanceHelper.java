@@ -1,6 +1,6 @@
 package de.uniaugsburg.smds.aadl2rtsj.generation.services;
 
-import static de.uniaugsburg.smds.aadl2rtsj.generation.utils.Constants.*;
+import static de.uniaugsburg.smds.aadl2rtsj.generation.util.Constants.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -370,6 +370,10 @@ public class ComponentInstanceHelper {
 	
 	public static boolean isThread(ComponentInstance ci){
 		return ci.getCategory() == ComponentCategory.THREAD;
+	}
+	
+	public static boolean isProcess(ComponentInstance ci){
+		return ci.getCategory() == ComponentCategory.PROCESS;
 	}
 	
 	public static boolean isPeriodic(ComponentInstance ci){

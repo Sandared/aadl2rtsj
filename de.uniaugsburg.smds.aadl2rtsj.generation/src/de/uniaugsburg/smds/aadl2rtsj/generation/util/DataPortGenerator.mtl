@@ -1,26 +1,88 @@
 [comment encoding = UTF-8 /]
 [module DataPortGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
-
-
 [template public generateGenericDataPort()]
 [file ('de/uniaugsburg/smds/aadl2rtsj/generation/util/DataPort.java', false, 'UTF-8')]
 package de.uniaugsburg.smds.aadl2rtsj.generation.util;
 
 public class DataPort<T>{
-	private volatile T data;
-
-	public void setData(T data){
-		this.data = data;
+	private volatile T outFWData = null;
+	private volatile T inFWData = null;
+	private volatile boolean isDirty = false;
+	private volatile T outData = null;
+	private volatile T inData = null;
+	
+	private OutPort<T> outPort = new InnerOutPort<T>();
+	private InPort<T> inPort = new InnerInPort<T>();
+	private InOutPort<T> inOutPort = new InnerInOutPort<T>();
+	
+	public void setFWData(T data){
+		inData = data;
+		isDirty = true;
 	}
 
-	public T getData(){
-		return data;
+	public synchronized T getFWData(){
+		outFWData = outData;
+		return outFWData;
 	} 
 
-	public void receiveData(){
-		//freezes Data (clones it ? )
-		
+	public void receiveInput(){
+		//TODO freezes Data (clones it ? )
+		inData = (T)inFWData.clone();
+		isDirty = false;
+	}
+	
+	public OutPort<T> getUserOutPort(){
+		return outPort;
+	}
+	
+	public InPort<T> getUserInPort(){
+		return inPort;
+	}
+	
+	public InOutPort<T> getUserInOutPort(){
+		return inOutPort;
+	}
+
+	
+	public class InnerOutPort<X extends T> implements OutPort<X>{
+		@Override
+		public boolean isDirty(){
+			return isDirty;
+		}
+		@Override
+		public void setData(X data){
+			outData = data;
+		}
+	}
+	
+	public class InnerInPort<X extends T> implements InPort<X>{
+		@Override
+		public boolean isDirty(){
+			return isDirty;
+		}
+		@Override
+		public synchronized X getData(){
+			inData = inFWData;
+			return (X)inData;
+		}
+	}
+	
+	public class InnerInOutPort<X extends T> implements InOutPort<X>{
+		@Override
+		public boolean isDirty(){
+			return isDirty;
+		}
+		@Override
+		public synchronized X getData(){
+			inData = inFWData;
+			return (X)inData;
+		}
+		@Override
+		public void setData(X data){
+			outData = data;
+		}
 	}
 }
+
 [/file]
 [/template]

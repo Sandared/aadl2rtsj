@@ -1,0 +1,122 @@
+[comment encoding = UTF-8 /]
+[module InnerConnectionBrokerGenerator('http://aadl.info/AADL/2.0/instance', 'http://aadl.info/AADL/2.0')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
+[template public generateInnerConnectionBroker(instance : ComponentInstance)]
+class InnerConnectionBroker extends BasicConnectionBroker{
+	private Map<String, Object> syncObjects = new HashMap<String, Object>();
+
+	@Override
+	public void sendOnConnection(String connection, Object data){
+		switch (connection) {
+[let classifier : ComponentImplementation = instance.getClassifier()]
+	[for (connection : Connection | classifier.getAllConnections())]
+		case "[connection.getObjectName()/]":
+		[let port : DataPort = connection.getTargetFeature()]
+			[let target : Subcomponent = connection.getTargetComponent()]
+			[comment if the connection target is a Subcomponent it means we have to use the inPort of this subcomponent, which is declared in it's interface /]
+			[target.name/].in[port.name.toUpperFirst()/](([port.getClassifier().getClassName()/])data);
+			break;
+			[elselet target : ComponentImplementation = connection.getTargetComponent()]
+			[comment else we send on the outport of this component, which is basically a broadcast/]
+			this.out[port.name.toUpperFirst()/](([port.getClassifier().getClassName()/])data);
+			break;
+			[/let]
+		[/let]
+	[/for]
+[/let]
+		default:
+			log.warning("No connection to send on found for: " + connection);
+			break;
+		}
+	}
+	
+	@Override
+	public void sendOnPort(String port, Object data){
+		switch (port) {
+[let classifier : ComponentImplementation = instance.getClassifier()]
+	[comment for each subcomponent we search for outgoing dataPorts and create a sendOnConnection(...) method for each connection, that has this dataPort as source /]
+	[for (subcomponent : ComponentClassifier | classifier.getSubComponentClassifiers())]
+		[for (dataPort : DataPort | subcomponent.getFeatures()->select(oclIsTypeOf(DataPort)))]
+			[if (dataPort.isOutgoing())]
+		case "[subcomponent.name/].[dataPort.name/]":
+				[for (connection : Connection | classifier.getAllConnections())]
+					[if (connection.getSourceFeature() = dataPort)]
+						[let target : DataPort = connection.getTargetFeature()]
+			sendOnConnection("[connection.name/]", data);
+						[/let]
+					[/if]
+				[/for]	
+			break;
+			[/if]
+		[/for]
+	[/for]
+[/let]
+		default:
+			log.warning("No port to send on found for: " + port);
+			break;
+		}
+	}
+
+	@Override
+	public Object getSynchronisationObjectForConnection(String connection){
+
+		switch (connection) {
+[let classifier : ComponentImplementation = instance.getClassifier()]
+	[for (connection : Connection | classifier.getAllConnections())]
+		case "[connection.name/]":
+		[comment if the source component of this connection is a subcomponent, wa ask its childbroker for a synchronisation object /]
+		[let subcomponent : Subcomponent = connection.getSourceComponent()]
+			[comment we assume it's an Implementation and not a Type, otherwise we couldn't determine the connection to send on /]
+			[let sourceComp : ComponentImplementation = subcomponent.getClassifier()]
+				[let dataPort : DataPort = connection.getSourceFeature()]
+					[comment its a data port, so it should have at most one incoming connection on which we are asking for the syncObject /]
+					[if (dataPort.getInternalIncomingConnections(sourceComp) -> size() = 1)]
+			return childBrokers.get("[subcomponent.name/]").getSynchronisationObjectForConnection("[dataPort.getInternalIncomingConnections(sourceComp)-> first().name/]");
+					[comment if there's no connection, we look up the sync Object and if there's none, we create a new syncObject and save it for this connection /]
+					[elseif (dataPort.getInternalIncomingConnections(sourceComp) -> size() = 0)]
+			Object syncOn[connection.name/] = syncObjects.get("[connection.name/]");
+			if(syncOn[connection.name/] == null){
+				syncOn[connection.name/] = new Object();
+				syncObjects.put("[connection.name/]", syncOn[connection.name/]);	
+			}
+			return syncOn[connection.name/];
+					[/if]
+				[/let]
+			[/let]
+		[elselet sourceComp : ComponentImplementation = connection.getSourceComponent()]
+			[let dataPort : DataPort = connection.getSourceFeature()]
+			[comment a data port only has one incoming connection, if no data aggregation is done /]
+			return parentBroker.getSynchronisationObjectForPort("[instance.getObjectName()/].[dataPort.name/]");
+			[/let]
+		[/let]		
+			break;
+	[/for]
+[/let]
+		default:
+			log.warning("No sync object found for connectionname: " + connection);
+			break;
+		}
+	}
+
+	@Override
+	public Object getSynchronisationObjectForPort(String port){
+		switch (port) {
+[let classifier : ComponentImplementation = instance.getClassifier()]
+	[for (connection : Connection | classifier.getAllConnections())]
+		[let subcomponent : Subcomponent = connection.getTargetComponent()]
+			[let dataPort : DataPort = connection.getTargetFeature()]
+		case "[subcomponent.name/].[dataPort.name/]":	
+			return broker.getSynchronisationObjectForConnection("[connection.name/]");
+			break;
+			[/let]
+		[/let]
+	[/for]
+[/let]
+		default:
+			log.warning("No sync object found for portname: " + port);
+			break;
+		}
+	}
+}
+[/template]

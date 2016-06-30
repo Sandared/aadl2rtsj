@@ -1,4 +1,4 @@
-package de.uniaugsburg.smds.aadl2rtsj.generation.utils;
+package de.uniaugsburg.smds.aadl2rtsj.generation.util;
 
 public class Constants {
 	

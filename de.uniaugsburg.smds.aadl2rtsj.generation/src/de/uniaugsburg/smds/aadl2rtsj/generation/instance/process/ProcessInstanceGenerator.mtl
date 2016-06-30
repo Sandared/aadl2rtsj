@@ -1,0 +1,94 @@
+[comment encoding = UTF-8 /]
+[module ProcessInstanceGenerator('http://aadl.info/AADL/2.0/instance', 'http://aadl.info/AADL/2.0')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::instance::util::InnerConnectionBrokerGenerator /]
+
+
+[template public generateProcessInstance(process : ComponentInstance)? (isProcess(process)) { classifier : ComponentClassifier = process.getClassifier(); }]
+[file(process.getPackageName().substitute('.', '/').concat('/').concat(process.getClassName()).concat('.java') , false, 'UTF-8')]
+package [process.getPackageName()/];
+
+import java.util.Map;
+import java.util.HashMap;
+
+[comment Create an Import Statement for each Subcomponent, Features are in the same package and don't need an Import Statement /]
+[for (subcomponent : ComponentInstance | process.getSubcomponents())]
+import [subcomponent.getPackageName()/].[subcomponent.getClassName()/];
+[/for]
+[comment import all datatypes for outgoing ports, as we define the out method in instances /]
+[for (dataPort : DataPort | classifier.getFeatures()->select(oclIsTypeOf(DataPort)))]
+	[if (dataPort.isOutgoing() and not dataPort.getClassifier().isBaseType())]
+import [dataPort.getClassifier().getPackageName()/].[dataPort.getClassifier().getClassName()/];
+	[/if]
+[/for]
+
+//########## Classifier Imports ##########
+	[comment import all classifiers of this ThreadImplementation, but only once for each classifier/]
+	[for (classifier : ComponentClassifier | process.getClassifier().getAllClassifiers())]
+import [classifier.getPackageName()/].[classifier.getClassName()/];
+	[/for]
+
+//########## ConnectionBroker Import ###########
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.BasicConnectionBroker;
+
+import [classifier.getPackageName()/].[classifier.getClassName()/];
+
+//########## Logger Import ##########
+import java.util.logging.Logger;
+
+public class [process.getClassName()/] extends [classifier.getClassName()/]{	
+	private static final Logger log = Logger.getLogger([process.getClassName()/].class.getName());	
+	
+	//ConnectionBroker to send on outgoing connections. Has to be set by the parent component.
+	private ConnectionBroker parentBroker;
+
+	//ConnectionBroker for the connections within this Thread
+	private ConnectionBroker broker = new InnerConnectionBroker();
+
+	public [process.getClassName()/]([process.getConstructorParameters()/]){
+		[for (subcomponent : ComponentInstance | process.getSubcomponents())]
+		broker.addChildBroker("[subcomponent.getObjectName()/]", [subcomponent.getObjectName()/].getConnectionBroker());
+		[subcomponent.getObjectName()/].setParentConnectionBroker(broker);
+		[/for]
+		[comment for each subcomponent we have to create an Assignment Statement/]
+		[if (process.getSubcomponents()->size() > 0)]
+			[for (subcomponent : ComponentInstance | process.getSubcomponents())]
+		this.[subcomponent.getObjectName()/] = [subcomponent.getObjectName()/];
+			[/for]
+		[/if]
+	}
+
+	//########## Inherited Methods from ConnectionBrokerable ##########
+	@Override
+	public void setParentConnectionBroker(ConnectionBroker parentBroker){
+		this.parentBroker = parentBroker;
+	}
+
+	@Override
+	public ConnectionBroker getConnectionBroker(){
+		return broker;
+	}
+
+	[comment we have to implement the outPort wtihin the instance, becaus we only know within an instance, which name this component got as subcompnent /]
+	[for (dataPort : DataPort | classifier.getFeatures()->select(oclIsTypeOf(DataPort)))]
+		[if (dataPort.isOutgoing())]
+	@Override
+	protected void out[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
+		[comment broadcast über den parentBroker /]
+		parentBroker.sendOnPort("[process.name/].[dataPort.name/]", data);
+	}
+		[/if]
+	[/for]
+
+	[process.generateInnerConnectionBroker()/]
+}
+[/file]
+[/template]
+
+[template private getConstructorParameters(thread : ComponentInstance) post (replaceAll('\n', '').trim()) {connection : ConnectionInstance = getImmediateConnection(thread);}]
+	[for (subcomponent : ComponentInstance | getSubcomponents(thread)) separator (', ')]
+[subcomponent.getClassName()/] [subcomponent.getObjectName()/]
+	[/for]
+[/template]
