@@ -1,0 +1,77 @@
+package testmodel
+
+public
+	with Base_Types;
+system a_system
+	end a_system;
+
+	system implementation a_system.system1
+		subcomponents
+			myprocess1: process a_process.process1;
+			myprocess2: process a_process.process1;
+		connections
+			new_connection: port myprocess2.dataout -> myprocess1.datain;
+			new_connection2: port myprocess1.dataout ->
+							myprocess2.datain;
+	end a_system.system1;
+
+	process a_process
+		
+		features
+			datain: in data port Base_Types::Boolean;
+			dataout: out data port Base_Types::Boolean;
+end a_process;
+
+	process implementation a_process.process1
+		subcomponents
+			mysendreceive: thread b_thread.sendreceive  {Dispatch_Protocol => periodic;};
+			myworker: thread a_extended_thread.worker {Dispatch_Protocol => periodic;};
+		connections
+			new_connection: port myworker.dataout -> mysendreceive.internalin  {Timing => delayed;};
+			new_connection2: port mysendreceive.internalout -> myworker.datain;
+			new_connection3: port datain -> mysendreceive.externalin;
+			new_connection4: port mysendreceive.externalout -> dataout;
+end a_process.process1;
+
+	thread a_thread
+		features
+			datain: in data port A {Classifier_Substitution_Rule => Type_Extension;};
+			dataout: out data port A;
+	
+end a_thread;
+
+thread a_extended_thread extends a_thread
+	features
+		datain: refined to in data port B.impl;
+end a_extended_thread;
+
+
+	thread implementation a_extended_thread.worker
+
+	end a_extended_thread.worker;
+
+	thread b_thread
+		features
+			externalin: in data port Base_Types::Boolean;
+			externalout: out data port Base_Types::Boolean;
+			internalin: in data port A;
+			internalout: out data port B.impl;
+end b_thread;
+
+	thread implementation b_thread.sendreceive
+
+end b_thread.sendreceive;
+
+data A
+	
+end A;
+
+data B extends A
+	
+end B;
+
+data implementation B.impl
+	
+end B.impl;
+
+end testmodel;
