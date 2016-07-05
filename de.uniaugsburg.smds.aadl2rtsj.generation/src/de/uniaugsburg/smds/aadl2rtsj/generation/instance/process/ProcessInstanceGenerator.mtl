@@ -45,7 +45,7 @@ public class [process.getClassName()/] extends [classifier.getClassName()/]{
 	private ConnectionBroker parentBroker;
 
 	//ConnectionBroker for the connections within this Thread
-	private ConnectionBroker broker = new InnerConnectionBroker();
+	private ConnectionBroker broker;
 
 	public [process.getClassName()/]([process.getConstructorParameters()/]){
 		[for (subcomponent : ComponentInstance | process.getSubcomponents())]
@@ -64,6 +64,7 @@ public class [process.getClassName()/] extends [classifier.getClassName()/]{
 	@Override
 	public void setParentConnectionBroker(ConnectionBroker parentBroker){
 		this.parentBroker = parentBroker;
+		broker = new [process.getClassName()/]ConnectionBroker([process.getBrokerParameters()/]);
 	}
 
 	@Override
@@ -81,10 +82,20 @@ public class [process.getClassName()/] extends [classifier.getClassName()/]{
 	}
 		[/if]
 	[/for]
-
-	[process.generateInnerConnectionBroker()/]
 }
 [/file]
+
+[process.generateInnerConnectionBroker()/]
+[/template]
+
+[template public getBrokerParameters(thread : ComponentInstance) post (replaceAll('\n', '').trim())]
+parentBroker, this
+[if (thread.getSubcomponents()->size()>0)]
+, 
+	[for (subcomponent : ComponentInstance | thread.getSubcomponents()) separator (', ')]
+[subcomponent.getObjectName()/]
+	[/for]
+[/if]
 [/template]
 
 [template private getConstructorParameters(thread : ComponentInstance) post (replaceAll('\n', '').trim()) {connection : ConnectionInstance = getImmediateConnection(thread);}]

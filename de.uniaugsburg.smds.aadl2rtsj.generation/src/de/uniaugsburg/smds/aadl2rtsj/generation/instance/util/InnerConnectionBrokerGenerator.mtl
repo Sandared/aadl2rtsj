@@ -3,8 +3,53 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 [template public generateInnerConnectionBroker(instance : ComponentInstance)]
-class InnerConnectionBroker extends BasicConnectionBroker{
+[file(instance.getPackageName().substitute('.', '/').concat('/').concat(instance.getClassName().concat('ConnectionBroker')).concat('.java') , false, 'UTF-8')]
+package [instance.getPackageName()/];
+
+import java.util.Map;
+import java.util.HashMap;
+
+//########## Classifier Imports ##########
+	[comment import all classifiers of this Broker's ComponentImplemntation, but only once for each classifier/]
+	[for (classifier : ComponentClassifier | instance.getClassifier().getAllClassifiers())]
+import [classifier.getPackageName()/].[classifier.getClassName()/];
+	[/for]
+
+[comment Create an Import Statement for each Subcomponent, Features are in the same package and don't need an Import Statement /]
+//########## Subcomponent Imports ##########
+[for (subcomponent : ComponentInstance | instance.getSubcomponents())]
+import [getPackageName(subcomponent)/].[getClassName(subcomponent)/];
+[/for]
+
+//########## ConnectionBroker Import ###########
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.BasicConnectionBroker;
+
+//########## Logger Import ##########
+import java.util.logging.Logger;
+
+public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionBroker{
+	private static final Logger log = Logger.getLogger([instance.getClassName()/]ConnectionBroker.class.getName());
 	private Map<String, Object> syncObjects = new HashMap<String, Object>();
+	private ConnectionBroker parentBroker;
+	private [instance.getClassName()/] component;
+	[comment for each subcomponent we have to create an member variable/]
+	[if (instance.getSubcomponents()->size() > 0)]
+		[for (subcomponent : ComponentInstance | instance.getSubcomponents())]
+	private [subcomponent.getClassifier().getClassName()/] [subcomponent.getObjectName()/];
+		[/for]
+	[/if]	
+
+	public [instance.getClassName()/]ConnectionBroker([instance.getConstructorParameters()/]){
+		this.parentBroker = parentBroker;
+		this.component = component;
+		[comment for each subcomponent we have to create an Assignment Statement/]
+		[if (instance.getSubcomponents()->size() > 0)]
+			[for (subcomponent : ComponentInstance | instance.getSubcomponents())]
+		this.[subcomponent.getObjectName()/] = [subcomponent.getObjectName()/];
+			[/for]
+		[/if]	
+	}
 
 	@Override
 	public void sendOnConnection(String connection, Object data){
@@ -19,7 +64,7 @@ class InnerConnectionBroker extends BasicConnectionBroker{
 			break;
 			[elselet target : ComponentImplementation = connection.getTargetComponent()]
 			[comment else we send on the outport of this component, which is basically a broadcast/]
-			this.out[port.name.toUpperFirst()/](([port.getClassifier().getClassName()/])data);
+			component.out[port.name.toUpperFirst()/](([port.getClassifier().getClassName()/])data);
 			break;
 			[/let]
 		[/let]
@@ -107,7 +152,7 @@ class InnerConnectionBroker extends BasicConnectionBroker{
 		[let subcomponent : Subcomponent = connection.getTargetComponent()]
 			[let dataPort : DataPort = connection.getTargetFeature()]
 		case "[subcomponent.name/].[dataPort.name/]":	
-			return broker.getSynchronisationObjectForConnection("[connection.name/]");
+			return getSynchronisationObjectForConnection("[connection.name/]");
 			[/let]
 		[/let]
 	[/for]
@@ -119,4 +164,15 @@ class InnerConnectionBroker extends BasicConnectionBroker{
 		}
 	}
 }
+[/file]
+[/template]
+
+[template private getConstructorParameters(instance : ComponentInstance) post (replaceAll('\n', '').trim())]
+ConnectionBroker parentBroker, [instance.getClassName()/] component
+[if (instance.getSubcomponents()->size()>0)]
+, 
+	[for (subcomponent : ComponentInstance | instance.getSubcomponents()) separator (', ')]
+[subcomponent.getClassifier().getClassName()/] [subcomponent.getObjectName()/]
+	[/for]
+[/if]
 [/template]

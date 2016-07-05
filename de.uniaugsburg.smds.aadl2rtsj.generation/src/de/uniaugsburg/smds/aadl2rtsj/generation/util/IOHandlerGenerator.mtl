@@ -22,7 +22,6 @@ public class [getHandlerClassName(time)/] extends BoundAsyncEventHandler{
 	public [getHandlerClassName(time)/](DataPort<[feature.getClassifier().getClassName()/]> port){
 		this.port =  port;
 		setSchedulingParameters(new PriorityParameters([component.getPriority()/]));
-		// TODO: PeriodicParameters for deadline/cost/misshandler/overrunhandler?
 		Timer timerFor[getHandlerClassName(time)/] = new OneShotTimer(new RelativeTime([time.ms.toString()/], [time.ns.toString()/]), this);
 		timerFor[getHandlerClassName(time)/].start();
 	}
