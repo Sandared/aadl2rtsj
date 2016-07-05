@@ -23,6 +23,9 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 
 	//########## Subcomponent Variables ##########
 	[for (subcomponent : Subcomponent | threadImpl.getOwnSubcomponents())]
+	/**
+	 * A member variable that is used to store the subcomponent <code>[subcomponent.name/]</code>
+	 */
 	protected [subcomponent.getClassifier().getClassName()/] [subcomponent.name/];
 	[/for]
 
@@ -31,6 +34,10 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 	//########## Data Port Variables ###########
 	[for (dataPort : DataPort | threadImpl.getFeatures()->select(oclIsTypeOf(DataPort)))]
 		[if (getInternalOutgoingConnections(dataPort, threadImpl) -> size() = 0)]
+	/**
+	 * A DataPort<[dataPort.getClassifier().getClassName()/]> member variable that is</br> 
+	 * used to store incoming data for the IN DATA PORT <code>[dataPort.name/]</code>
+	 */
 	protected DataPort<[dataPort.getClassifier().getClassName()/]> [dataPort.name/] = new DataPort<[dataPort.getClassifier().getClassName()/]>();
 		[/if]
 	[/for]
@@ -38,6 +45,17 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 	//########## Inherited Methods from [threadImpl.getRealizedClassifier().getClassName()/] ###########
 	[for (dataPort : DataPort | threadImpl.getFeatures()->select(oclIsTypeOf(DataPort)))]
 		[if (dataPort.isIncoming())]
+			[if (getInternalOutgoingConnections(dataPort, threadImpl)-> size() > 0)]
+	/**
+	 * This method forwards <code>data</code> on its respective internal connections</br>
+	 * @param data the data that is sent to this thread via its <code>[dataPort.name/]</code> IN DATA PORT 
+	 */
+			[else]
+	/**
+	 * This method stores <code>data</code> in an internal port variable.</br>
+	 * @param data the data that is sent to this thread via its <code>[dataPort.name/]</code> IN DATA PORT 
+	 */	
+			[/if]
 	@Override
 	public void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
 			[if (getInternalOutgoingConnections(dataPort, threadImpl)-> size() > 0)]

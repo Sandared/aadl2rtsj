@@ -27,7 +27,7 @@ public class DataPort<T>{
 
 	public void receiveInput(){
 		//TODO freezes Data (clones it ? )
-		inData = (T)inFWData.clone();
+		// inData = (T)inFWData.deepCopy();
 		isDirty = false;
 	}
 	

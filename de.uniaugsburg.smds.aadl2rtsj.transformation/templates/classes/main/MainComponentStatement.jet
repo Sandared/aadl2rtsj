@@ -1,2 +1,0 @@
-<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="MainComponentStatement" skeleton="MainComponentStatement.skeleton" %>
-		<%=getPackageName(object)%>.<%=getClassName(object)%> component_<%=counter%> = new <%=getPackageName(object)%>.<%=getClassName(object)%>(<%=getParameters(object, names)%>);

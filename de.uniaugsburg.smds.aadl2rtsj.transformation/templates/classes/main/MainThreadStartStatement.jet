@@ -1,2 +1,0 @@
-<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="MainThreadStartStatement" skeleton="MainThreadStartStatement.skeleton" %>
-		<%=names.get(component)%>.startExecution(); 

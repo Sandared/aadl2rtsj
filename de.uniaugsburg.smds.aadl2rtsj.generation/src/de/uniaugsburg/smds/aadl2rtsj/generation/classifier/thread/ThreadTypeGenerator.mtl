@@ -7,7 +7,7 @@
 [file(getPackageName(threadType).substitute('.', '/').concat('/').concat(getClassName(threadType)).concat('.java') , false, 'UTF-8')]
 package [getPackageName(threadType)/];
 
-//########## Classifier Import##########
+//########## Classifier Import ##########
 	[comment import all classifiers for this component, but only once for each classifier/]
 	[for (classifier : ComponentClassifier | threadType.getAllClassifiers())]
 import [classifier.getPackageName()/].[classifier.getClassName()/];
@@ -15,14 +15,25 @@ import [classifier.getPackageName()/].[classifier.getClassName()/];
 
 	[comment import the ConnectionBrokerable Interface if there is no more extended classifier/]
 	[if (threadType.getExtendedClassifier() = null)]
+//########## ConnectionBrokerable Import ##########
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBrokerable;
 	[/if]
-
+/**
+ * @author Generator
+ * 
+ * 
+ */
 public interface [threadType.getClassName()/] extends [if (threadType.getExtendedClassifier() <> null)][threadType.getExtendedClassifier().getClassName()/][else]ConnectionBrokerable[/if]{
 	[for (feature : Feature | threadType.getFeatures())]
 		[let dataPort : DataPort = feature]
 			[if (dataPort.isIncoming())]
 				[if (dataPort.isRefined())]
+	/**
+	 * This method is not meant for use, as it got refined by {@link #in[dataPort.name.toUpperFirst()/] in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data)}</br>
+	 * If used nonetheless, this method throws a <tt>UnsupportedOperationException</tt>
+	 * @exception UnsupportedOperationException if used
+	 * @see classifier.testmodel.external.a_thread.a_thread#inDatain(classifier.testmodel.external.a.A)
+	 */
 	@Override
 	default void in[dataPort.name.toUpperFirst()/]([dataPort.getRefinedClassifier().getClassName()/] data){
 		throw new UnsupportedOperationException();

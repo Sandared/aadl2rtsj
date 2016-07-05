@@ -1,2 +1,0 @@
-<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="MemberStatement" skeleton="NamedElement.skeleton" %>
-	private <%=getClassName(object)%> <%=getObjectName(object)%> = new <%=getClassName(object)%>();

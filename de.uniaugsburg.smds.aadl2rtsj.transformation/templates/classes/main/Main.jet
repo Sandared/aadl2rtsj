@@ -1,9 +1,0 @@
-<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="MainConverter" skeleton="Main.skeleton" %>
-package main;
-
-public class Main{
-	
-	public static void main(String[] args){
-		<%=getAssignmentStatements(objects)%>
-	}
-}

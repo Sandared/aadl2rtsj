@@ -13,8 +13,8 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getPackageName(org.osate.aadl2.instance.InstanceObject)', Sequence{arg0})
 /]
 
-[query public getHandlerClassName(arg0 : FeatureInstance, arg1 : OffsetTime) : String
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getHandlerClassName(org.osate.aadl2.instance.FeatureInstance, util.OffsetTime)', Sequence{arg0, arg1})
+[query public getHandlerClassName(arg0 : OffsetTime) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getHandlerClassName(util.OffsetTime)', Sequence{arg0})
 /]
 
 [query public getDataType(arg0 : FeatureInstance) : String

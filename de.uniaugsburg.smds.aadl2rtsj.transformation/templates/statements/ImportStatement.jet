@@ -1,2 +1,0 @@
-<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="ImportStatement" skeleton="NamedElement.skeleton" %>
-import <%=getPackageName(object)%>.<%=getClassName(object)%>;

@@ -90,12 +90,12 @@ class InnerConnectionBroker extends BasicConnectionBroker{
 			return parentBroker.getSynchronisationObjectForPort("[instance.getObjectName()/].[dataPort.name/]");
 			[/let]
 		[/let]		
-			break;
 	[/for]
 [/let]
 		default:
 			log.warning("No sync object found for connectionname: " + connection);
-			break;
+			//TODO: Exception Handling?
+			return null;
 		}
 	}
 
@@ -108,14 +108,14 @@ class InnerConnectionBroker extends BasicConnectionBroker{
 			[let dataPort : DataPort = connection.getTargetFeature()]
 		case "[subcomponent.name/].[dataPort.name/]":	
 			return broker.getSynchronisationObjectForConnection("[connection.name/]");
-			break;
 			[/let]
 		[/let]
 	[/for]
 [/let]
 		default:
 			log.warning("No sync object found for portname: " + port);
-			break;
+			//TODO: Exception Handling?
+			return null;
 		}
 	}
 }

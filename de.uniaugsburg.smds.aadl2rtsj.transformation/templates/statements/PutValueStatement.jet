@@ -1,3 +1,0 @@
-<%@ jet package="de.uniaugsburg.smds.aadl2rtsj.converter" class="PutValueStatement" skeleton="NamedElement.skeleton" %>
-	<%=getObjectName(object)%>.putValue(value);
-	

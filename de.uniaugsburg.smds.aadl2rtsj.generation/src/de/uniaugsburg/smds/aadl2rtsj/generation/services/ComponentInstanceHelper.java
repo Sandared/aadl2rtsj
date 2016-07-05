@@ -124,8 +124,8 @@ public class ComponentInstanceHelper {
 		return buffer.toString();
 	}
 	
-	public static String getHandlerClassName(FeatureInstance feature, OffsetTime time){
-		return getClassName(feature) + "IOHandler_" + time.getUniqueId();
+	public static String getHandlerClassName(OffsetTime time){
+		return "Handler_" + time.getUniqueId();
 	}
 	
 	public static String getDataType(FeatureInstance feature){
@@ -176,11 +176,11 @@ public class ComponentInstanceHelper {
 		return upmost.getConnection();
 	}
 	
-	public static String getSynchronisationObjectName(ConnectionInstance connection){
-		ConnectionInstanceEnd source = connection.getSource();
-		ConnectionInstanceEnd target = connection.getDestination();
-		return getObjectName(source) + "2" + getClassName(target) + "Sync";
-	}
+//	public static String getSynchronisationObjectName(ConnectionInstance connection){
+//		ConnectionInstanceEnd source = connection.getSource();
+//		ConnectionInstanceEnd target = connection.getDestination();
+//		return getObjectName(source) + "2" + getClassName(target) + "Sync";
+//	}
 	
 	public static List<OffsetTime> getTimes(FeatureInstance feature, ConnectionInstance connection, String IOReferenceTime, Boolean isInput){
 		OffsetTime time = null;
