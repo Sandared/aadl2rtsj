@@ -6,7 +6,17 @@
 [file ('de/uniaugsburg/smds/aadl2rtsj/generation/util/DeepCopyable.java', false, 'UTF-8')]
 package de.uniaugsburg.smds.aadl2rtsj.generation.util;
 
+/**
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ * This Interface enables a deep copy of the implementing class.</br>
+ * Usually used by Data Components in order to be 'freezeable' for a dispatch cycle of a thread.
+ */
 public interface DeepCopyable<T>{
+	
+	/**
+	 * Copies the Object and all its members into a completely new object.
+	 * @return a deep copy (not shallow!) of this Object 
+	 */
 	T deepCopy();
 }
 

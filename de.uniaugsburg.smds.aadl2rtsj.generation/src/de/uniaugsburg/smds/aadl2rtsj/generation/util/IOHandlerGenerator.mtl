@@ -14,7 +14,9 @@ import javax.realtime.RelativeTime;
 import javax.realtime.PriorityParameters;
 import javax.realtime.BoundAsyncEventHandler;
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
+[if (not feature.getClassifier().isBaseType())]
 import [feature.getClassifier().getPackageName()/].[feature.getClassifier().getClassName()/];
+[/if]
 
 public class [getHandlerClassName(time)/] extends BoundAsyncEventHandler{
 	private DataPort<[feature.getClassifier().getClassName()/]> port;
@@ -45,7 +47,9 @@ import javax.realtime.PriorityParameters;
 import javax.realtime.BoundAsyncEventHandler;
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
+[if (not feature.getClassifier().isBaseType())]
 import [feature.getClassifier().getPackageName()/].[feature.getClassifier().getClassName()/];
+[/if]
 
 public class [getHandlerClassName(time)/] extends BoundAsyncEventHandler{
 	private DataPort<[feature.getClassifier().getClassName()/]> port;
