@@ -14,7 +14,13 @@ package [dataType.getPackageName()/];
 import [dataType.getExtendedClassifier().getPackageName()/].[dataType.getExtendedClassifier().getClassName()/];
 	[/if]
 
-public interface [dataType.getClassName()/][if (dataType.getExtendedClassifier() <> null)] extends [dataType.getExtendedClassifier().getClassName()/][/if] {
+	[comment import the Copyable Interface if there's no extended type/]
+	[if (dataType.getExtendedClassifier() = null)]
+//########## Extends Classifier Imports ##########
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.DeepCopyable;
+	[/if]
+
+public interface [dataType.getClassName()/] extends [if (dataType.getExtendedClassifier() <> null)][dataType.getExtendedClassifier().getClassName()/][else] DeepCopyable<[dataType.getClassName()/]> [/if] {
 
 }
 [/file]

@@ -1,0 +1,14 @@
+[comment encoding = UTF-8 /]
+[module DeepCopyableInterfaceGenerator('http://aadl.info/AADL/2.0/instance')]
+
+
+[template public generateDeepCopyableInterface()]
+[file ('de/uniaugsburg/smds/aadl2rtsj/generation/util/DeepCopyable.java', false, 'UTF-8')]
+package de.uniaugsburg.smds.aadl2rtsj.generation.util;
+
+public interface DeepCopyable<T>{
+	T deepCopy();
+}
+
+[/file]
+[/template]

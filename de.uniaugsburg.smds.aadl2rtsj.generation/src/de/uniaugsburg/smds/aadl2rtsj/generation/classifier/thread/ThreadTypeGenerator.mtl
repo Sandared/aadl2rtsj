@@ -13,17 +13,12 @@ package [getPackageName(threadType)/];
 import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 
-	[comment import the ConnectionBrokerable Interface if there is no more extended classifier/]
-	[if (threadType.getExtendedClassifier() = null)]
-//########## ConnectionBrokerable Import ##########
-import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBrokerable;
-	[/if]
 /**
  * @author Generator
  * 
  * 
  */
-public interface [threadType.getClassName()/] extends [if (threadType.getExtendedClassifier() <> null)][threadType.getExtendedClassifier().getClassName()/][else]ConnectionBrokerable[/if]{
+public interface [threadType.getClassName()/][if (threadType.getExtendedClassifier() <> null)] extends [threadType.getExtendedClassifier().getClassName()/][/if]{
 	[for (feature : Feature | threadType.getFeatures())]
 		[let dataPort : DataPort = feature]
 			[if (dataPort.isIncoming())]

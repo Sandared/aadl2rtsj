@@ -5,7 +5,7 @@
 [module PeriodicThreadGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::instance::util::InnerConnectionBrokerGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::util::InnerConnectionBrokerGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::PropertyHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::IOHandlerGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::user::ThreadUserCodeGenerator /]
@@ -118,9 +118,9 @@ public class [getClassName(thread)/] extends [classifier.getClassName()/]{
 	[/for]
 	
 	private final void dispatch() {
-		[thread.getStatementsForReferenceTime(getProperty('Communication_Properties_IO_Reference_Time_Dispatch'))/]
 		[comment we need deadline statements at this point, as there is no way to hook into the JVM to listen for a deadline /]
 		[thread.getStatementsForReferenceTime(getProperty('Communication_Properties_IO_Reference_Time_Deadline'))/]
+		[thread.getStatementsForReferenceTime(getProperty('Communication_Properties_IO_Reference_Time_Dispatch'))/]
 		//Execute User Code
 		userCode.dispatch();
 	}

@@ -2,7 +2,7 @@
 [module ProcessInstanceGenerator('http://aadl.info/AADL/2.0/instance', 'http://aadl.info/AADL/2.0')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::instance::util::InnerConnectionBrokerGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::util::InnerConnectionBrokerGenerator /]
 
 
 [template public generateProcessInstance(process : ComponentInstance)? (isProcess(process)) { classifier : ComponentClassifier = process.getClassifier(); }]

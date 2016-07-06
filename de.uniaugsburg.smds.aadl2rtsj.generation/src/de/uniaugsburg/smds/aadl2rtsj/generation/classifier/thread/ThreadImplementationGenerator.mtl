@@ -18,8 +18,13 @@ import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[if (threadImpl.getFeatures()->select(oclIsTypeOf(DataPort))->size() > 0)]
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
 	[/if]
+	[comment import the ConnectionBrokerable Interface if there is no more extended classifier/]
+	[if (threadImpl.getExtendedClassifier() = null)]
+//########## ConnectionBrokerable Import ##########
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBrokerable;
+	[/if]
 
-public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedClassifier() <> null)] extends [threadImpl.getExtendedClassifier().getClassName()/][/if] implements [threadImpl.getRealizedClassifier().getClassName()/]{
+public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedClassifier() <> null)] extends [threadImpl.getExtendedClassifier().getClassName()/][/if] implements [threadImpl.getRealizedClassifier().getClassName()/][if (threadImpl.getExtendedClassifier() = null)], ConnectionBrokerable[/if]{
 
 	//########## Subcomponent Variables ##########
 	[for (subcomponent : Subcomponent | threadImpl.getOwnSubcomponents())]
@@ -36,7 +41,7 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 		[if (getInternalOutgoingConnections(dataPort, threadImpl) -> size() = 0)]
 	/**
 	 * A DataPort<[dataPort.getClassifier().getClassName()/]> member variable that is</br> 
-	 * used to store incoming data for the IN DATA PORT <code>[dataPort.name/]</code>
+	 * used to store data for the DATA PORT <code>[dataPort.name/]</code>
 	 */
 	protected DataPort<[dataPort.getClassifier().getClassName()/]> [dataPort.name/] = new DataPort<[dataPort.getClassifier().getClassName()/]>();
 		[/if]

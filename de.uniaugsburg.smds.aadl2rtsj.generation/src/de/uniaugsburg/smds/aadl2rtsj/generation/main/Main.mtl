@@ -20,6 +20,7 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::ConnectionBrokerGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::ConnectionBrokerableGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::BasicConnectionBrokerGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::util::DeepCopyableInterfaceGenerator /]
 
 [template public Main(system : SystemInstance, classifiers : Set(ComponentClassifier))]
 	[comment @main /]
@@ -37,6 +38,7 @@
 	[generateInOutPortInterface()/]
 	[generateInPortInterface()/]
 	[generateOutPortInterface()/]
+	[generateDeepCopyableInterface()/]
 	
 [/template]
 

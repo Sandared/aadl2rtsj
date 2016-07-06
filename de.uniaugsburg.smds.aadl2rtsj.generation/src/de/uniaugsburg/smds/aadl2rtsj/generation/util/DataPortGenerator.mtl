@@ -26,8 +26,11 @@ public class DataPort<T>{
 	} 
 
 	public void receiveInput(){
-		//TODO freezes Data (clones it ? )
-		// inData = (T)inFWData.deepCopy();
+		//The data is either a DeepCopyable or a primitve type
+		if(inData instanceof DeepCopyable)
+			inData = (T)((DeepCopyable)inFWData).deepCopy();
+		else
+			inData = copyPrimitive(inFWData);
 		isDirty = false;
 	}
 	
@@ -41,6 +44,26 @@ public class DataPort<T>{
 	
 	public InOutPort<T> getUserInOutPort(){
 		return inOutPort;
+	}
+
+	private T copyPrimitive(T original){
+		if(original instanceof Boolean){
+			return (T) new Boolean(((Boolean) original).booleanValue());
+		}
+		if(original instanceof Float){
+			return (T) new Float(((Float) original).floatValue());
+		}
+		if(original instanceof Integer){
+			return (T) new Integer(((Integer) original).intValue());
+		}
+		if(original instanceof String){
+			return (T) new String((String)original);
+		}
+		if(original instanceof Double){
+			return (T) new Double(((Double) original).doubleValue());
+		}
+		//Error?
+		return null;
 	}
 
 	
