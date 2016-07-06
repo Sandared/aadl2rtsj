@@ -8,6 +8,7 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::instance::util::InnerConnectionBrokerGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::PropertyHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::IOHandlerGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::user::ThreadUserCodeGenerator /]
 
 
 [template public generatePeriodicThread(thread : ComponentInstance)? (isPeriodic(thread)) { classifier : ComponentClassifier = thread.getClassifier(); }]
@@ -68,6 +69,11 @@ public class [getClassName(thread)/] extends [classifier.getClassName()/]{
 	 */
 	private ConnectionBroker broker;
 
+	/**
+	 * Usercode class for this Thread
+	 */
+	private [thread.getClassName()/]UserCode userCode = new [thread.getClassName()/]UserCode([thread.getUserCodeConstructorParameters()/]);
+
 	public [getClassName(thread)/]([getConstructorParameters(thread)/]){
 		[for (subcomponent : ComponentInstance | thread.getSubcomponents())]
 		broker.addChildBroker("[subcomponent.getObjectName()/]", [subcomponent.getObjectName()/].getConnectionBroker());
@@ -115,18 +121,26 @@ public class [getClassName(thread)/] extends [classifier.getClassName()/]{
 		[thread.getStatementsForReferenceTime(getProperty('Communication_Properties_IO_Reference_Time_Dispatch'))/]
 		[comment we need deadline statements at this point, as there is no way to hook into the JVM to listen for a deadline /]
 		[thread.getStatementsForReferenceTime(getProperty('Communication_Properties_IO_Reference_Time_Deadline'))/]
+		//Execute User Code
+		userCode.dispatch();
 	}
 	
 	private final void start() {
 		[thread.getStatementsForReferenceTime(getProperty('Communication_Properties_IO_Reference_Time_Start'))/]
+		//Execute User Code
+		userCode.start();
 	}
 	
 	private final void compute() {
 		System.out.println("[thread.getPackageName()/].[thread.getClassName()/].compute()");
+		//Execute User Code
+		userCode.compute();
 	}
 	
 	private final void completion() {
 		[thread.getStatementsForReferenceTime(getProperty('Communication_Properties_IO_Reference_Time_Completion'))/]
+		//Execute User Code
+		userCode.completion();
 	}
 	
 	/**
@@ -147,6 +161,7 @@ public class [getClassName(thread)/] extends [classifier.getClassName()/]{
 }
 [/file]
 
+[comment generate Connection Broker for this thread /]
 [thread.generateInnerConnectionBroker()/]
 
 [comment generate IOHandler if necessary /]
@@ -162,6 +177,23 @@ public class [getClassName(thread)/] extends [classifier.getClassName()/]{
 			[/if]
 		[/if]
 	[/for]
+[/for]
+
+[comment generate Usercode class for this thread /]
+[generateUserCode(thread)/]
+[/template]
+
+[template public getUserCodeConstructorParameters(thread : ComponentInstance) post (replaceAll('\n', '').trim())]
+[for (feature : FeatureInstance | thread.getFeatures())separator (',')]
+	[if (feature.isIncoming())]
+		[if (feature.isOutgoing())]
+[feature.getObjectName()/].getUserInOutPort()
+		[else]
+[feature.getObjectName()/].getUserInPort()
+		[/if]
+	[else]
+[feature.getObjectName()/].getUserOutPort()
+	[/if]
 [/for]
 [/template]
 
@@ -217,7 +249,7 @@ parentBroker, this
 [/if]
 [/template]
 
-[template public getStatementsForReferenceTime(thread : ComponentInstance, IOReferenceTime : String)post (trim())]
+[template public getStatementsForReferenceTime(thread : ComponentInstance, IOReferenceTime : String)post (replace('\n\n', '\n').trim())]
 	[for (feature : FeatureInstance | getFeatures(thread))]
 		[if (isDataPort(feature))]
 			[if (isIncoming(feature))]

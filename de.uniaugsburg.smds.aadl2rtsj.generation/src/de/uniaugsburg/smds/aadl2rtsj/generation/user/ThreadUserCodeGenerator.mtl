@@ -1,0 +1,73 @@
+[comment encoding = UTF-8 /]
+[module ThreadUserCodeGenerator('http://aadl.info/AADL/2.0/instance', 'http://aadl.info/AADL/2.0')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+
+[template public generateUserCode(thread : ComponentInstance)]
+[file(thread.getPackageName().substitute('.', '/').concat('/').concat(thread.getClassName().concat('UserCode')).concat('.java') , false, 'UTF-8')]
+package [thread.getPackageName()/];
+
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.InPort;
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.OutPort;
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.InOutPort;
+
+//########## Classifier Imports ##########
+	[comment import all classifiers of this thread, but only once for each classifier/]
+	[for (classifier : ComponentClassifier | thread.getClassifier().getAllClassifiers())]
+import [classifier.getPackageName()/].[classifier.getClassName()/];
+	[/for]
+
+
+public class [thread.getClassName()/]UserCode{
+
+	[comment create a member variable for each port /]
+	[for (feature : FeatureInstance | thread.getFeatures())]
+		[if (feature.isIncoming())]
+			[if (feature.isOutgoing())]
+	private InOutPort<[feature.getClassifier().getClassName()/]> [feature.getObjectName()/];
+			[else]
+	private InPort<[feature.getClassifier().getClassName()/]> [feature.getObjectName()/];
+			[/if]
+		[else]
+	private OutPort<[feature.getClassifier().getClassName()/]> [feature.getObjectName()/];
+		[/if]
+	[/for]
+
+	public [thread.getClassName()/]UserCode([thread.getConstructorParameters()/]){
+	[for (feature : FeatureInstance | thread.getFeatures())]
+		this.[feature.getObjectName()/] = [feature.getObjectName()/];
+	[/for]	
+	}
+
+	public void dispatch(){
+		// TODO: Generated 
+	}
+
+	public void start(){
+		// TODO: Generated 
+	}
+
+	public void completion(){
+		// TODO: Generated 
+	}
+
+	public void compute(){
+		// TODO: Generated 
+	}
+}
+[/file]
+[/template]
+
+[template private getConstructorParameters(thread : ComponentInstance) post (replaceAll('\n', '').trim())]
+[for (feature : FeatureInstance | thread.getFeatures())separator (',')]
+	[if (feature.isIncoming())]
+		[if (feature.isOutgoing())]
+InOutPort<[feature.getClassifier().getClassName()/]> [feature.getObjectName()/]
+		[else]
+InPort<[feature.getClassifier().getClassName()/]> [feature.getObjectName()/]
+		[/if]
+	[else]
+OutPort<[feature.getClassifier().getClassName()/]> [feature.getObjectName()/]
+	[/if]
+[/for]
+[/template]

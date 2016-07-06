@@ -41,10 +41,14 @@ import java.util.logging.Logger;
 public class [process.getClassName()/] extends [classifier.getClassName()/]{	
 	private static final Logger log = Logger.getLogger([process.getClassName()/].class.getName());	
 	
-	//ConnectionBroker to send on outgoing connections. Has to be set by the parent component.
+	/**
+	 * ConnectionBroker to send on outgoing connections. Has to be set by the parent component.
+	 */
 	private ConnectionBroker parentBroker;
 
-	//ConnectionBroker for the connections within this Thread
+	/**
+	 * ConnectionBroker for the connections within this Thread
+	 */
 	private ConnectionBroker broker;
 
 	public [process.getClassName()/]([process.getConstructorParameters()/]){
