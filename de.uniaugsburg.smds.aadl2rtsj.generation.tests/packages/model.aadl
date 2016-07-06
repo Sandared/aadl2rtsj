@@ -1,0 +1,34 @@
+package model
+public
+	with Base_Types;
+	
+	
+	system sys
+		features
+			inPort: in data port Base_Types::Boolean;
+			outPort: out data port Base_Types::Boolean;
+	end sys;
+	
+	system implementation sys.impl
+		subcomponents
+			proc1: process proc.impl;
+	end sys.impl;
+	
+	process proc
+		
+	end proc;
+	
+	process implementation proc.impl
+		subcomponents
+			s1: thread thr.impl;
+	end proc.impl;
+	
+	thread thr
+	end thr;
+	
+	thread implementation thr.impl
+		subcomponents
+			data1: data Base_Types::Boolean;
+	end thr.impl;
+	
+end model;

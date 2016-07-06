@@ -35,7 +35,7 @@
         </ownedValue>
         <propertyAssociation href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedThreadSubcomponent.0/@ownedPropertyAssociation.0"/>
       </ownedPropertyAssociation>
-      <featureInstance name="externalin" dstConnectionInstance="//@connectionInstance.1">
+      <featureInstance name="externalin">
         <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
           <property href="../../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
           <ownedValue>
@@ -47,7 +47,7 @@
         </ownedPropertyAssociation>
         <feature xsi:type="aadl2:DataPort" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.7/@ownedDataPort.0"/>
       </featureInstance>
-      <featureInstance name="externalout" srcConnectionInstance="//@connectionInstance.0" direction="out">
+      <featureInstance name="externalout" direction="out">
         <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
           <property href="../../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
           <ownedValue>
@@ -59,10 +59,10 @@
         </ownedPropertyAssociation>
         <feature xsi:type="aadl2:DataPort" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.7/@ownedDataPort.1"/>
       </featureInstance>
-      <featureInstance name="internalin" dstConnectionInstance="//@componentInstance.0/@connectionInstance.1">
+      <featureInstance name="internalin">
         <feature xsi:type="aadl2:DataPort" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.7/@ownedDataPort.2"/>
       </featureInstance>
-      <featureInstance name="internalout" srcConnectionInstance="//@componentInstance.0/@connectionInstance.0" direction="out">
+      <featureInstance name="internalout" direction="out">
         <feature xsi:type="aadl2:DataPort" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.7/@ownedDataPort.3"/>
       </featureInstance>
       <subcomponent xsi:type="aadl2:ThreadSubcomponent" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedThreadSubcomponent.0"/>
@@ -78,10 +78,10 @@
         </ownedValue>
         <propertyAssociation href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedThreadSubcomponent.1/@ownedPropertyAssociation.0"/>
       </ownedPropertyAssociation>
-      <featureInstance name="dataout" srcConnectionInstance="//@componentInstance.0/@connectionInstance.1" direction="out">
+      <featureInstance name="dataout" direction="out">
         <feature xsi:type="aadl2:DataPort" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.4/@ownedDataPort.1"/>
       </featureInstance>
-      <featureInstance name="datain" dstConnectionInstance="//@componentInstance.0/@connectionInstance.0">
+      <featureInstance name="datain">
         <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
           <property href="../../Plugin_Resources/Predeclared_Property_Sets/Modeling_Properties.aadl#Modeling_Properties.Classifier_Substitution_Rule"/>
           <ownedValue>
@@ -153,7 +153,7 @@
         </ownedValue>
         <propertyAssociation href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedThreadSubcomponent.0/@ownedPropertyAssociation.0"/>
       </ownedPropertyAssociation>
-      <featureInstance name="externalin" dstConnectionInstance="//@connectionInstance.0">
+      <featureInstance name="externalin">
         <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
           <property href="../../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
           <ownedValue>
@@ -165,7 +165,7 @@
         </ownedPropertyAssociation>
         <feature xsi:type="aadl2:DataPort" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.7/@ownedDataPort.0"/>
       </featureInstance>
-      <featureInstance name="externalout" srcConnectionInstance="//@connectionInstance.1" direction="out">
+      <featureInstance name="externalout" direction="out">
         <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
           <property href="../../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
           <ownedValue>
@@ -177,10 +177,10 @@
         </ownedPropertyAssociation>
         <feature xsi:type="aadl2:DataPort" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.7/@ownedDataPort.1"/>
       </featureInstance>
-      <featureInstance name="internalin" dstConnectionInstance="//@componentInstance.1/@connectionInstance.1">
+      <featureInstance name="internalin">
         <feature xsi:type="aadl2:DataPort" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.7/@ownedDataPort.2"/>
       </featureInstance>
-      <featureInstance name="internalout" srcConnectionInstance="//@componentInstance.1/@connectionInstance.0" direction="out">
+      <featureInstance name="internalout" direction="out">
         <feature xsi:type="aadl2:DataPort" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.7/@ownedDataPort.3"/>
       </featureInstance>
       <subcomponent xsi:type="aadl2:ThreadSubcomponent" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedThreadSubcomponent.0"/>
@@ -196,10 +196,10 @@
         </ownedValue>
         <propertyAssociation href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedThreadSubcomponent.1/@ownedPropertyAssociation.0"/>
       </ownedPropertyAssociation>
-      <featureInstance name="dataout" srcConnectionInstance="//@componentInstance.1/@connectionInstance.1" direction="out">
+      <featureInstance name="dataout" direction="out">
         <feature xsi:type="aadl2:DataPort" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.4/@ownedDataPort.1"/>
       </featureInstance>
-      <featureInstance name="datain" dstConnectionInstance="//@componentInstance.1/@connectionInstance.0">
+      <featureInstance name="datain">
         <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
           <property href="../../Plugin_Resources/Predeclared_Property_Sets/Modeling_Properties.aadl#Modeling_Properties.Classifier_Substitution_Rule"/>
           <ownedValue>
@@ -237,6 +237,15 @@
     <index>0</index>
   </componentInstance>
   <connectionInstance name="myprocess1.mysendreceive.externalout -> myprocess2.mysendreceive.externalin" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.0/@featureInstance.0" source="//@componentInstance.0/@componentInstance.0/@featureInstance.1">
+    <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+      <property href="../../Plugin_Resources/Predeclared_Property_Sets/Communication_Properties.aadl#Communication_Properties.Timing"/>
+      <ownedValue>
+        <ownedValue xsi:type="aadl2:NamedValue">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/Communication_Properties.aadl#/0/@ownedProperty.7/@ownedPropertyType/@ownedLiteral.2"/>
+        </ownedValue>
+      </ownedValue>
+      <propertyAssociation href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.1/@ownedPortConnection.1/@ownedPropertyAssociation.0"/>
+    </ownedPropertyAssociation>
     <connectionReference context="//@componentInstance.0" source="//@componentInstance.0/@componentInstance.0/@featureInstance.1" destination="//@componentInstance.0/@featureInstance.1">
       <connection xsi:type="aadl2:PortConnection" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedPortConnection.3"/>
     </connectionReference>

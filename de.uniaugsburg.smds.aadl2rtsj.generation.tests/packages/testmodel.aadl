@@ -12,7 +12,7 @@ system a_system
 		connections
 			new_connection: port myprocess2.dataout -> myprocess1.datain;
 			new_connection2: port myprocess1.dataout ->
-							myprocess2.datain;
+							myprocess2.datain {Timing => delayed;};
 	end a_system.system1;
 
 	process a_process
