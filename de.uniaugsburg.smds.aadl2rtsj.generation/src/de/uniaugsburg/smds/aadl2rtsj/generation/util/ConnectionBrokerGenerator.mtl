@@ -5,8 +5,8 @@
 package de.uniaugsburg.smds.aadl2rtsj.generation.util;
 
 /**
- * @author thomas.driessen@informatik.uni-augsburg.de
  * Takes care of intra- and inter-component communication. 
+ * @author thomas.driessen@informatik.uni-augsburg.de
  */
 public interface ConnectionBroker{
 
