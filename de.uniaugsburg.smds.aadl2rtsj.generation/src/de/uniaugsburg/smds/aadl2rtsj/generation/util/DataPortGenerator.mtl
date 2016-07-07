@@ -21,9 +21,8 @@ public class DataPort<T>{
 	private volatile T inFWData = null;
 
 	/**
-	 * A member variable to store the status of data for this port. Only for use by the generated code</br>
-	 * True would mean the data has been changed within this dispatch cycle.</br>
-	 * Gets resetted each dispatch cycle
+	 * A member variable to store the status of data for this port. Only for use by the user code</br>
+	 * Gets resetted each dispatch cycle by the generated code
 	 */
 	private volatile boolean isDirty = false;
 
@@ -58,7 +57,7 @@ public class DataPort<T>{
 	 * @param data the data to be set in this data port as newest data
 	 */
 	public void setFWData(T data){
-		inData = data;
+		inFWData = data;
 		isDirty = true;
 	}
 
@@ -82,7 +81,17 @@ public class DataPort<T>{
 			inData = (T)((DeepCopyable)inFWData).deepCopy();
 		else
 			inData = copyPrimitive(inFWData);
+	}
+
+	/**
+	 * @return true if the data for this port has been changed since the last call to isDirty()
+	 */
+	public boolean isFWDirty(){
+		// store the old value for later return
+		boolean oldDirty = isDirty;
+		// set isDirty to false for the next caller
 		isDirty = false;
+		return oldDirty;
 	}
 
 	/**
@@ -125,15 +134,14 @@ public class DataPort<T>{
 		if(original instanceof Double){
 			return (T) new Double(((Double) original).doubleValue());
 		}
-		//Error?
+		//TODO: Error?
 		return null;
 	}
-
 	
 	public class InnerOutPort<X extends T> implements OutPort<X>{
 		@Override
 		public boolean isDirty(){
-			return isDirty;
+			return isFWDirty();
 		}
 		@Override
 		public void setData(X data){
@@ -144,7 +152,7 @@ public class DataPort<T>{
 	public class InnerInPort<X extends T> implements InPort<X>{
 		@Override
 		public boolean isDirty(){
-			return isDirty;
+			return isFWDirty();
 		}
 		@Override
 		public synchronized X getData(){
@@ -156,7 +164,7 @@ public class DataPort<T>{
 	public class InnerInOutPort<X extends T> implements InOutPort<X>{
 		@Override
 		public boolean isDirty(){
-			return isDirty;
+			return isFWDirty();
 		}
 		@Override
 		public synchronized X getData(){

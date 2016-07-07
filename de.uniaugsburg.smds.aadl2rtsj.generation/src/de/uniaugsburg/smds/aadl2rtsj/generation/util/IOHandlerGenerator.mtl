@@ -18,18 +18,30 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
 import [feature.getClassifier().getPackageName()/].[feature.getClassifier().getClassName()/];
 [/if]
 
+/**
+ * Standard input handler for asynchronously receiving data on IN DATA PORTs
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ */
 public class [getHandlerClassName(time)/] extends BoundAsyncEventHandler{
+	
+	/**
+	 * The data port to receive data on
+	 */
 	private DataPort<[feature.getClassifier().getClassName()/]> port;
 	
 	public [getHandlerClassName(time)/](DataPort<[feature.getClassifier().getClassName()/]> port){
 		this.port =  port;
+		// set the priority of this handler to the same value as of [component.getClassName()/] 
+		// for which it handles the asynchronous input
 		setSchedulingParameters(new PriorityParameters([component.getPriority()/]));
+		// Set the timer to the given offset of [time.ms.toString()/]ms and [time.ns.toString()/]ns
 		Timer timerFor[getHandlerClassName(time)/] = new OneShotTimer(new RelativeTime([time.ms.toString()/], [time.ns.toString()/]), this);
 		timerFor[getHandlerClassName(time)/].start();
 	}
 	
 	@Override
 	public void handleAsyncEvent() {
+		// Freeze the the data on the given port
 		port.receiveInput();
 	}
 }
@@ -51,22 +63,42 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
 import [feature.getClassifier().getPackageName()/].[feature.getClassifier().getClassName()/];
 [/if]
 
+/**
+ * Standard output handler for asynchronously sending data over OUT DATA PORTs
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ */
 public class [getHandlerClassName(time)/] extends BoundAsyncEventHandler{
+	
+	/**
+	 * The out port to send data from
+	 */
 	private DataPort<[feature.getClassifier().getClassName()/]> port;
+
+	/**
+	 * The ConnectionBroker to use for sending data
+	 */ 
 	private ConnectionBroker broker;
+
+	/**
+	 * The name of the connection to send the data on
+	 */
 	private String connectionName;
 	
 	public [getHandlerClassName(time)/](DataPort<[feature.getClassifier().getClassName()/]> port,  ConnectionBroker broker, String connectionName){
 		this.port = port;
 		this.broker = broker;
 		this.connectionName = connectionName;
+		// set the priority of this handler to the same value as of [component.getClassName()/] 
+		// for which it handles the asynchronous output
 		setSchedulingParameters(new PriorityParameters([component.getPriority()/]));
+		// Set the timer to the given offset of [time.ms.toString()/]ms and [time.ns.toString()/]ns
 		Timer timerFor[getHandlerClassName(time)/] = new OneShotTimer(new RelativeTime([time.ms.toString()/], [time.ns.toString()/]), this);
 		timerFor[getHandlerClassName(time)/].start();
 	}
 	
 	@Override
 	public void handleAsyncEvent() {
+		// request the FW data for the given port and send it over the given connection
 		broker.sendOnConnection(connectionName, port.getFWData());
 	}
 }
