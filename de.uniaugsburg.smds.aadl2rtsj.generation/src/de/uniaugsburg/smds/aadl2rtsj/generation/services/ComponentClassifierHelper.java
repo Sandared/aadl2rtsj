@@ -50,6 +50,7 @@ public class ComponentClassifierHelper {
 	}
 	
 	public static List<Subcomponent> getOwnSubcomponents(ComponentImplementation ci){
+		EList<Subcomponent> subcomponents = ci.getOwnedSubcomponents();
 		return ci.getOwnedSubcomponents();
 	}
 	
@@ -73,8 +74,6 @@ public class ComponentClassifierHelper {
 	public static boolean isRefined(Feature f){
 		return f.getRefined() != null;
 	}
-	
-
 	
 	public static ComponentClassifier getClassifier(Subcomponent sc){
 		return sc.getClassifier();
@@ -394,7 +393,7 @@ public class ComponentClassifierHelper {
 	 * @return a String representing the class name for the given ComponentImplementation or 'Object' if <b>ci</b> is <code>null</code>
 	 */
 	public static String getClassNameForImpl(ComponentImplementation ci){
-		return (ci == null)? getDefaultClassName() :((ComponentImplementation) ci).getImplementationName();
+		return (ci == null)? getDefaultClassName() : ci.getName().replace(".", "");
 	}
 	
 	/**

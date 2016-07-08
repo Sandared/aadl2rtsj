@@ -63,9 +63,9 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 		this.parentBroker = parentBroker;
 		this.component = component;
 		[comment for each subcomponent we have to create an Assignment Statement/]
-		[if (instance.getSubcomponents()->size() > 0)]
-			[for (subcomponent : ComponentInstance | instance.getSubcomponents())]
-		this.[subcomponent.getObjectName()/] = [subcomponent.getObjectName()/];
+		[if (instance.getClassifier().oclAsType(ComponentImplementation).getAllSubcomponents()->size() > 0)]
+			[for (subcomponent : Subcomponent | instance.getClassifier().oclAsType(ComponentImplementation).getAllSubcomponents())]
+		this.[subcomponent.name/] = [subcomponent.name/];
 			[/for]
 		[/if]	
 	}
@@ -206,10 +206,10 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 
 [template private getConstructorParameters(instance : ComponentInstance) post (replaceAll('\n', '').trim())]
 ConnectionBroker parentBroker, [instance.getClassifier().getClassName()/] component
-[if (instance.getSubcomponents()->size()>0)]
+[if (instance.getClassifier().oclAsType(ComponentImplementation).getAllSubComponents()->size()>0)]
 , 
-	[for (subcomponent : ComponentInstance | instance.getSubcomponents()) separator (', ')]
-[subcomponent.getClassifier().getClassName()/] [subcomponent.getObjectName()/]
+	[for (subcomponent : Subcomponent | instance.getClassifier().oclAsType(ComponentImplementation).getAllSubComponents()) separator (', ')]
+[subcomponent.getClassifier().getClassName()/] [subcomponent.name/]
 	[/for]
 [/if]
 [/template]

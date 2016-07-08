@@ -23,6 +23,9 @@ public abstract class [processImpl.getClassName()/][if (processImpl.getExtendedC
 
 	//########## Subcomponent Variables ##########
 	[for (subcomponent : Subcomponent | processImpl.getOwnSubcomponents())]
+	/**
+	 * A member variable that is used to store the subcomponent <code>[subcomponent.name/]</code>
+	 */
 	protected [subcomponent.getClassifier().getClassName()/] [subcomponent.name/];
 	[/for]
 

@@ -24,7 +24,7 @@ import [dataImpl.getExtendedClassifier().getPackageName()/].[dataImpl.getExtende
 import [dataImpl.getRealizedClassifier().getPackageName()/].[dataImpl.getRealizedClassifier().getClassName()/];
 
 public class [dataImpl.getClassName()/][if (dataImpl.getExtendedClassifier() <> null)] extends [dataImpl.getExtendedClassifier().getClassName()/][/if] implements [dataImpl.getRealizedClassifier().getClassName()/]{
-
+	
 	//########### Subcomponents ###########
 	[for (subcomponent : Subcomponent | dataImpl.getAllSubComponents()->select(oclIsTypeOf(DataSubcomponent)))]
 	[comment create a member statement for each subcomponent /]
