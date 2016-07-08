@@ -7,9 +7,10 @@ s[comment encoding = UTF-8 /]
 [file(dataImpl.getPackageName().substitute('.', '/').concat('/').concat(dataImpl.getClassName()).concat('.java') , false, 'UTF-8')]
 package [dataImpl.getPackageName()/];
 
-//########## Subcomponent Classifier Imports ###########
-	[for (subcomponent: ComponentClassifier | dataImpl.getSubComponentClassifiers()->select(oclIsTypeOf(DataClassifier)))]
-import [subcomponent.getPackageName()/].[subcomponent.getClassName()/];
+//########## Classifier Imports ##########
+	[comment import all classifiers of this ThreadImplementation, but only once for each classifier/]
+	[for (classifier : ComponentClassifier | dataImpl.getAllClassifiersForImplementation())]
+import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 
 	[comment import the extended type if necessary/]
@@ -25,7 +26,7 @@ import [dataImpl.getRealizedClassifier().getPackageName()/].[dataImpl.getRealize
 public class [dataImpl.getClassName()/][if (dataImpl.getExtendedClassifier() <> null)] extends [dataImpl.getExtendedClassifier().getClassName()/][/if] implements [dataImpl.getRealizedClassifier().getClassName()/]{
 
 	//########### Subcomponents ###########
-	[for (subcomponent : Subcomponent | dataImpl.getSubComponents()->select(oclIsTypeOf(DataSubcomponent)))]
+	[for (subcomponent : Subcomponent | dataImpl.getAllSubComponents()->select(oclIsTypeOf(DataSubcomponent)))]
 	[comment create a member statement for each subcomponent /]
 	private [subcomponent.getClassifier().getClassName()/] [subcomponent.name/] = new [subcomponent.getClassifier().getClassName()/]();
 	[/for]
@@ -34,8 +35,8 @@ public class [dataImpl.getClassName()/][if (dataImpl.getExtendedClassifier() <> 
 	@Override
 	public [dataImpl.getClassName()/] deepCopy(){
 		[dataImpl.getClassName()/] result = new [dataImpl.getClassName()/]();
-		//TODO: copy all internal values
-		[for (subcomponent : Subcomponent | dataImpl.getSubComponents()->select(oclIsTypeOf(DataSubcomponent)))]
+		//TODO: copy all internal values (only for primitives?)
+		[for (subcomponent : Subcomponent | dataImpl.getAllSubComponents()->select(oclIsTypeOf(DataSubcomponent)))]
 		result.[subcomponent.name/] = [subcomponent.name/].deepCopy();
 		[/for]
 		return result;

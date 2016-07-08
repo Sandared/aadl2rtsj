@@ -1,6 +1,7 @@
 [comment encoding = UTF-8 /]
 [module ProcessTypeGenerator('http://aadl.info/AADL/2.0/instance', 'http://aadl.info/AADL/2.0')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+
 [template public generateProcessType(process : ComponentClassifier)]
 [let processType : ProcessType = process]
 [file(processType.getPackageName().substitute('.', '/').concat('/').concat(processType.getClassName()).concat('.java') , false, 'UTF-8')]
@@ -8,7 +9,7 @@ package [processType.getPackageName()/];
 
 //########## Classifier Import##########
 	[comment import all classifiers for this component, but only once for each classifier/]
-	[for (classifier : ComponentClassifier | processType.getAllClassifiers())]
+	[for (classifier : ComponentClassifier | processType.getAllClassifiersForType())]
 import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 
@@ -18,7 +19,7 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBrokerable;
 	[/if]
 
 public interface [processType.getClassName()/] extends [if (processType.getExtendedClassifier() <> null)][processType.getExtendedClassifier().getClassName()/][else]ConnectionBrokerable[/if]{
-	[for (feature : Feature | processType.getFeatures())]
+	[for (feature : Feature | processType.getAllFeatures())]
 		[let dataPort : DataPort = feature]
 			[if (dataPort.isIncoming())]
 				[if (dataPort.isRefined())]

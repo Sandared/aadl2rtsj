@@ -9,15 +9,16 @@ package [threadImpl.getPackageName()/];
 
 //########## Classifier Imports ##########
 	[comment import all classifiers of this ThreadImplementation, but only once for each classifier/]
-	[for (classifier : ComponentClassifier | threadImpl.getAllClassifiers())]
+	[for (classifier : ComponentClassifier | threadImpl.getAllClassifiersForImplementation())]
 import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 
 //########## Port Variable Import ##########
 	[comment if this component has in, out or in/out ports we have to import DataPort/]
-	[if (threadImpl.getFeatures()->select(oclIsTypeOf(DataPort))->size() > 0)]
+	[if (threadImpl.getAllFeatures()->select(oclIsTypeOf(DataPort))->size() > 0)]
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
 	[/if]
+
 	[comment import the ConnectionBrokerable Interface if there is no more extended classifier/]
 	[if (threadImpl.getExtendedClassifier() = null)]
 //########## ConnectionBrokerable Import ##########
@@ -37,7 +38,7 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 	[comment create a data port variable for each IN DATAPORT that has no connections within this component/]
 	[comment TODO maybe we need the port variable although there is a connection? /]
 	//########## Data Port Variables ###########
-	[for (dataPort : DataPort | threadImpl.getFeatures()->select(oclIsTypeOf(DataPort)))]
+	[for (dataPort : DataPort | threadImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
 		[if (getInternalOutgoingConnections(dataPort, threadImpl) -> size() = 0)]
 	/**
 	 * A DataPort<[dataPort.getClassifier().getClassName()/]> member variable that is</br> 
@@ -48,7 +49,7 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 	[/for]
 
 	//########## Inherited Methods from [threadImpl.getRealizedClassifier().getClassName()/] ###########
-	[for (dataPort : DataPort | threadImpl.getFeatures()->select(oclIsTypeOf(DataPort)))]
+	[for (dataPort : DataPort | threadImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
 		[if (dataPort.isIncoming())]
 			[if (getInternalOutgoingConnections(dataPort, threadImpl)-> size() > 0)]
 	/**

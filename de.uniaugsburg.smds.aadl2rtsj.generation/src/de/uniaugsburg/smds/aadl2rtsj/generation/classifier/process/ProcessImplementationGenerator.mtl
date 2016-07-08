@@ -9,13 +9,13 @@ package [processImpl.getPackageName()/];
 
 //########## Classifier Imports ##########
 	[comment import all classifiers of this ThreadImplementation, but only once for each classifier/]
-	[for (classifier : ComponentClassifier | processImpl.getAllClassifiers())]
+	[for (classifier : ComponentClassifier | processImpl.getAllClassifiersForImplementation())]
 import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 
 //########## Port Variable Import ##########
 	[comment if this component has in, out or in/out ports we have to import DataPort/]
-	[if (processImpl.getFeatures()->select(oclIsTypeOf(DataPort))->size() > 0)]
+	[if (processImpl.getAllFeatures()->select(oclIsTypeOf(DataPort))->size() > 0)]
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
 	[/if]
 
@@ -29,14 +29,14 @@ public abstract class [processImpl.getClassName()/][if (processImpl.getExtendedC
 	[comment create a data port variable for each IN DATAPORT that has no connections within this component/]
 	[comment TODO maybe we need the port variable although there is a connection? /]
 	//########## Data Port Variables ###########
-	[for (dataPort : DataPort | processImpl.getFeatures()->select(oclIsTypeOf(DataPort)))]
+	[for (dataPort : DataPort | processImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
 		[if (getInternalOutgoingConnections(dataPort, processImpl)->size() = 0)]
 	protected DataPort<[dataPort.getClassifier().getClassName()/]> [dataPort.name/] = new DataPort<[dataPort.getClassifier().getClassName()/]>();
 		[/if]
 	[/for]
 
 	//########## Inherited Methods from [processImpl.getRealizedClassifier().getClassName()/] ###########
-	[for (dataPort : DataPort | processImpl.getFeatures()->select(oclIsTypeOf(DataPort)))]
+	[for (dataPort : DataPort | processImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
 		[if (dataPort.isIncoming())]
 	@Override
 	public void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){

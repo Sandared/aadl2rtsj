@@ -9,17 +9,15 @@ package [getPackageName(threadType)/];
 
 //########## Classifier Import ##########
 	[comment import all classifiers for this component, but only once for each classifier/]
-	[for (classifier : ComponentClassifier | threadType.getAllClassifiers())]
+	[for (classifier : ComponentClassifier | threadType.getAllClassifiersForType())]
 import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 
 /**
- * @author Generator
- * 
- * 
+ * @author thomas.driessen@informatik.uni-augsburg.de
  */
 public interface [threadType.getClassName()/][if (threadType.getExtendedClassifier() <> null)] extends [threadType.getExtendedClassifier().getClassName()/][/if]{
-	[for (feature : Feature | threadType.getFeatures())]
+	[for (feature : Feature | threadType.getAllFeatures())]
 		[let dataPort : DataPort = feature]
 			[if (dataPort.isIncoming())]
 				[if (dataPort.isRefined())]
@@ -27,7 +25,6 @@ public interface [threadType.getClassName()/][if (threadType.getExtendedClassifi
 	 * This method is not meant for use, as it got refined by {@link #in[dataPort.name.toUpperFirst()/] in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data)}</br>
 	 * If used nonetheless, this method throws a <tt>UnsupportedOperationException</tt>
 	 * @exception UnsupportedOperationException if used
-	 * @see classifier.testmodel.external.a_thread.a_thread#inDatain(classifier.testmodel.external.a.A)
 	 */
 	@Override
 	default void in[dataPort.name.toUpperFirst()/]([dataPort.getRefinedClassifier().getClassName()/] data){

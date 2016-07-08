@@ -12,8 +12,8 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.util.OutPort;
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.InOutPort;
 
 //########## Classifier Imports ##########
-	[comment import all classifiers of this thread, but only once for each classifier/]
-	[for (classifier : ComponentClassifier | thread.getClassifier().getAllClassifiers())]
+	[comment import all classifiers of this thread (usually only the datatypes of its ports), but only once for each classifier/]
+	[for (classifier : ComponentClassifier | thread.getClassifier().getAllFeatureClassifiers())]
 import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 

@@ -11,15 +11,9 @@ import java.util.HashMap;
 
 //########## Classifier Imports ##########
 	[comment import all classifiers of this Broker's ComponentImplemntation, but only once for each classifier/]
-	[for (classifier : ComponentClassifier | instance.getClassifier().getAllClassifiers())]
+	[for (classifier : ComponentClassifier | instance.getClassifier().oclAsType(ComponentImplementation).getAllClassifiersForConnectionBroker())]
 import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
-
-[comment Create an Import Statement for each Subcomponent, Features are in the same package and don't need an Import Statement /]
-//########## Subcomponent Imports ##########
-[for (subcomponent : ComponentInstance | instance.getSubcomponents())]
-import [getPackageName(subcomponent)/].[getClassName(subcomponent)/];
-[/for]
 
 //########## ConnectionBroker Import ###########
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
@@ -53,7 +47,7 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 	/**
 	 * Component whose out ports are to be used when forwarding connections to 'higher' nested components
 	 */
-	private [instance.getClassName()/] component;
+	private [instance.getClassifier().getClassName()/] component;
 	[comment for each subcomponent we have to create an member variable/]
 	[if (instance.getSubcomponents()->size() > 0)]
 		[for (subcomponent : ComponentInstance | instance.getSubcomponents())]
@@ -113,8 +107,8 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 		switch (port) {
 [let classifier : ComponentImplementation = instance.getClassifier()]
 	[comment for each subcomponent we search for outgoing dataPorts and create a sendOnConnection(...) method for each connection, that has this dataPort as source /]
-	[for (subcomponent : ComponentClassifier | classifier.getSubComponentClassifiers())]
-		[for (dataPort : DataPort | subcomponent.getFeatures()->select(oclIsTypeOf(DataPort)))]
+	[for (subcomponent : ComponentClassifier | classifier.getAllSubcomponentClassifier())]
+		[for (dataPort : DataPort | subcomponent.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
 			[if (dataPort.isOutgoing())]
 		[comment we use the port name concatenated with the subcomponent name, because in the contex of the parent object a subcomponents port name might not be unique /]
 		case "[subcomponent.name/].[dataPort.name/]":
@@ -211,7 +205,7 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 [/template]
 
 [template private getConstructorParameters(instance : ComponentInstance) post (replaceAll('\n', '').trim())]
-ConnectionBroker parentBroker, [instance.getClassName()/] component
+ConnectionBroker parentBroker, [instance.getClassifier().getClassName()/] component
 [if (instance.getSubcomponents()->size()>0)]
 , 
 	[for (subcomponent : ComponentInstance | instance.getSubcomponents()) separator (', ')]

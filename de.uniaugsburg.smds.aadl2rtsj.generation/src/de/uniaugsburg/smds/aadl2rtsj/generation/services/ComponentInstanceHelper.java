@@ -140,7 +140,6 @@ public class ComponentInstanceHelper {
 		//if it is not a base type, then return the class name of this datatype
 		if(type == null)
 			type = ComponentClassifierHelper.getClassName(classifier);
-		
 		return type;
 	}
 	
