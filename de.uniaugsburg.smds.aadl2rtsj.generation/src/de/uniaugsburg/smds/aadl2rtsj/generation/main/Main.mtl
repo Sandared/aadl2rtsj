@@ -24,10 +24,13 @@
 
 [template public Main(system : SystemInstance, classifiers : Set(ComponentClassifier))]
 	[comment @main /]
+
+	[comment generate all Classifiers /]
 	[for (cc : ComponentClassifier | classifiers)]
 		[generateClassifier(cc)/]
 	[/for]
 
+	[comment generate Instance /]
 	[generateInstance(system)/]
 
 	[comment generate utils /]
@@ -44,20 +47,20 @@
 
 [template public generateClassifier(cc : ComponentClassifier)]
 	[comment generate the component itself. Each Generator decides if the given object is the right one /]
+	[generateProcessImplementation(cc)/]
+	[generateProcessType(cc)/]
+	
 	[generateThreadImplementation(cc)/]
 	[generateThreadType(cc)/]
 
 	[generateDataImplementation(cc)/]
 	[generateDataType(cc)/]
-
-	[generateProcessImplementation(cc)/]
-	[generateProcessType(cc)/]
 [/template]
 
 [template public generateInstance(ci : ComponentInstance)]
 	[comment generate the component itself. Each Generator decides if the given object is the right one/ ]
-	[generateThreadInstance(ci)/]
 	[generateProcessInstance(ci)/]
+	[generateThreadInstance(ci)/]
 
 	[comment generate all subcomponents recursively  /]
 	[for (subcomponent : ComponentInstance | getSubcomponents(ci) )]

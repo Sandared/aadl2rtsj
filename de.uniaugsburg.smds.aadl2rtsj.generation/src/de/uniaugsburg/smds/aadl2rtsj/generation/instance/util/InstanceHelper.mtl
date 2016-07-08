@@ -1,0 +1,29 @@
+[comment encoding = UTF-8 /]
+[module InstanceHelper('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
+
+[template public getConstructorParameters(ci : ComponentInstance) post (replaceAll('\n', '').trim()) {connection : ConnectionInstance = getImmediateConnection(ci); classifier : ComponentClassifier = ci.getClassifier();}]
+	[for (subcomponent : Subcomponent | classifier.oclAsType(ComponentImplementation).getAllSubComponents()) separator (', ')]
+[subcomponent.getClassifier().getClassName()/] [subcomponent.name/]
+	[/for]
+[/template]
+
+[template public getBrokerParameters(ci : ComponentInstance) post (replaceAll('\n', '').trim()) {classifier : ComponentClassifier = ci.getClassifier();}]
+parentBroker, this
+[if (classifier.oclAsType(ComponentImplementation).getAllSubComponents()->size()>0)]
+, 
+	[for (subcomponent : Subcomponent | classifier.oclAsType(ComponentImplementation).getAllSubComponents()) separator (', ')]
+[subcomponent.name/]
+	[/for]
+[/if]
+[/template]
+
+[template public getSetParentConnectionBrokerStatements(ci : ComponentInstance) post (trim()) {classifier : ComponentClassifier = ci.getClassifier();}]
+this.parentBroker = parentBroker;
+broker = new [ci.getClassName()/]ConnectionBroker([ci.getBrokerParameters()/]);
+[for (subcomponent : Subcomponent | classifier.oclAsType(ComponentImplementation).getAllSubComponents())]
+broker.addChildBroker("[subcomponent.name/]", [subcomponent.name/].getConnectionBroker());
+[subcomponent.name/].setParentConnectionBroker(broker);
+[/for]
+[/template]

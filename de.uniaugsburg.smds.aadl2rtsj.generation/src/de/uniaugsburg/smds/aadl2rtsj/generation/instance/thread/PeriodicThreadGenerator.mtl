@@ -9,6 +9,7 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::PropertyHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::IOHandlerGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::user::ThreadUserCodeGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::instance::util::InstanceHelper /]
 
 [template public generatePeriodicThread(thread : ComponentInstance)? (isPeriodic(thread)) { classifier : ComponentClassifier = thread.getClassifier(); }]
 [file(getPackageName(thread).substitute('.', '/').concat('/').concat(getClassName(thread)).concat('.java') , false, 'UTF-8')]
@@ -54,25 +55,17 @@ public class [getClassName(thread)/] extends [classifier.getClassName()/]{
 	 */
 	private [thread.getClassName()/]UserCode userCode = new [thread.getClassName()/]UserCode([thread.getUserCodeConstructorParameters()/]);
 
-	public [getClassName(thread)/]([getConstructorParameters(thread)/]){
+	public [getClassName(thread)/]([thread.getConstructorParameters()/]){
 		[comment for each subcomponent we have to create an Assignment Statement/]
-		[if (getSubcomponents(thread)->size() > 0)]
-			[for (subcomponent : ComponentInstance | getSubcomponents(thread))]
-		this.[getObjectName(subcomponent)/] = [getObjectName(subcomponent)/];
-
-			[/for]
-		[/if]	
+		[for (subcomponent : Subcomponent | classifier.oclAsType(ComponentImplementation).getAllSubComponents())]
+		this.[subcomponent.name/] = [subcomponent.name/];
+		[/for]
 	}
 
 	//########## Inherited Methods from ConnectionBrokerable ##########
 	@Override
 	public void setParentConnectionBroker(ConnectionBroker parentBroker){
-		this.parentBroker = parentBroker;
-		broker = new [thread.getClassName()/]ConnectionBroker([thread.getBrokerParameters()/]);
-		[for (subcomponent : ComponentInstance | thread.getSubcomponents())]
-		broker.addChildBroker("[subcomponent.getObjectName()/]", [subcomponent.getObjectName()/].getConnectionBroker());
-		[subcomponent.getObjectName()/].setParentConnectionBroker(broker);
-		[/for]
+		[getSetParentConnectionBrokerStatements(thread)/]
 	}
 
 	@Override
@@ -211,22 +204,6 @@ class InnerAsyncEventHandler extends [if ((connection <> null) and (getComponent
 	[else]
 		AsyncEventHandler
 	[/if]
-[/template]
-
-[template private getConstructorParameters(thread : ComponentInstance) post (replaceAll('\n', '').trim()) {connection : ConnectionInstance = getImmediateConnection(thread);}]
-	[for (subcomponent : ComponentInstance | getSubcomponents(thread)) separator (', ')]
-[getClassName(subcomponent)/] [getObjectName(subcomponent)/]
-	[/for]
-[/template]
-
-[template public getBrokerParameters(thread : ComponentInstance) post (replaceAll('\n', '').trim())]
-parentBroker, this
-[if (thread.getSubcomponents()->size()>0)]
-, 
-	[for (subcomponent : ComponentInstance | thread.getSubcomponents()) separator (', ')]
-[subcomponent.getObjectName()/]
-	[/for]
-[/if]
 [/template]
 
 [template public getStatementsForReferenceTime(thread : ComponentInstance, IOReferenceTime : String)post (replace('\n\n', '\n').trim())]
