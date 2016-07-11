@@ -5,8 +5,8 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::PropertyHelper /]
 
 [template public generateInputHandler(component : ComponentInstance, feature : FeatureInstance, time : OffsetTime)]
-[file(getPackageName(component).substitute('.', '/').concat('/').concat(getHandlerClassName(time)).concat('.java') , false, 'UTF-8')]
-package [getPackageName(component)/];
+[file(getPackageName(component,false).substitute('.', '/').concat('/').concat(getHandlerClassName(time)).concat('.java') , false, 'UTF-8')]
+package [getPackageName(component, false)/];
 
 import javax.realtime.Timer;
 import javax.realtime.OneShotTimer;
@@ -49,8 +49,8 @@ public class [getHandlerClassName(time)/] extends BoundAsyncEventHandler{
 [/template]
 
 [template public generateOutputHandler(component : ComponentInstance, feature : FeatureInstance, time : OffsetTime)]
-[file(getPackageName(component).substitute('.', '/').concat('/').concat(getHandlerClassName(time)).concat('.java') , false, 'UTF-8')]
-package [getPackageName(component)/];
+[file(getPackageName(component, false).substitute('.', '/').concat('/').concat(getHandlerClassName(time)).concat('.java') , false, 'UTF-8')]
+package [getPackageName(component, false)/];
 
 import javax.realtime.Timer;
 import javax.realtime.OneShotTimer;

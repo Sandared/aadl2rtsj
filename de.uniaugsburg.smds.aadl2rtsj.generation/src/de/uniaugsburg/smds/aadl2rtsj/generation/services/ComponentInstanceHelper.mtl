@@ -1,32 +1,20 @@
 [comment encoding = UTF-8 /]
-[module ComponentInstanceHelper('http://aadl.info/AADL/2.0/instance', 'http://aadl.info/AADL/2.0', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')/]
+[module ComponentInstanceHelper('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')/]
 
-[query public getClassName(arg0 : InstanceObject) : String
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getClassName(org.osate.aadl2.instance.InstanceObject)', Sequence{arg0})
+[query public getClassName(arg0 : NamedElement) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getClassName(org.osate.aadl2.NamedElement)', Sequence{arg0})
 /]
 
-[query public getObjectName(arg0 : NamedElement) : String
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getObjectName(org.osate.aadl2.NamedElement)', Sequence{arg0})
+[query public getUserCodeClassName(arg0 : NamedElement) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getUserCodeClassName(org.osate.aadl2.NamedElement)', Sequence{arg0})
 /]
 
-[query public getPackageName(arg0 : InstanceObject) : String
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getPackageName(org.osate.aadl2.instance.InstanceObject)', Sequence{arg0})
+[query public getPackageName(arg0 : InstanceObject, arg1 : Boolean) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getPackageName(org.osate.aadl2.instance.InstanceObject, java.lang.Boolean)', Sequence{arg0, arg1})
 /]
 
 [query public getHandlerClassName(arg0 : OffsetTime) : String
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getHandlerClassName(util.OffsetTime)', Sequence{arg0})
-/]
-
-[query public getDataType(arg0 : FeatureInstance) : String
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getDataType(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
-/]
-
-[query public getConnection(arg0 : ConnectionInstance) : Connection
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getConnection(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
-/]
-
-[query public getSynchronisationObjectName(arg0 : ConnectionInstance) : String
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getSynchronisationObjectName(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
 /]
 
 [query public getTimes(arg0 : FeatureInstance, arg1 : ConnectionInstance, arg2 : String, arg3 : Boolean) : Sequence(OffsetTime)
@@ -41,45 +29,12 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getTimes(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
 /]
 
-[query public isDataPort(arg0 : FeatureInstance) : Boolean
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'isDataPort(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
-/]
-
-[query public isIncoming(arg0 : FeatureInstance) : Boolean
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'isIncoming(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
-/]
-
-[query public isOutgoing(arg0 : FeatureInstance) : Boolean
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'isOutgoing(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
-/]
-
-[query public isThread(arg0 : ComponentInstance) : Boolean
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'isThread(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
-/]
-
-[query public isProcess(arg0 : ComponentInstance) : Boolean
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'isProcess(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
-/]
-
-
-[query public isPeriodic(arg0 : ComponentInstance) : Boolean
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'isPeriodic(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
-/]
-
-[query public isImmediate(arg0 : ConnectionInstance) : Boolean
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'isImmediate(org.osate.aadl2.instance.ConnectionInstance)', Sequence{arg0})
-/]
-
-[query public isAtDeadline(arg0 : OffsetTime) : Boolean
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'isAtDeadline(util.OffsetTime)', Sequence{arg0})
-/]
-
 [query public getComponentInstance(arg0 : ConnectionInstanceEnd) : ComponentInstance
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getComponentInstance(org.osate.aadl2.instance.ConnectionInstanceEnd)', Sequence{arg0})
 /]
 
-[query public getSubcomponents(arg0 : ComponentInstance) : Sequence(ComponentInstance)
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getSubcomponents(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+[query public getChildren(arg0 : ComponentInstance) : Sequence(Element)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getChildren(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
 [query public getFeatures(arg0 : ComponentInstance) : Sequence(FeatureInstance)
@@ -106,11 +61,4 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getClassifier(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
-[query public getRealizedTypeClassifier(arg0 : ComponentInstance) : Classifier
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getRealizedTypeClassifier(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
-/]
-
-[query public getConnectionInstances(arg0 : ComponentInstance) : Sequence(ConnectionInstance)
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getConnectionInstances(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
-/]
 

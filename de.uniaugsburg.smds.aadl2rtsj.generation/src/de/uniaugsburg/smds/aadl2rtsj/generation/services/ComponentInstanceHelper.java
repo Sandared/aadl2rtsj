@@ -15,6 +15,7 @@ import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.DataImplementation;
 import org.osate.aadl2.DirectionType;
+import org.osate.aadl2.Element;
 import org.osate.aadl2.EnumerationLiteral;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.NamedValue;
@@ -36,150 +37,6 @@ import util.UtilFactory;
 public class ComponentInstanceHelper {
 	
 	private static final Logger log = Logger.getLogger(ComponentInstanceHelper.class.getName());
-	
-	// TODO refactor if we still need this for connections
-	public static String getClassName(InstanceObject io){
-		NamedElement object = io; // need the broader reference for stuff like connections
-		if(object instanceof ConnectionInstance)
-			object = getConnection((ConnectionInstance) object);
-		// Data is a special case, as its "class" is always determined by the classifier
-		if(object instanceof ComponentInstance){
-			ComponentInstance component = (ComponentInstance)object;
-			if(component.getCategory().equals(ComponentCategory.DATA)){
-				object = component.getComponentClassifier(); // we assume, that it is a DataImplementation, not a DataType
-				// if it's a DataType the aadl model was not specific enough and this will result in an error
-				//TODO: log warning?
-			}
-		}
-		StringBuilder b = new StringBuilder(object.getName());
-		if(object instanceof ComponentImplementation){
-			//replace the ".xxx" part with "Xxx"
-			int dotIndex = b.lastIndexOf(".");
-			if(dotIndex != -1){
-				b.deleteCharAt(dotIndex);
-				b.replace(dotIndex, dotIndex + 1, b.substring(dotIndex, dotIndex + 1).toUpperCase());
-			}
-		}
-		
-		//generally we replace "_xxx" with "Xxx"
-		int index;
-		while((index = b.indexOf("_")) != -1){
-			b.replace(index, index+2, b.substring(index+1, index+2).toUpperCase());
-		}
-		b.replace(0, 1, b.substring(0,1).toUpperCase());
-		return b.toString();
-	}
-	
-	
-	
-	public static String getObjectName(NamedElement object){
-		if(object instanceof ConnectionInstance)//
-			object = getConnection((ConnectionInstance) object);
-		return object.getName();
-	}
-	
-	public static String getPackageName(InstanceObject element){
-		StringBuffer pkg = new StringBuffer();
-		
-		// special case: Data- InstanceObject: we need just the data package 
-		if(element instanceof ComponentInstance && ((ComponentInstance)element).getCategory().equals(ComponentCategory.DATA)){
-			ComponentClassifier cc = ((ComponentInstance)element).getComponentClassifier();
-			return ComponentClassifierHelper.getPackageName(cc);
-		}
-		else{
-			//in case of an instanceobject we need its path within the model
-			pkg.append("instance.");
-			pkg.append(getHierarchyName((InstanceObject) element));
-		}
-		
-		return pkg.toString().toLowerCase();
-	}
-	
-	private static String getHierarchyName(InstanceObject object){
-		StringBuffer buffer = new StringBuffer(object.getInstanceObjectPath());
-		// if its a feature instance we have to omit the last part of the path as we want the feature in the same package as its parent component
-		if(object instanceof FeatureInstance){
-			buffer.delete(buffer.lastIndexOf("."), buffer.length());
-		}
-		//if it is a ConnectionInstance we have to omit the name part of the path, as it is not the name, but xxx.port -> yyy.port
-		if(object instanceof ConnectionInstance){
-			buffer.delete(buffer.indexOf(object.getName())-1, buffer.length()); // -1 because otherwise we would have an extra dot at the end
-		}
-		
-		int pkgEnd = buffer.indexOf(".");
-		// if the buffer is already the package
-		if(pkgEnd == -1)
-			pkgEnd = buffer.length();
-		StringBuffer pkg = new StringBuffer(buffer.substring(0, pkgEnd));//get the part that represents the package
-		buffer.delete(0, pkgEnd); // remove the part that represents the package
-		
-		int implPos;
-		if((implPos = pkg.indexOf("_impl_")) != -1){//if the package part contains an _impl_section start deletion here
-			pkg = pkg.delete(implPos, pkg.length());
-		}
-		else{//else start deletion at the _Instance position
-			pkg = pkg.delete(pkg.indexOf("_Instance"), pkg.length());
-		}
-		buffer.insert(0, pkg);//insert package in front of the rest again
-		return buffer.toString();
-	}
-	
-	public static String getHandlerClassName(OffsetTime time){
-		return "Handler_" + time.getUniqueId();
-	}
-	
-	public static String getDataType(FeatureInstance feature){
-		ComponentClassifier classifier = (ComponentClassifier) feature.getFeature().getClassifier();
-		//if no classifier is given, then return default type object
-		if(classifier == null)
-			return "Object";
-		
-		String type = null;
-		type = getBaseType(classifier);
-		
-		//if it is not a base type, then return the class name of this datatype
-		if(type == null)
-			type = ComponentClassifierHelper.getClassName(classifier);
-		return type;
-	}
-	
-	private static String getBaseType(ComponentClassifier classifier){
-		String type = null;
-		// determine if it is one of the predefined AADL Base_Types
-		if(ComponentClassifierHelper.isBaseType(classifier)){
-			Classifier currentSuperType = classifier;
-			Classifier superType = classifier;
-			while(currentSuperType != null){
-				// go up the inheritance tree if any
-				superType = currentSuperType;
-				currentSuperType = currentSuperType.getExtended();
-			}
-			type = superType.getName();
-		}
-		return type;
-	}
-	
-	// if there are multiple connectionreferences, then the one upmost in the system hierarchy is returned
-	public static Connection getConnection(ConnectionInstance connection){
-		ConnectionReference upmost = connection.getConnectionReferences().get(0);
-		for (ConnectionReference current: connection.getConnectionReferences()) {
-			if(!current.equals(upmost)){
-				ComponentInstance currentContext = current.getContext();
-				ComponentInstance upmostContext = upmost.getContext();
-				if(currentContext.getAllComponentInstances().contains(upmostContext))
-					upmost = current;
-				else
-					break;
-			}
-		}
-		return upmost.getConnection();
-	}
-	
-//	public static String getSynchronisationObjectName(ConnectionInstance connection){
-//		ConnectionInstanceEnd source = connection.getSource();
-//		ConnectionInstanceEnd target = connection.getDestination();
-//		return getObjectName(source) + "2" + getClassName(target) + "Sync";
-//	}
 	
 	public static List<OffsetTime> getTimes(FeatureInstance feature, ConnectionInstance connection, String IOReferenceTime, Boolean isInput){
 		OffsetTime time = null;
@@ -355,48 +212,9 @@ public class ComponentInstanceHelper {
 		return times;
 	}
 	
-	public static boolean isDataPort(FeatureInstance fi){
-		return fi.getCategory() == FeatureCategory.DATA_PORT;
-	}
-	
-	public static boolean isIncoming(FeatureInstance fi){
-		return fi.getDirection().incoming();
-	}
-	
-	public static boolean isOutgoing(FeatureInstance fi){
-		return fi.getDirection().outgoing();
-	}
-	
-	public static boolean isThread(ComponentInstance ci){
-		return ci.getCategory() == ComponentCategory.THREAD;
-	}
-	
-	public static boolean isProcess(ComponentInstance ci){
-		return ci.getCategory() == ComponentCategory.PROCESS;
-	}
-	
-	public static boolean isPeriodic(ComponentInstance ci){
-		return PropertyHelper.getDispatchProtocol(ci).equals(Thread_Properties_Dispatch_Protocol_Periodic);
-	}
-	
-	public static boolean isImmediate(ConnectionInstance connection){
-		return PropertyHelper.getTiming(connection).equals(Communication_Properties_Timing_Immediate);
-	}
-	
-	public static boolean isAtDeadline(OffsetTime time){
-		return time.getIoTime().equals(Communication_Properties_IO_Reference_Time_Deadline);
-	}
-	
 	public static ComponentInstance getComponentInstance(ConnectionInstanceEnd conie){
 		return conie.getComponentInstance();
 	}
-	
-	public static List<ComponentInstance> getSubcomponents(ComponentInstance ci){
-		EList<ComponentInstance> subcomponents = ci.getAllComponentInstances();
-		subcomponents.remove(0); // the first one is always the Component itself, thus no check is needed
-		return subcomponents;
-	}
-	
 	
 	public static List<FeatureInstance> getFeatures(ComponentInstance ci){
 		return ci.getFeatureInstances();
@@ -421,15 +239,86 @@ public class ComponentInstanceHelper {
 	public static ComponentClassifier getClassifier(ComponentInstance ci){
 		return ci.getComponentClassifier();
 	}
+
 	
-	// TODO is this used anywhere?
-	public static Classifier getRealizedTypeClassifier(ComponentInstance ci){
-		//we assume ci to be an implementation declaration, otherwise it's a type declaration that doesn't realize anything
-		ComponentImplementationImpl ciClassifier = (ComponentImplementationImpl) getClassifier(ci);
-		return ciClassifier.basicGetType();
+	// ##############################################################
+	// DEFINITLY NEEDED
+	// ##############################################################
+	
+	/**
+	 * In order to create a valid Java package name for the given InstanceObject we take the</br>
+	 * element.getInstanceObjectPath() which is always in form of 'System_Type_Name' + 'System_Implementation_Name' + '_Instance' + '.path.within.systemtree'</br>
+	 * The '_Instance' part gets removed and the rest of this path is returned as is.</br>
+	 * If isUserCode is <code>true</code>, then the packagename is prepended with 'user.', otherwise with 'instance.'
+	 * @param element the instance one wants the package name for
+	 * @param isUserCode shall the class be usercode or framework code
+	 * @return a unique, valid Java package name for the given InstanceObject
+	 */
+	public static String getPackageName(InstanceObject element, Boolean isUserCode){
+		StringBuffer pkg = new StringBuffer();
+		//TODO: this might change if we generate Data Elements, that have inner connections and are not only used as classifiers
+		// special case: Data- InstanceObject: we need just the classifier package 
+		if(element instanceof ComponentInstance && ((ComponentInstance)element).getCategory().equals(ComponentCategory.DATA)){
+			ComponentClassifier cc = ((ComponentInstance)element).getComponentClassifier();
+			return ComponentClassifierHelper.getPackageName(cc);
+		}
+		else{
+			if (isUserCode) 
+				pkg.append("user.");
+			else
+				pkg.append("instance.");
+			pkg.append(getHierarchyName(element));
+		}
+		return pkg.toString().toLowerCase();
 	}
 	
-	public static List<ConnectionInstance> getConnectionInstances(ComponentInstance ci){
-		return ci.getAllEnclosingConnectionInstances();
+	private static String getHierarchyName(InstanceObject object){
+		StringBuffer buffer = new StringBuffer(object.getInstanceObjectPath()); // returns a String in form of <System_Type_Name><System_Implementation_Name>_Instance.<path>.<within>.<systemtree>
+		int pkgEnd = buffer.indexOf(".");// find the first occurence of '.'
+		// if the buffer is already the <System_Type_Name><System_Implementation_Name> part
+		if(pkgEnd == -1)
+			pkgEnd = buffer.length();
+		StringBuffer pkg = new StringBuffer(buffer.substring(0, pkgEnd));//get the part <System_Type_Name><System_Implementation_Name>
+		buffer.delete(0, pkgEnd); // remove the part <System_Type_Name><System_Implementation_Name>
+		pkg = pkg.delete(pkg.indexOf("_Instance"), pkg.length());//delete the "_Instance" part
+		buffer.insert(0, pkg);//insert <System_Type_Name><System_Implementation_Name> in front of the rest again
+		return buffer.toString();
+	}
+	
+	/**
+	 * @param ne the NamedElement one wants a class name for
+	 * @return ne.getName(). If ne is a Data Component, ComponentClassifierHelper.getClassName(ne.getClassifier()) is called.
+	 */
+	public static String getClassName(NamedElement ne){
+		// Data is a special case, as its "class" is always determined by the classifier
+		if(ne instanceof ComponentInstance && ((ComponentInstance)ne).getCategory().equals(ComponentCategory.DATA)){
+			ComponentClassifier cc = ((ComponentInstance)ne).getComponentClassifier();
+				return ComponentClassifierHelper.getClassName(cc);
+		}
+		return ne.getName();
+	}
+	
+	/**
+	 * @param ne NamedElement one wants a user class name for
+	 * @return ne.getName() concatenated with 'UserClass'
+	 */
+	public static String getUserCodeClassName(NamedElement ne){
+		return ne.getName() + "UserCode";
+	}
+	
+	/**
+	 * @param time OffsetTime one wants a handler class name for
+	 * @return 'Handler_' concatenated with the time's unique ID
+	 */	
+	public static String getHandlerClassName(OffsetTime time){
+		return "Handler_" + time.getUniqueId();
+	}
+	
+	/**
+	 * @param ci the ComponentInstance one wants the children for
+	 * @return a list with all children of the given ci, like subcomponents, connections, etc.
+	 */
+	public static List<Element> getChildren(ComponentInstance ci){
+		return ci.getChildren();
 	}
 }

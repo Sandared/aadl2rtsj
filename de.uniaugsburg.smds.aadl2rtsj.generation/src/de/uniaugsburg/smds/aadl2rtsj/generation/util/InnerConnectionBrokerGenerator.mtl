@@ -3,8 +3,8 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 [template public generateInnerConnectionBroker(instance : ComponentInstance)]
-[file(instance.getPackageName().substitute('.', '/').concat('/').concat(instance.getClassName().concat('ConnectionBroker')).concat('.java') , false, 'UTF-8')]
-package [instance.getPackageName()/];
+[file(instance.getPackageName(false).substitute('.', '/').concat('/').concat(instance.getClassName().concat('ConnectionBroker')).concat('.java') , false, 'UTF-8')]
+package [instance.getPackageName(false)/];
 
 import java.util.Map;
 import java.util.HashMap;
@@ -49,13 +49,13 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 	 */
 	private [instance.getClassifier().getClassName()/] component;
 	[comment for each subcomponent we have to create an member variable/]
-	[if (instance.getSubcomponents()->size() > 0)]
-		[for (subcomponent : ComponentInstance | instance.getSubcomponents())]
+	[if (instance.getClassifier().oclAsType(ComponentImplementation).getAllSubComponents()->size() > 0)]
+		[for (subcomponent : Subcomponent | instance.getClassifier().oclAsType(ComponentImplementation).getAllSubComponents())]
 
 	/**
 	 * Subcomponent whose in ports are to be used when forwarding connections to 'deeper' nested components
 	 */
-	private [subcomponent.getClassifier().getClassName()/] [subcomponent.getObjectName()/];
+	private [subcomponent.getClassifier().getClassName()/] [subcomponent.name/];
 		[/for]
 	[/if]	
 
@@ -76,18 +76,18 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 [let classifier : ComponentImplementation = instance.getClassifier()]
 	[for (connection : Connection | classifier.getAllConnections())]
 		// [connection.name/]
-		case "[connection.getObjectName()/]":
+		case "[connection.name/]":
 		[let port : DataPort = connection.getTargetFeature()]
 			[let target : Subcomponent = connection.getTargetComponent()]
 			[comment if the connection target is a Subcomponent it means we have to use the inPort of this subcomponent, which is declared in it's interface /]
-			// [port.name/] is the target feature of [connection.getObjectName()/] 
+			// [port.name/] is the target feature of [connection.name/] 
 			// which is a connection between subcomponents of [instance.getClassifier().getClassName()/], 
 			// so call its corresponding in mehtod
 			[target.name/].in[port.name.toUpperFirst()/](([port.getClassifier().getClassName()/])data);
 			break;
 			[elselet target : ComponentImplementation = connection.getTargetComponent()]
 			[comment else we send on the outport of this component, which is basically a broadcast/]
-			// [port.name/] is the target feature of [connection.getObjectName()/] 
+			// [port.name/] is the target feature of [connection.name/] 
 			// which is a connection from a subcomponent of [instance.getClassifier().getClassName()/] to [instance.getClassifier().getClassName()/] itself, 
 			// so call its corresponding out mehtod
 			component.out[port.name.toUpperFirst()/](([port.getClassifier().getClassName()/])data);
@@ -144,12 +144,12 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 				[let dataPort : DataPort = connection.getSourceFeature()]
 					[comment its a data port, so it should have at most one incoming connection on which we are asking for the syncObject /]
 					[if (dataPort.getInternalIncomingConnections(sourceComp) -> size() = 1)]
-			// ask the childBroker for a syncObject, as [dataPort.name/] which is the source feature of [connection.getObjectName()/] 
+			// ask the childBroker for a syncObject, as [dataPort.name/] which is the source feature of [connection.name/] 
 			// has ingoing connections within [subcomponent.name/] (determined during generation)
 			return childBrokers.get("[subcomponent.name/]").getSynchronisationObjectForConnection("[dataPort.getInternalIncomingConnections(sourceComp)-> first().name/]");
 					[comment if there's no connection, we look up the sync Object and if there's none, we create a new syncObject and save it for this connection /]
 					[elseif (dataPort.getInternalIncomingConnections(sourceComp) -> size() = 0)]
-			// Look up the syncObject, as [dataPort.name/] which is the source feature of [connection.getObjectName()/] 
+			// Look up the syncObject, as [dataPort.name/] which is the source feature of [connection.name/] 
 			// has no ingoing connections within [subcomponent.name/] (determined during generation).
 			// If no syncObject is found, a new one is created and stored for later reuse.
 			Object syncOn[connection.name/] = syncObjects.get("[connection.name/]");
@@ -165,9 +165,9 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 		[elselet sourceComp : ComponentImplementation = connection.getSourceComponent()]
 			[let dataPort : DataPort = connection.getSourceFeature()]
 			[comment a data port only has one incoming connection, if no data aggregation is done /]
-			// Ask the parentBroker for the syncObject, as [dataPort.name/] which is the source feature of [connection.getObjectName()/] 
+			// Ask the parentBroker for the syncObject, as [dataPort.name/] which is the source feature of [connection.name/] 
 			// is a port of this component and not of a subcomponent. Thus, we must ask the parent component for a syncObject.
-			return parentBroker.getSynchronisationObjectForPort("[instance.getObjectName()/].[dataPort.name/]");
+			return parentBroker.getSynchronisationObjectForPort("[instance.name/].[dataPort.name/]");
 			[/let]
 		[/let]		
 	[/for]

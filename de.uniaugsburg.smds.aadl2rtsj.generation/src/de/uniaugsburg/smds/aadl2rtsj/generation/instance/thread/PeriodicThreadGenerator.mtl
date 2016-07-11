@@ -11,21 +11,21 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::user::ThreadUserCodeGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::instance::util::InstanceHelper /]
 
-[template public generatePeriodicThread(thread : ComponentInstance)? (isPeriodic(thread)) { classifier : ComponentClassifier = thread.getClassifier(); }]
-[file(getPackageName(thread).substitute('.', '/').concat('/').concat(getClassName(thread)).concat('.java') , false, 'UTF-8')]
-package [getPackageName(thread)/];
+[template public generatePeriodicThread(thread : ComponentInstance)? (thread.getDispatchProtocol() = getProperty('Thread_Properties_Dispatch_Protocol_Periodic')) { classifier : ComponentClassifier = thread.getClassifier(); }]
+[file(thread.getPackageName(false).substitute('.', '/').concat('/').concat(thread.getClassName()).concat('.java') , false, 'UTF-8')]
+package [thread.getPackageName(false)/];
 
 import javax.realtime.Timer;
 import javax.realtime.OneShotTimer;
 import javax.realtime.RelativeTime;
 import javax.realtime.PeriodicTimer;
 [comment if this thread has an immediate connection where it is the target, it has to wait and therefore needs to be a BoundAsyncEventHandler. Otherwise it's just an AsyncEventHandler /]
-import javax.realtime.[getHandlerType(thread)/];
+import javax.realtime.[thread.getHandlerType()/];
 import javax.realtime.PriorityParameters;
 
 //########## Classifier Imports ##########
 	[comment import all classifiers of this ThreadImplementation, but only once for each classifier/]
-	[for (classifier : ComponentClassifier | thread.getClassifier().oclAsType(ComponentImplementation).getAllClassifiersForInstance())]
+	[for (classifier : ComponentClassifier | classifier.oclAsType(ComponentImplementation).getAllClassifiersForInstance())]
 import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 
@@ -35,10 +35,13 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
 //########## Logger Import ##########
 import java.util.logging.Logger;
 
-public class [getClassName(thread)/] extends [classifier.getClassName()/]{	
+//########## Usercode Import ##########
+import [thread.getPackageName(true)/].[thread.getUserCodeClassName()/];
+
+public class [thread.getClassName()/] extends [classifier.getClassName()/]{	
 	private static final Logger log = Logger.getLogger([thread.getClassName()/].class.getName());	
 	private AsyncEventHandler handler = new InnerAsyncEventHandler();
-	private Timer timer = new PeriodicTimer(new RelativeTime(), new RelativeTime([getPeriodMilliSeconds(thread)/], [getPeriodNanoSeconds(thread)/]), handler);
+	private Timer timer = new PeriodicTimer(new RelativeTime(), new RelativeTime([thread.getPeriodMilliSeconds()/], [thread.getPeriodNanoSeconds()/]), handler);
 
 	/**
 	 * ConnectionBroker to send on outgoing connections. Has to be set by the parent component.
@@ -53,9 +56,10 @@ public class [getClassName(thread)/] extends [classifier.getClassName()/]{
 	/**
 	 * Usercode class for this Thread
 	 */
-	private [thread.getClassName()/]UserCode userCode = new [thread.getClassName()/]UserCode([thread.getUserCodeConstructorParameters()/]);
+	private [thread.getUserCodeClassName()/] userCode = new [thread.getUserCodeClassName()/]([classifier.getUserCodeConstructorParameters()/]);
 
-	public [getClassName(thread)/]([thread.getConstructorParameters()/]){
+
+	public [thread.getClassName()/]([classifier.getConstructorParameter()/]){
 		[comment for each subcomponent we have to create an Assignment Statement/]
 		[for (subcomponent : Subcomponent | classifier.oclAsType(ComponentImplementation).getAllSubComponents())]
 		this.[subcomponent.name/] = [subcomponent.name/];
@@ -65,7 +69,7 @@ public class [getClassName(thread)/] extends [classifier.getClassName()/]{
 	//########## Inherited Methods from ConnectionBrokerable ##########
 	@Override
 	public void setParentConnectionBroker(ConnectionBroker parentBroker){
-		[getSetParentConnectionBrokerStatements(thread)/]
+		[thread.getSetParentConnectionBrokerStatements()/]
 	}
 
 	@Override
@@ -105,7 +109,7 @@ public class [getClassName(thread)/] extends [classifier.getClassName()/]{
 	}
 	
 	private final void compute() {
-		System.out.println("[thread.getPackageName()/].[thread.getClassName()/].compute()");
+		System.out.println("[thread.getPackageName(false)/].[thread.getClassName()/].compute()");
 		//Execute User Code
 		userCode.compute();
 	}
@@ -142,10 +146,10 @@ public class [getClassName(thread)/] extends [classifier.getClassName()/]{
 	[for (time : OffsetTime | getTimes(fi))]
 		[comment only do something if there is an offset or if it is at deadline, at deadline we always have to use handlers/]
 		[if ((time.ioTime = getProperty('Communication_Properties_IO_Reference_Time_Deadline')) or (time.ms <> 0 or time.ns <> 0))]
-			[if (fi.isIncoming())]
+			[if (fi.feature.isIncoming())]
 				[generateInputHandler(thread, fi, time)/]
 			[/if]
-			[if (fi.isOutgoing())]
+			[if (fi.feature.isOutgoing())]
 				[generateOutputHandler(thread, fi, time)/]
 			[/if]
 		[/if]
@@ -156,16 +160,16 @@ public class [getClassName(thread)/] extends [classifier.getClassName()/]{
 [generateUserCode(thread)/]
 [/template]
 
-[template public getUserCodeConstructorParameters(thread : ComponentInstance) post (replaceAll('\n', '').trim())]
-[for (feature : FeatureInstance | thread.getFeatures())separator (',')]
+[template public getUserCodeConstructorParameters(thread : ComponentClassifier) post (replaceAll('\n', '').trim())]
+[for (feature : Feature | thread.getAllFeatures())separator (', ')]
 	[if (feature.isIncoming())]
 		[if (feature.isOutgoing())]
-[feature.getObjectName()/].getUserInOutPort()
+[feature.name/].getUserInOutPort()
 		[else]
-[feature.getObjectName()/].getUserInPort()
+[feature.name/].getUserInPort()
 		[/if]
 	[else]
-[feature.getObjectName()/].getUserOutPort()
+[feature.name/].getUserOutPort()
 	[/if]
 [/for]
 [/template]
@@ -174,16 +178,16 @@ public class [getClassName(thread)/] extends [classifier.getClassName()/]{
 class InnerAsyncEventHandler extends [if ((connection <> null) and (getComponentInstance(getConnectionDestination(connection)) = thread))]Bound[/if]AsyncEventHandler{
 	public InnerAsyncEventHandler(){
 		setDaemon(false);
-		setSchedulingParameters(new PriorityParameters([getPriority(thread)/]));
+		setSchedulingParameters(new PriorityParameters([thread.getPriority()/]));
 	}
 
 	@Override
 	public void handleAsyncEvent() {
 	[if ((connection <> null) and (getComponentInstance(getConnectionDestination(connection)) = thread))]
-		synchronized([getSynchronisationObjectName(connection)/]){
+		synchronized(parentBroker.getSynchronisationObjectForConnection([connection.name/])){
 			try{
 				while(![connection.destination.name/].isDirty()){
-					parentBroker.getSynchronisationObjectForConnection([connection.getObjectName()/]).wait();
+					parentBroker.getSynchronisationObjectForConnection([connection.name/]).wait();
 				}
 			}catch(InterruptedException e){
 				e.printStackTrace();
@@ -207,19 +211,17 @@ class InnerAsyncEventHandler extends [if ((connection <> null) and (getComponent
 [/template]
 
 [template public getStatementsForReferenceTime(thread : ComponentInstance, IOReferenceTime : String)post (replace('\n\n', '\n').trim())]
-	[for (feature : FeatureInstance | getFeatures(thread))]
-		[if (isDataPort(feature))]
-			[if (isIncoming(feature))]
-				[comment IGNORE Input_Time == Deadline, it seems to be forbidden by standard 8.3.2 (19) TODO: ask on mailinglist for clarification /]
-				[if (IOReferenceTime <> getProperty('Communication_Properties_IO_Reference_Time_Deadline'))]
+	[for (feature : FeatureInstance | getFeatures(thread)->select(category = FeatureCategory::dataPort))]
+		[if (feature.feature.isIncoming())]
+			[comment IGNORE Input_Time == Deadline, it seems to be forbidden by standard 8.3.2 (19) TODO: ask on mailinglist for clarification /]
+			[if (IOReferenceTime <> getProperty('Communication_Properties_IO_Reference_Time_Deadline'))]
 [getDataPortInputStatementsForReferenceTime(feature, IOReferenceTime)/]
-				[/if]
 			[/if]
-			[if (isOutgoing(feature))]
-				[comment IGNORE Output_Time == Dispatch, it seems to be forbidden by standard 8.3.2 (27) TODO: ask on mailinglist for clarification/]
-				[if (IOReferenceTime <> getProperty('Communication_Properties_IO_Reference_Time_Dispatch'))]
+		[/if]
+		[if (feature.feature.isOutgoing())]
+			[comment IGNORE Output_Time == Dispatch, it seems to be forbidden by standard 8.3.2 (27) TODO: ask on mailinglist for clarification/]
+			[if (IOReferenceTime <> getProperty('Communication_Properties_IO_Reference_Time_Dispatch'))]
 [getDataPortOutputStatementsForReferenceTime(feature, IOReferenceTime)/]
-				[/if]
 			[/if]
 		[/if]
 	[/for]
@@ -240,10 +242,10 @@ class InnerAsyncEventHandler extends [if ((connection <> null) and (getComponent
 			[if(offsetTime.ioTime = IOReferenceTime)]
 				[if (offsetTime.ms = 0 and offsetTime.ns = 0)]
 					[comment freeze input via simple statement/]
-[feature.getObjectName()/].receiveInput();
+[feature.name/].receiveInput();
 				[else]
 					[comment we need to generate a statement for handling via handler/]
-new [getHandlerClassName(offsetTime)/]([getObjectName(feature)/]);
+new [getHandlerClassName(offsetTime)/]([feature.name/]);
 				[/if]
 			[/if]
 		[/for]
@@ -265,15 +267,15 @@ new [getHandlerClassName(offsetTime)/]([getObjectName(feature)/]);
 			[if(offsetTime.ioTime = IOReferenceTime)]
 				[comment deadline must be treated different, as it is always done by a handler/]
 				[if(IOReferenceTime = getProperty('Communication_Properties_IO_Reference_Time_Deadline'))]
-new [getHandlerClassName(offsetTime)/]([getObjectName(feature)/], parentBroker, "[connection.getObjectName()/]");
+new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/]");
 				[elseif ((offsetTime.ms = 0) and (offsetTime.ns = 0))]
 					[comment send output, but only for this specific connection via simple statement/]
 					[comment see AADL Standard 8.3.2 (29)/]
 [comment getObjectName(feature)/][ comment .sendOutputOn[getClassName(connection)/][comment ();/]
-parentBroker.sendOnConnection("[connection.getObjectName()/]", [feature.getObjectName()/].getFWData());
+parentBroker.sendOnConnection("[connection.name/]", [feature.name/].getFWData());
 				[else]
 					[comment we need to generate a statement for handling via handler/]
-new [getHandlerClassName(offsetTime)/]([getObjectName(feature)/], parentBroker, "[connection.getObjectName()/]");
+new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/]");
 				[/if]
 			[/if]
 		[/for]

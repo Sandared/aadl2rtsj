@@ -3,8 +3,8 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 
-[template public getConstructorParameters(ci : ComponentInstance) post (replaceAll('\n', '').trim()) {connection : ConnectionInstance = getImmediateConnection(ci); classifier : ComponentClassifier = ci.getClassifier();}]
-	[for (subcomponent : Subcomponent | classifier.oclAsType(ComponentImplementation).getAllSubComponents()) separator (', ')]
+[template public getConstructorParameter(ci : ComponentClassifier) post (replaceAll('\n', '').trim())]
+	[for (subcomponent : Subcomponent | ci.oclAsType(ComponentImplementation).getAllSubComponents()) separator (', ')]
 [subcomponent.getClassifier().getClassName()/] [subcomponent.name/]
 	[/for]
 [/template]
@@ -22,8 +22,8 @@ parentBroker, this
 [template public getSetParentConnectionBrokerStatements(ci : ComponentInstance) post (trim()) {classifier : ComponentClassifier = ci.getClassifier();}]
 this.parentBroker = parentBroker;
 broker = new [ci.getClassName()/]ConnectionBroker([ci.getBrokerParameters()/]);
-[for (subcomponent : Subcomponent | classifier.oclAsType(ComponentImplementation).getAllSubComponents())]
+	[for (subcomponent : Subcomponent | classifier.oclAsType(ComponentImplementation).getAllSubComponents())]
 broker.addChildBroker("[subcomponent.name/]", [subcomponent.name/].getConnectionBroker());
 [subcomponent.name/].setParentConnectionBroker(broker);
-[/for]
+	[/for]
 [/template]

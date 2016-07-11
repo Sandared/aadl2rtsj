@@ -389,6 +389,7 @@ public class ComponentClassifierHelper {
 	}
 	
 	/**
+	 * This method removes the usual dot between type and implementation part of the ComponentImplementation name
 	 * @param ci the ComponentImplementation one wants a class name for
 	 * @return a String representing the class name for the given ComponentImplementation or 'Object' if <b>ci</b> is <code>null</code>
 	 */

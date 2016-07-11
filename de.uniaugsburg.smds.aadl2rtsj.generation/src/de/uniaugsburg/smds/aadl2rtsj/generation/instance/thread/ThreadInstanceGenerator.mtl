@@ -2,7 +2,7 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::instance::thread::PeriodicThreadGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 
-[template public generateThreadInstance(ci : ComponentInstance)? (isThread(ci))]
+[template public generateThreadInstance(ci : ComponentInstance)? (ci.category = ComponentCategory::thread)]
 	[comment Each ThreadGenerator decides if it's the right one for himself /]
 	[generatePeriodicThread(ci)/]
 	[comment generateSporadicThread(ci) TODO/]

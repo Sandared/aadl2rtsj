@@ -5,9 +5,9 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::InnerConnectionBrokerGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::instance::util::InstanceHelper /]
 
-[template public generateProcessInstance(process : ComponentInstance)? (isProcess(process)) { classifier : ComponentClassifier = process.getClassifier(); }]
-[file(process.getPackageName().substitute('.', '/').concat('/').concat(process.getClassName()).concat('.java') , false, 'UTF-8')]
-package [process.getPackageName()/];
+[template public generateProcessInstance(process : ComponentInstance)? (process.category = ComponentCategory::process) { classifier : ComponentClassifier = process.getClassifier(); }]
+[file(process.getPackageName(false).substitute('.', '/').concat('/').concat(process.getClassName()).concat('.java') , false, 'UTF-8')]
+package [process.getPackageName(false)/];
 
 //########## Classifier Imports ##########
 	[comment import all classifiers of this ThreadImplementation, but only once for each classifier/]
@@ -34,7 +34,7 @@ public class [process.getClassName()/] extends [classifier.getClassName()/]{
 	 */
 	private ConnectionBroker broker;
 
-	public [process.getClassName()/]([process.getConstructorParameters()/]){
+	public [process.getClassName()/]([classifier.getConstructorParameter()/]){
 		[comment for each subcomponent we have to create an Assignment Statement/]
 		[for (subcomponent : Subcomponent | classifier.oclAsType(ComponentImplementation).getAllSubComponents())]
 		this.[subcomponent.name/] = [subcomponent.name/];

@@ -3,9 +3,9 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
 
-[template public generateUserCode(thread : ComponentInstance)]
-[file(thread.getPackageName().substitute('.', '/').concat('/').concat(thread.getClassName().concat('UserCode')).concat('.java') , false, 'UTF-8')]
-package [thread.getPackageName()/];
+[template public generateUserCode(thread : ComponentInstance){ classifier : ComponentClassifier = thread.getClassifier(); }]
+[file(thread.getPackageName(true).substitute('.', '/').concat('/').concat(thread.getClassName().concat('UserCode')).concat('.java') , false, 'UTF-8')]
+package [thread.getPackageName(true)/];
 
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.InPort;
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.OutPort;
@@ -13,29 +13,29 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.util.InOutPort;
 
 //########## Classifier Imports ##########
 	[comment import all classifiers of this thread (usually only the datatypes of its ports), but only once for each classifier/]
-	[for (classifier : ComponentClassifier | thread.getClassifier().getAllFeatureClassifiers())]
+	[for (classifier : ComponentClassifier | classifier.getAllFeatureClassifiers())]
 import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 
 
-public class [thread.getClassName()/]UserCode{
+public class [thread.getUserCodeClassName()/]{
 
 	[comment create a member variable for each port /]
-	[for (feature : FeatureInstance | thread.getFeatures())]
+	[for (feature : Feature | classifier.getAllFeatures())]
 		[if (feature.isIncoming())]
 			[if (feature.isOutgoing())]
-	private InOutPort<[feature.getClassifier().getClassName()/]> [feature.getObjectName()/];
+	private InOutPort<[feature.getClassifier().getClassName()/]> [feature.name/];
 			[else]
-	private InPort<[feature.getClassifier().getClassName()/]> [feature.getObjectName()/];
+	private InPort<[feature.getClassifier().getClassName()/]> [feature.name/];
 			[/if]
 		[else]
-	private OutPort<[feature.getClassifier().getClassName()/]> [feature.getObjectName()/];
+	private OutPort<[feature.getClassifier().getClassName()/]> [feature.name/];
 		[/if]
 	[/for]
 
-	public [thread.getClassName()/]UserCode([thread.getConstructorParameters()/]){
-	[for (feature : FeatureInstance | thread.getFeatures())]
-		this.[feature.getObjectName()/] = [feature.getObjectName()/];
+	public [thread.getClassName()/]UserCode([classifier.getConstructorParameters()/]){
+	[for (feature : Feature | classifier.getAllFeatures())]
+		this.[feature.name/] = [feature.name/];
 	[/for]	
 	}
 
@@ -58,16 +58,16 @@ public class [thread.getClassName()/]UserCode{
 [/file]
 [/template]
 
-[template private getConstructorParameters(thread : ComponentInstance) post (replaceAll('\n', '').trim())]
-[for (feature : FeatureInstance | thread.getFeatures())separator (',')]
+[template private getConstructorParameters(thread : ComponentClassifier) post (replaceAll('\n', '').trim())]
+[for (feature : Feature | thread.getAllFeatures())separator (',')]
 	[if (feature.isIncoming())]
 		[if (feature.isOutgoing())]
-InOutPort<[feature.getClassifier().getClassName()/]> [feature.getObjectName()/]
+InOutPort<[feature.getClassifier().getClassName()/]> [feature.name/]
 		[else]
-InPort<[feature.getClassifier().getClassName()/]> [feature.getObjectName()/]
+InPort<[feature.getClassifier().getClassName()/]> [feature.name/]
 		[/if]
 	[else]
-OutPort<[feature.getClassifier().getClassName()/]> [feature.getObjectName()/]
+OutPort<[feature.getClassifier().getClassName()/]> [feature.name/]
 	[/if]
 [/for]
 [/template]
