@@ -1,0 +1,115 @@
+package EMAsystem
+public
+	with EMV2;
+	with Base_Types;
+	with Data_Model;
+	-----------------------------------------------------------------------
+	system system1
+		features
+			InPort: in data port Base_Types::Float_32;
+			OutPort: out data port Base_Types::Float_32;
+		annex emv2 {**
+			use types ErrorLibrary;
+			use behavior ErrorModelLib::Simple;
+		**};
+		end system1;
+	-----------------------------------------------------------------------
+	thread threadA
+		features
+			inAPort: in data port Base_Types::Float_32  ;
+			outAPort: out data port Base_Types::Float_32;
+		properties
+			Dispatch_Protocol => periodic;
+			Compute_Deadline => 100ms;
+		annex emv2 {**
+			use types ErrorLibrary;
+			use behavior ErrorModelLib::Simple;	
+		**};
+			
+	end threadA;
+	-----------------------------------------------------------------------
+	thread implementation threadA.TAimpl
+		subcomponents
+			data1: data Base_Types::Float_32;
+		annex emv2 {**
+			error propagations
+		    inAPort: in propagation {ItemOmission, AboveRange, BelowRange};
+		  	outAPort: out propagation {ItemOmission, AboveRange, BelowRange};
+		  	flows
+		  		f1: error source outAPort{ItemOmission, AboveRange, BelowRange};
+		  		f2: error path inAPort -> outAPort;
+			end propagations;
+			composite error behavior 
+				states
+					s1: [in inAPort{ItemOmission, AboveRange, BelowRange}]-> Failed ;
+			end composite;
+			properties
+				EMV2::StateKind =>	NonWorking applies to Failure;
+				EMV2::OccurrenceDistribution => [ probabilityvalue => 0.15 ; Distribution => Fixed;] applies to Failure;
+				Data_Model::Real_Range => 0.0 .. 5.0 applies to data1;
+		**};
+	end threadA.TAimpl;
+	-----------------------------------------------------------------------
+	process proc
+		features
+			inProcPort: in data port Base_Types::Float_32;
+			outProcPort: out data port Base_Types::Float_32;
+			annex emv2 {**
+				use types ErrorLibrary;
+				use behavior ErrorModelLib::ThreeErrorStates;
+			**};
+	end proc;
+	-----------------------------------------------------------------------
+	process implementation proc.ProcImpl
+		subcomponents
+			threadA1: thread threadA.TAimpl;
+			threadA2: thread threadA.TAimpl;
+		connections
+			con1: port inProcPort -> threadA1.inAPort;
+			con2: port threadA1.outAPort -> threadA2.inAPort;
+			con3: port threadA2.outAPort -> outProcPort;
+		annex emv2 {**
+			error propagations
+		    inProcPort: in propagation {ItemOmission, AboveRange, BelowRange};
+		  	outProcPort: out propagation {ItemOmission, AboveRange, BelowRange};
+		  	flows
+		  		f2: error path inProcPort -> outProcPort;
+			end propagations;
+		--	propagation paths
+		--		threadA1: propagation point;
+		--		threadA2: propagation point;	
+		--	end paths;
+		**};
+	end proc.ProcImpl;
+	----------------------------------------------------------------------------
+	system implementation system1.SysImpl
+		subcomponents
+			proc1: process proc.ProcImpl;
+			proc2: process proc.ProcImpl; 
+		connections
+			toProc1: port InPort -> proc1.inProcPort;
+			proc1Toproc2: port  proc1.outProcPort-> proc2.inProcPort;
+			proc2ToOut: port  proc2.outProcPort -> OutPort;			
+		annex emv2 {** 
+			error propagations
+				InPort: in propagation {ItemOmission, AboveRange, BelowRange};
+				OutPort: out propagation {ItemOmission, AboveRange, BelowRange};
+			flows
+				epath1: error path InPort -> OutPort;
+			end propagations;
+			composite error behavior 
+			states
+				erste:  [proc1.Operational and proc2.Operational and in InPort{noerror}]-> Operational ;
+			   	zweite: [proc1.Failed or in InPort{ItemOmission, AboveRange, BelowRange} or proc2.Failed]-> Failed;
+			end composite;
+		--	propagation paths
+		---		path1: proc1.threadA1 -> proc2.threadA2;
+		---	end paths;<
+			properties
+				EMV2::StateKind =>	Working applies to operational;
+				EMV2::StateKind =>	NonWorking applies to failed;
+				
+		**};
+	end system1.SysImpl;
+
+end EMAsystem;
