@@ -111,16 +111,12 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 	//########## Inherited Methods from  [classifier.getClassName()/]##########
 	[for (dataPort : DataPort | classifier.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
 		[if (dataPort.isOutgoing())]
-	/**
-	 * This method broadcasts the given data on all outgoing connections of <code>[dataPort.name/]</code></br>
-	 * via the <code>parentBroker</code> of this thread.
-	 * @param data the data to be broadcasted on the OUT DATA PORT <code>[dataPort.name/]</code>
-	 */
 	@Override
-	protected void out[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
+	public void out[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
 		[comment broadcast über den parentBroker /]
 		parentBroker.sendOnPort("[thread.name/].[dataPort.name/]", data);
 	}
+
 		[/if]
 	[/for]
 	

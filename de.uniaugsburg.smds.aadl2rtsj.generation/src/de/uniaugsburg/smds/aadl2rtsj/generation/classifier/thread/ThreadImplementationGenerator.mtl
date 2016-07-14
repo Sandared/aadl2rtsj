@@ -73,9 +73,6 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 			[/if]
 	}			
 		[/if]
-		[if (dataPort.isOutgoing())]
-	protected abstract void out[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data);		
-		[/if]
 	[/for]
 }
 [/file]	

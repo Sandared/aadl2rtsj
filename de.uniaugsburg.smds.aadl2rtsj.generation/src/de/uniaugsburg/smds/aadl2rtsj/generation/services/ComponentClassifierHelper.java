@@ -92,8 +92,24 @@ public class ComponentClassifierHelper {
 	 * @return either the Subcomponent or the ComponentImplementation that contains the port, that is the target of c
 	 */
 	public static NamedElement getTargetComponent(Connection c){
-		return c.getAllDstContextComponent();
+		NamedElement dest = c.getAllDstContextComponent();
+		// although JavaDoc of getAllDstContextComponent states otherwise, it returns null, if the ContextComponent of c.destination is the enclosing ComponentImplementation
+		if(dest == null)
+			dest = c.getContainingComponentImpl();
+		return dest;
 	}
+	
+	/**
+	 * @param c
+	 * @return either the Subcomponent or the ComponentImplementation that contains the port, that is the source of c
+	 */
+	public static NamedElement getSourceComponent(Connection c){
+		NamedElement src = c.getAllSrcContextComponent();
+		// although JavaDoc of getAllSrcContextComponent states otherwise, it returns null, if the ContextComponent of c.destination is the enclosing ComponentImplementation
+		if(src == null)
+			src = c.getContainingComponentImpl();
+		return src;
+	}	
 	
 	/**
 	 * @param c
@@ -110,14 +126,6 @@ public class ComponentClassifierHelper {
 	public static ConnectionEnd getSourceFeature(Connection c){
 		return c.getAllSource();
 	}
-
-	/**
-	 * @param c
-	 * @return either the Subcomponent or the ComponentImplementation that contains the port, that is the source of c
-	 */
-	public static NamedElement getSourceComponent(Connection c){
-		return c.getAllSrcContextComponent();
-	}	
 	
 	/**
 	 * @param source Feature we want the outgoing connections for
@@ -154,7 +162,7 @@ public class ComponentClassifierHelper {
 	/**
 	 * Retrieves a Set of unique classifiers for the given ComponentType, encompassing:</br>
 	 *  - the Classifier it is extending, if any</br>
-	 *  - the Classifiers of its incoming features</br>
+	 *  - the Classifiers of its features</br>
 	 *  - the Classifiers of the refined incoming features</br>
 	 * @param ct
 	 * @return a Set of unique classifiers that have to be imported by a Java class representing the given ComponentType
@@ -165,7 +173,7 @@ public class ComponentClassifierHelper {
 		// if this ct is the upmost super type, then it has no extended classifier
 		if(extended != null)
 			classifiers.add(extended);
-		classifiers.addAll(getAllIncomingFeatureClassifier(ct));
+		classifiers.addAll(getAllFeatureClassifiers(ct));
 		classifiers.addAll(getAllIncomingRefinedFeatureClassifier(ct));
 		return classifiers;
 	}

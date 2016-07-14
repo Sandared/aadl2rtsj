@@ -56,7 +56,7 @@ public class [process.getClassName()/] extends [classifier.getClassName()/]{
 	[for (dataPort : DataPort | classifier.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
 		[if (dataPort.isOutgoing())]
 	@Override
-	protected void out[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
+	public void out[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
 		[comment broadcast über den parentBroker /]
 		parentBroker.sendOnPort("[process.name/].[dataPort.name/]", data);
 	}

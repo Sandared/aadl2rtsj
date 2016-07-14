@@ -85,5 +85,4 @@ public class PropertyHelper {
 		log.warning("No Thread_Properties::Priority was given for " + ne.getName() + ". Default is 5");
 		return "5";
 	}
-
 }

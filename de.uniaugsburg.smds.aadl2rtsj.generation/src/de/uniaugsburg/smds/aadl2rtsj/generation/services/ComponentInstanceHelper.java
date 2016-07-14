@@ -60,7 +60,7 @@ public class ComponentInstanceHelper {
         
 		if(times.size() == 0){
     	   // if there has been no Input/Output_Time on the feature, check for Input/Output_Time on thread, see AADL Standard 8.3.2 (18)
-    	   ComponentImplementation component = feature.getContainingComponentImpl();
+    	   ComponentClassifier component = (ComponentClassifier) feature.getContainingClassifier();
     	   times = getTimeForReferenceTime(component, IOReferenceTime, false, isInput, connection);
         }
 		
@@ -109,11 +109,6 @@ public class ComponentInstanceHelper {
 	
 	private static List<OffsetTime> getTimeForReferenceTime(NamedElement element, final String IOReferenceTime, boolean forceSingleValued, boolean isInput, Connection connection){
 		ArrayList<OffsetTime> times = new ArrayList<OffsetTime>();
-		//TODO: because of an OSATE Error? element can be null if the connection is from a subcomponent to the component itself and the element is a port of the component itself
-		if(element == null){
-			log.severe("The port for which we should find the OffsetTimes was null!!!");
-			return times;
-		}
 		List<PropertyExpression> timeProperties = null;
 		if(isInput)
 			timeProperties = element.getPropertyValues(Communication_Properties, Communication_Properties_Input_Time);

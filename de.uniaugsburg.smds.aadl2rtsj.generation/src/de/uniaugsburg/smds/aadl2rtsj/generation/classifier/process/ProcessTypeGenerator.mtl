@@ -23,12 +23,36 @@ public interface [processType.getClassName()/] extends [if (processType.getExten
 		[let dataPort : DataPort = feature]
 			[if (dataPort.isIncoming())]
 				[if (dataPort.isRefined())]
+	/**
+	 * This method is not meant for use, as it got refined by {@link #in[dataPort.name.toUpperFirst()/] in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data)}</br>
+	 * If used nonetheless, this method throws a <tt>UnsupportedOperationException</tt>
+	 * @exception UnsupportedOperationException if used
+	 */
 	@Override
 	default void in[dataPort.name.toUpperFirst()/]([dataPort.getRefinedClassifier().getClassName()/] data){
 		throw new UnsupportedOperationException();
 	}
 				[/if]
 	void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data);
+			[/if]
+			[if (dataPort.isOutgoing())]
+				[if (dataPort.isRefined())]
+	/**
+	 * This method is not meant for use, as it got refined by {@link #out[dataPort.name.toUpperFirst()/] in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data)}</br>
+	 * If used nonetheless, this method throws a <tt>UnsupportedOperationException</tt>
+	 * @exception UnsupportedOperationException if used
+	 */
+	@Override
+	default void out[dataPort.name.toUpperFirst()/]([dataPort.getRefinedClassifier().getClassName()/] data){
+		throw new UnsupportedOperationException();
+	}
+				[/if]
+	/**
+	 * This method broadcasts the given data on all outgoing connections of <code>[dataPort.name/]</code></br>
+	 * via the <code>parentBroker</code> of this thread.
+	 * @param data the data to be broadcasted on the OUT DATA PORT <code>[dataPort.name/]</code>
+	 */
+	void out[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data);
 			[/if]
 		[/let]
 	[/for]

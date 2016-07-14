@@ -53,7 +53,7 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 		[for (subcomponent : Subcomponent | instance.getClassifier().oclAsType(ComponentImplementation).getAllSubComponents())]
 
 	/**
-	 * Subcomponent whose in ports are to be used when forwarding connections to 'deeper' nested components
+	 * Subcomponent whose IN ports are to be used when forwarding connections to 'deeper' nested components
 	 */
 	private [subcomponent.getClassifier().getClassName()/] [subcomponent.name/];
 		[/for]
@@ -92,6 +92,8 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 			// so call its corresponding out mehtod
 			component.out[port.name.toUpperFirst()/](([port.getClassifier().getClassName()/])data);
 			break;
+			[else]
+				// Targetcomponent of [connection.name/] is [connection.getTargetComponent()/]
 			[/let]
 		[/let]
 	[/for]
