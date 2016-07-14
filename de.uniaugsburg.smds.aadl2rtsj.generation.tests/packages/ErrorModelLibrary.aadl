@@ -1,0 +1,43 @@
+package ErrorModelLib
+public
+ with ErrorLibrary;
+annex EMV2 {**
+		
+		error types
+		noPower: type;	 
+		BadData: type;
+		NoValue: type;
+		end types;
+
+error behavior Simple
+events
+  Failure : error event ;
+  rep : repair event ;
+  rec: recover event;
+states
+  Operational : initial state ;
+  Failed : state ;
+transitions
+  FailureTransition : Operational -[ Failure ]-> Failed ;
+  repTransition : Failed -[  rep  or rep]-> Operational ;
+end behavior ;
+
+error behavior ThreeErrorStates
+events
+  NoValueEvent: error event;
+  BadDataEvent: error event;
+states
+   Operational: initial state;
+   OperationalCritical : state;
+   Failed: state;
+transitions
+  SingleNoValueTransiton : Operational-[NoValueEvent]->(OperationalCritical with 0.7, OperationalCritical with 0.3);
+  singleBadDataTransition: Operational -[BadDataEvent]->Failed;
+  CriticalTransiton: OperationalCritical-[NoValueEvent or BadDataEvent]->OperationalCritical;
+  FailureTransition: Failed-[NoValueEvent or BadDataEvent]->Failed ;
+
+end behavior;
+   
+**};
+
+end ErrorModelLib;
