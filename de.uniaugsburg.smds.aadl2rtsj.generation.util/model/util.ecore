@@ -7,6 +7,6 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="ns" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="uniqueId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="ioTime" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="connection" eType="ecore:EClass ../../org.osate.aadl2/model/instance.ecore#//ConnectionInstance"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="connection" eType="ecore:EClass ../../org.osate.aadl2/model/aadl2.ecore#//Connection"/>
   </eClassifiers>
 </ecore:EPackage>

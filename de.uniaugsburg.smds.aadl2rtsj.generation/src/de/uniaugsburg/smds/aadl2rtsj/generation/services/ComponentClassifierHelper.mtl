@@ -53,16 +53,12 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getSourceComponent(org.osate.aadl2.Connection)', Sequence{arg0})
 /]
 
-[query public getExternalOutgoingConnections(arg0 : Context, arg1 : ComponentImplementation) : Sequence(Connection)
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getExternalOutgoingConnections(org.osate.aadl2.Context, org.osate.aadl2.ComponentImplementation)', Sequence{arg0, arg1})
+[query public getOutgoingConnections(arg0 : Context, arg1 : ComponentImplementation) : Sequence(Connection)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getOutgoingConnections(org.osate.aadl2.Context, org.osate.aadl2.ComponentImplementation)', Sequence{arg0, arg1})
 /]
 
-[query public getInternalOutgoingConnections(arg0 : Context, arg1 : ComponentImplementation) : Sequence(Connection)
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getInternalOutgoingConnections(org.osate.aadl2.Context, org.osate.aadl2.ComponentImplementation)', Sequence{arg0, arg1})
-/]
-
-[query public getInternalIncomingConnections(arg0 : Context, arg1 : ComponentImplementation) : Sequence(Connection)
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getInternalIncomingConnections(org.osate.aadl2.Context, org.osate.aadl2.ComponentImplementation)', Sequence{arg0, arg1})
+[query public getIncomingConnections(arg0 : Context, arg1 : ComponentImplementation) : Sequence(Connection)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getIncomingConnections(org.osate.aadl2.Context, org.osate.aadl2.ComponentImplementation)', Sequence{arg0, arg1})
 /]
 
 [query public getAllClassifiersForType(arg0 : ComponentType) : Set(ComponentClassifier)

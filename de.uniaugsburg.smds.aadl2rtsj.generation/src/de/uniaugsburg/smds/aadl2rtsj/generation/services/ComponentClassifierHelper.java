@@ -24,6 +24,7 @@ import org.osate.aadl2.DirectedFeature;
 import org.osate.aadl2.Feature;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.Port;
+import org.osate.aadl2.ProcessImplementation;
 import org.osate.aadl2.Subcomponent;
 
 import de.uniaugsburg.smds.aadl2rtsj.generation.ClassifierComparator;
@@ -42,6 +43,7 @@ public class ComponentClassifierHelper {
 	}
 	
 	public static List<Feature> getAllFeatures(ComponentClassifier cc){
+		EList<Feature> result = cc.getAllFeatures();
 		return cc.getAllFeatures();
 	}
 	
@@ -119,27 +121,13 @@ public class ComponentClassifierHelper {
 	
 	/**
 	 * @param source Feature we want the outgoing connections for
-	 * @param parent the parent ComponentImpl of the ComponentImpl which contains the source Feature
-	 * @return A list of connections within parent that have source as their sourceContext
-	 */
-	public static List<Connection> getExternalOutgoingConnections(Context source, ComponentImplementation parent){
-		List<Connection> outgoing = new ArrayList<Connection>();
-		for (Connection connection : getAllConnections(parent)) {
-			if(connection.getAllSourceContext().equals(source))
-				outgoing.add(connection);
-		}
-		return outgoing;
-	}
-	
-	/**
-	 * @param source Feature we want the outgoing connections for
 	 * @param parent the ComponentImpl which contains the source Feature
 	 * @return A list of connections within t that have source as their sourceContext
 	 */
-	public static List<Connection> getInternalOutgoingConnections(Context source, ComponentImplementation component){
+	public static List<Connection> getOutgoingConnections(Context source, ComponentImplementation component){
 		List<Connection> outgoing = new ArrayList<Connection>();
 		for (Connection connection : getAllConnections(component)) {
-			if(connection.getAllSourceContext() != null && connection.getAllSourceContext().equals(source))
+			if(connection.getAllSourceContext() != null && getSourceFeature(connection).equals(source))
 				outgoing.add(connection);
 		}
 		return outgoing;
@@ -150,10 +138,10 @@ public class ComponentClassifierHelper {
 	 * @param parent the ComponentImpl which contains the source Feature
 	 * @return A list of connections within t that have destination as their destinationContext
 	 */
-	public static List<Connection> getInternalIncomingConnections(Context destination, ComponentImplementation component){
+	public static List<Connection> getIncomingConnections(Context destination, ComponentImplementation component){
 		List<Connection> incoming = new ArrayList<Connection>();
 		for (Connection connection : getAllConnections(component)) {
-			if(connection.getAllDestinationContext().equals(destination))
+			if(connection.getAllDestinationContext() != null && getTargetFeature(connection).equals(destination))
 				incoming.add(connection);
 		}
 		return incoming;

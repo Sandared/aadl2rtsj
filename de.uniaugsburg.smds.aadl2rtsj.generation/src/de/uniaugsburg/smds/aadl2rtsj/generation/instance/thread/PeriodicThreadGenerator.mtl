@@ -7,11 +7,42 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::InnerConnectionBrokerGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::PropertyHelper /]
-[import de::uniaugsburg::smds::aadl2rtsj::generation::util::IOHandlerGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::user::ThreadUserCodeGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::instance::util::InstanceHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::LogHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::util::IOHandlerGenerator /]
 
-[template public generatePeriodicThread(thread : ComponentInstance)? (thread.getDispatchProtocol() = getProperty('Thread_Properties_Dispatch_Protocol_Periodic')) { classifier : ComponentClassifier = thread.getClassifier(); }]
+[template public generatePeriodicThread(thread : ComponentInstance)? (thread.getDispatchProtocol() = getProperty('Thread_Properties_Dispatch_Protocol_Periodic')) { classifier : ComponentClassifier = thread.getClassifier(); parentClassifier : ComponentImplementation = thread.getParent().getClassifier().oclAsType(ComponentImplementation) ;}]
+
+[comment generate Connection Broker for this thread /]
+[thread.generateInnerConnectionBroker()/]
+
+[comment generate IOHandler if necessary /]
+[comment BUG if we put the generation of the handler classes into their own templates then Acceleo completly wents nuts and does some crazy stuff... don't know why /]
+[for (dataPort : DataPort | classifier.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
+	[comment we have to initialize the variable featureClassifier here, because Acceleo currently has problems with the scoping of variables. If a template is called with a query as parameter this query leads to wrong parameters for the template/]
+	[let featureClassifier : ComponentClassifier = dataPort.getClassifier()]
+		[for (time : OffsetTime | dataPort.getTimes(parentClassifier))]
+			[comment only do something if there is an offset or if it is at deadline, at deadline we always have to use handlers/]
+			[if ((time.ioTime = getProperty('Communication_Properties_IO_Reference_Time_Deadline')) or (time.ms <> 0 or time.ns <> 0))]
+				[info(time.ioTime + ' : ' + time.ms + '/' + time.ns)/]
+				[info('THREAD : ' + thread)/]
+				[if (dataPort.isIncoming())]
+					[thread.generateInputHandler(featureClassifier, time)/]
+				[/if]
+				[if (dataPort.isOutgoing())]
+					[thread.generateOutputHandler(featureClassifier, time)/]
+				[/if]
+			[/if]
+		[/for]
+	[else]
+		[warning('No ComponentClassifier found for : ' + dataPort + '. Could not generate handler!')/]
+	[/let]
+[/for]
+
+[comment generate Usercode class for this thread /]
+[generateUserCode(thread)/]
+
 [file(thread.getPackageName(false).substitute('.', '/').concat('/').concat(thread.getClassName()).concat('.java') , false, 'UTF-8')]
 package [thread.getPackageName(false)/];
 
@@ -58,7 +89,6 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 	 */
 	private [thread.getUserCodeClassName()/] userCode = new [thread.getUserCodeClassName()/]([classifier.getUserCodeConstructorParameters()/]);
 
-
 	public [thread.getClassName()/]([classifier.getConstructorParameter()/]){
 		[comment for each subcomponent we have to create an Assignment Statement/]
 		[for (subcomponent : Subcomponent | classifier.oclAsType(ComponentImplementation).getAllSubComponents())]
@@ -96,14 +126,20 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 	
 	private final void dispatch() {
 		[comment we need deadline statements at this point, as there is no way to hook into the JVM to listen for a deadline /]
-		[thread.getStatementsForReferenceTime(getProperty('Communication_Properties_IO_Reference_Time_Deadline'))/]
-		[thread.getStatementsForReferenceTime(getProperty('Communication_Properties_IO_Reference_Time_Dispatch'))/]
+		[let deadline : String = getProperty('Communication_Properties_IO_Reference_Time_Deadline')]
+			[classifier.getStatementsForReferenceTime(deadline, parentClassifier)/]
+		[/let]
+		[let dispatch : String = getProperty('Communication_Properties_IO_Reference_Time_Dispatch')]
+			[classifier.getStatementsForReferenceTime(dispatch, parentClassifier)/]
+		[/let]
 		//Execute User Code
 		userCode.dispatch();
 	}
 	
 	private final void start() {
-		[thread.getStatementsForReferenceTime(getProperty('Communication_Properties_IO_Reference_Time_Start'))/]
+		[let start : String = getProperty('Communication_Properties_IO_Reference_Time_Start')]
+			[classifier.getStatementsForReferenceTime(start, parentClassifier)/]
+		[/let]
 		//Execute User Code
 		userCode.start();
 	}
@@ -115,7 +151,9 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 	}
 	
 	private final void completion() {
-		[thread.getStatementsForReferenceTime(getProperty('Communication_Properties_IO_Reference_Time_Completion'))/]
+		[let completion : String = getProperty('Communication_Properties_IO_Reference_Time_Completion')]
+			[classifier.getStatementsForReferenceTime(completion, parentClassifier)/]
+		[/let]
 		//Execute User Code
 		userCode.completion();
 	}
@@ -137,31 +175,10 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 	[thread.getHandlerClass()/]
 }
 [/file]
-
-[comment generate Connection Broker for this thread /]
-[thread.generateInnerConnectionBroker()/]
-
-[comment generate IOHandler if necessary /]
-[for (fi : FeatureInstance | thread.getFeatures())]
-	[for (time : OffsetTime | getTimes(fi))]
-		[comment only do something if there is an offset or if it is at deadline, at deadline we always have to use handlers/]
-		[if ((time.ioTime = getProperty('Communication_Properties_IO_Reference_Time_Deadline')) or (time.ms <> 0 or time.ns <> 0))]
-			[if (fi.feature.isIncoming())]
-				[generateInputHandler(thread, fi, time)/]
-			[/if]
-			[if (fi.feature.isOutgoing())]
-				[generateOutputHandler(thread, fi, time)/]
-			[/if]
-		[/if]
-	[/for]
-[/for]
-
-[comment generate Usercode class for this thread /]
-[generateUserCode(thread)/]
 [/template]
 
-[template public getUserCodeConstructorParameters(thread : ComponentClassifier) post (replaceAll('\n', '').trim())]
-[for (feature : Feature | thread.getAllFeatures())separator (', ')]
+[template public getUserCodeConstructorParameters(classifier : ComponentClassifier) post (replaceAll('\n', '').trim())]
+[for (feature : Feature | classifier.getAllFeatures())separator (', ')]
 	[if (feature.isIncoming())]
 		[if (feature.isOutgoing())]
 [feature.name/].getUserInOutPort()
@@ -175,7 +192,7 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 [/template]
 
 [template private getHandlerClass(thread : ComponentInstance) post (trim()) {connection : ConnectionInstance = getImmediateConnection(thread);}]
-class InnerAsyncEventHandler extends [if ((connection <> null) and (getComponentInstance(getConnectionDestination(connection)) = thread))]Bound[/if]AsyncEventHandler{
+class InnerAsyncEventHandler extends [if ((connection <> null) and (connection.getConnectionDestination().getComponentInstance() = thread))]Bound[/if]AsyncEventHandler{
 	public InnerAsyncEventHandler(){
 		setDaemon(false);
 		setSchedulingParameters(new PriorityParameters([thread.getPriority()/]));
@@ -183,10 +200,10 @@ class InnerAsyncEventHandler extends [if ((connection <> null) and (getComponent
 
 	@Override
 	public void handleAsyncEvent() {
-	[if ((connection <> null) and (getComponentInstance(getConnectionDestination(connection)) = thread))]
+	[if ((connection <> null) and (connection.getConnectionDestination().getComponentInstance() = thread))]
 		synchronized(parentBroker.getSynchronisationObjectForConnection([connection.name/])){
 			try{
-				while(![connection.destination.name/].isDirty()){
+				while(![connection.getConnectionDestination().name/].isDirty()){
 					parentBroker.getSynchronisationObjectForConnection([connection.name/]).wait();
 				}
 			}catch(InterruptedException e){
@@ -203,25 +220,25 @@ class InnerAsyncEventHandler extends [if ((connection <> null) and (getComponent
 [/template]
 
 [template private getHandlerType(thread : ComponentInstance) post (trim()) {connection : ConnectionInstance = getImmediateConnection(thread);}]
-	[if ((connection <> null) and (getComponentInstance(getConnectionDestination(connection)) = thread))]
+	[if ((connection <> null) and (connection.getConnectionDestination().getComponentInstance() = thread))]
 		BoundAsyncEventHandler
 	[else]
 		AsyncEventHandler
 	[/if]
 [/template]
 
-[template public getStatementsForReferenceTime(thread : ComponentInstance, IOReferenceTime : String)post (replace('\n\n', '\n').trim())]
-	[for (feature : FeatureInstance | getFeatures(thread)->select(category = FeatureCategory::dataPort))]
-		[if (feature.feature.isIncoming())]
+[template public getStatementsForReferenceTime(classifier : ComponentClassifier, IOReferenceTime : String, parent : ComponentImplementation)post (replace('\n\n', '\n').trim())]
+	[for (dataPort : DataPort | classifier.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
+		[if (dataPort.isIncoming())]
 			[comment IGNORE Input_Time == Deadline, it seems to be forbidden by standard 8.3.2 (19) TODO: ask on mailinglist for clarification /]
 			[if (IOReferenceTime <> getProperty('Communication_Properties_IO_Reference_Time_Deadline'))]
-[getDataPortInputStatementsForReferenceTime(feature, IOReferenceTime)/]
+[dataPort.getDataPortInputStatementsForReferenceTime(IOReferenceTime, parent)/]
 			[/if]
 		[/if]
-		[if (feature.feature.isOutgoing())]
+		[if (dataPort.isOutgoing())]
 			[comment IGNORE Output_Time == Dispatch, it seems to be forbidden by standard 8.3.2 (27) TODO: ask on mailinglist for clarification/]
 			[if (IOReferenceTime <> getProperty('Communication_Properties_IO_Reference_Time_Dispatch'))]
-[getDataPortOutputStatementsForReferenceTime(feature, IOReferenceTime)/]
+[dataPort.getDataPortOutputStatementsForReferenceTime(IOReferenceTime, parent)/]
 			[/if]
 		[/if]
 	[/for]
@@ -230,13 +247,13 @@ class InnerAsyncEventHandler extends [if ((connection <> null) and (getComponent
 [comment ASSUMPTIONS/] 
 [comment (1) IGNORE Input_Rate/]
 [comment (2) IGNORE negative Offset part of Timing/]
-[template private getDataPortInputStatementsForReferenceTime(feature : FeatureInstance, IOReferenceTime : String)]
+[template private getDataPortInputStatementsForReferenceTime(feature : DataPort, IOReferenceTime : String, parent : ComponentImplementation)]
 	[comment get all connections, where this feature is the destination/]
 	[comment if immediate/delayed connections are present, then ignore Input_Time/]
-	[for (connection : ConnectionInstance | getDstConnectionInstances(feature))]
+	[for (connection : Connection | feature.getIncomingConnections(parent))]
 		[comment in DataPorts may have only one connection per mode. We don't consider modes at the moment, so there may only be one connection/]
 		[comment determine actual timing for this feature-connection-combination/] 
-		[for (offsetTime : OffsetTime | getTimes(feature, connection, IOReferenceTime, true))]
+		[for (offsetTime : OffsetTime | feature.getTimes(connection, IOReferenceTime, true))]
 			[comment as we don't consider modes, we could only take the first one/]
 			[comment if outputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)/]
 			[if(offsetTime.ioTime = IOReferenceTime)]
@@ -255,26 +272,26 @@ new [getHandlerClassName(offsetTime)/]([feature.name/]);
 [comment ASSUMPTIONS/]
 [comment (1) IGNORE Output_Rate/]
 [comment (2) IGNORE negative Offset part of Timing/]
-[template private getDataPortOutputStatementsForReferenceTime(feature : FeatureInstance, IOReferenceTime : String)]
+[template private getDataPortOutputStatementsForReferenceTime(feature : DataPort, IOReferenceTime : String, parent : ComponentImplementation)]
 	[comment get all connections, where this feature is the source/]
 	[comment if immediate/delayed connections are present, then partially ignore Output_Time/]
-	[for (connection : ConnectionInstance | getSrcConnectionInstances(feature))]
+	[for (connection : Connection | feature.getOutgoingConnections(parent))]
 		[comment out DataPorts may have multiple connections per mode/] 
 		[comment those might have different timings/]
 		[comment determine actual timing for this feature-connection-combination/] 
-		[for (offsetTime : OffsetTime | getTimes(feature, connection, IOReferenceTime, false))]
+		[for (offsetTime : OffsetTime | feature.getTimes(connection, IOReferenceTime, false))]
 			[comment if outputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)/]
 			[if(offsetTime.ioTime = IOReferenceTime)]
 				[comment deadline must be treated different, as it is always done by a handler/]
 				[if(IOReferenceTime = getProperty('Communication_Properties_IO_Reference_Time_Deadline'))]
 new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/]");
 				[elseif ((offsetTime.ms = 0) and (offsetTime.ns = 0))]
-					[comment send output, but only for this specific connection via simple statement/]
-					[comment see AADL Standard 8.3.2 (29)/]
-[comment getObjectName(feature)/][ comment .sendOutputOn[getClassName(connection)/][comment ();/]
+				[comment send output, but only for this specific connection via simple statement/]
+				[comment see AADL Standard 8.3.2 (29)/]
+				[comment getObjectName(feature)/][ comment .sendOutputOn[getClassName(connection)/][comment ();/]
 parentBroker.sendOnConnection("[connection.name/]", [feature.name/].getFWData());
 				[else]
-					[comment we need to generate a statement for handling via handler/]
+				[comment we need to generate a statement for handling via handler/]
 new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/]");
 				[/if]
 			[/if]

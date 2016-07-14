@@ -17,16 +17,16 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getHandlerClassName(util.OffsetTime)', Sequence{arg0})
 /]
 
-[query public getTimes(arg0 : FeatureInstance, arg1 : ConnectionInstance, arg2 : String, arg3 : Boolean) : Sequence(OffsetTime)
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getTimes(org.osate.aadl2.instance.FeatureInstance, org.osate.aadl2.instance.ConnectionInstance, java.lang.String, java.lang.Boolean)', Sequence{arg0, arg1, arg2, arg3})
+[query public getTimes(arg0 : Feature, arg1 : Connection, arg2 : String, arg3 : Boolean) : Sequence(OffsetTime)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getTimes(org.osate.aadl2.Feature, org.osate.aadl2.Connection, java.lang.String, java.lang.Boolean)', Sequence{arg0, arg1, arg2, arg3})
 /]
 
 [query public getImmediateConnection(arg0 : ComponentInstance) : ConnectionInstance
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getImmediateConnection(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
-[query public getTimes(arg0 : FeatureInstance) : Sequence(OffsetTime)
-	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getTimes(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
+[query public getTimes(arg0 : DataPort, arg1 : ComponentImplementation) : Sequence(OffsetTime)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getTimes(org.osate.aadl2.DataPort, org.osate.aadl2.ComponentImplementation)', Sequence{arg0, arg1})
 /]
 
 [query public getComponentInstance(arg0 : ConnectionInstanceEnd) : ComponentInstance
@@ -59,6 +59,10 @@
 
 [query public getClassifier(arg0 : ComponentInstance) : ComponentClassifier
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getClassifier(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+
+[query public getParent(arg0 : ComponentInstance) : ComponentInstance
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getParent(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
 

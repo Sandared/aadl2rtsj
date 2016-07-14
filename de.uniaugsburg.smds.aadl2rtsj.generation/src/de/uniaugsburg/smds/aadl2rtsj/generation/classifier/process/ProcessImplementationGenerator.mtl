@@ -33,7 +33,7 @@ public abstract class [processImpl.getClassName()/][if (processImpl.getExtendedC
 	[comment TODO maybe we need the port variable although there is a connection? /]
 	//########## Data Port Variables ###########
 	[for (dataPort : DataPort | processImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
-		[if (getInternalOutgoingConnections(dataPort, processImpl)->size() = 0)]
+		[if (getOutgoingConnections(dataPort, processImpl)->size() = 0)]
 	protected DataPort<[dataPort.getClassifier().getClassName()/]> [dataPort.name/] = new DataPort<[dataPort.getClassifier().getClassName()/]>();
 		[/if]
 	[/for]
@@ -43,8 +43,8 @@ public abstract class [processImpl.getClassName()/][if (processImpl.getExtendedC
 		[if (dataPort.isIncoming())]
 	@Override
 	public void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
-			[if (getInternalOutgoingConnections(dataPort, processImpl)->size() > 0)]
-				[for (connection : Connection | getInternalOutgoingConnections(dataPort, processImpl))]
+			[if (getOutgoingConnections(dataPort, processImpl)->size() > 0)]
+				[for (connection : Connection | getOutgoingConnections(dataPort, processImpl))]
 		broker.sendOnConnection("[connection.name/]", data);	
 				[/for]
 			[else]

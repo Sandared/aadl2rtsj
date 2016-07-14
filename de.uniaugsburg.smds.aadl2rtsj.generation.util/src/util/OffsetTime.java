@@ -4,7 +4,7 @@ package util;
 
 import org.eclipse.emf.ecore.EObject;
 
-import org.osate.aadl2.instance.ConnectionInstance;
+import org.osate.aadl2.Connection;
 
 /**
  * <!-- begin-user-doc -->
@@ -140,12 +140,12 @@ public interface OffsetTime extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Connection</em>' reference.
-	 * @see #setConnection(ConnectionInstance)
+	 * @see #setConnection(Connection)
 	 * @see util.UtilPackage#getOffsetTime_Connection()
 	 * @model
 	 * @generated
 	 */
-	ConnectionInstance getConnection();
+	Connection getConnection();
 
 	/**
 	 * Sets the value of the '{@link util.OffsetTime#getConnection <em>Connection</em>}' reference.
@@ -155,7 +155,7 @@ public interface OffsetTime extends EObject {
 	 * @see #getConnection()
 	 * @generated
 	 */
-	void setConnection(ConnectionInstance value);
+	void setConnection(Connection value);
 
 
 } // OffsetTime

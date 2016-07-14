@@ -5,13 +5,13 @@ package util.impl;
 import org.eclipse.emf.common.notify.Notification;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 
-import org.osate.aadl2.instance.ConnectionInstance;
-
+import org.osate.aadl2.Connection;
 import util.OffsetTime;
 import util.UtilPackage;
 
@@ -121,7 +121,7 @@ public class OffsetTimeImpl extends MinimalEObjectImpl.Container implements Offs
 	 * @generated
 	 * @ordered
 	 */
-	protected ConnectionInstance connection;
+	protected Connection connection;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -231,10 +231,10 @@ public class OffsetTimeImpl extends MinimalEObjectImpl.Container implements Offs
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public ConnectionInstance getConnection() {
-		if (connection != null && connection.eIsProxy()) {
+	public Connection getConnection() {
+		if (connection != null && ((EObject)connection).eIsProxy()) {
 			InternalEObject oldConnection = (InternalEObject)connection;
-			connection = (ConnectionInstance)eResolveProxy(oldConnection);
+			connection = (Connection)eResolveProxy(oldConnection);
 			if (connection != oldConnection) {
 				if (eNotificationRequired())
 					eNotify(new ENotificationImpl(this, Notification.RESOLVE, UtilPackage.OFFSET_TIME__CONNECTION, oldConnection, connection));
@@ -248,7 +248,7 @@ public class OffsetTimeImpl extends MinimalEObjectImpl.Container implements Offs
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public ConnectionInstance basicGetConnection() {
+	public Connection basicGetConnection() {
 		return connection;
 	}
 
@@ -257,8 +257,8 @@ public class OffsetTimeImpl extends MinimalEObjectImpl.Container implements Offs
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setConnection(ConnectionInstance newConnection) {
-		ConnectionInstance oldConnection = connection;
+	public void setConnection(Connection newConnection) {
+		Connection oldConnection = connection;
 		connection = newConnection;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, UtilPackage.OFFSET_TIME__CONNECTION, oldConnection, connection));
@@ -308,7 +308,7 @@ public class OffsetTimeImpl extends MinimalEObjectImpl.Container implements Offs
 				setIoTime((String)newValue);
 				return;
 			case UtilPackage.OFFSET_TIME__CONNECTION:
-				setConnection((ConnectionInstance)newValue);
+				setConnection((Connection)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -335,7 +335,7 @@ public class OffsetTimeImpl extends MinimalEObjectImpl.Container implements Offs
 				setIoTime(IO_TIME_EDEFAULT);
 				return;
 			case UtilPackage.OFFSET_TIME__CONNECTION:
-				setConnection((ConnectionInstance)null);
+				setConnection((Connection)null);
 				return;
 		}
 		super.eUnset(featureID);

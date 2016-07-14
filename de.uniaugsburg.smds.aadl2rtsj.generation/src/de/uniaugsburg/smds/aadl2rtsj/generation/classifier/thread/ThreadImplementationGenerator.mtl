@@ -39,7 +39,7 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 	[comment TODO maybe we need the port variable although there is a connection? /]
 	//########## Data Port Variables ###########
 	[for (dataPort : DataPort | threadImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
-		[if (getInternalOutgoingConnections(dataPort, threadImpl) -> size() = 0)]
+		[if (getOutgoingConnections(dataPort, threadImpl) -> size() = 0)]
 	/**
 	 * A DataPort<[dataPort.getClassifier().getClassName()/]> member variable that is</br> 
 	 * used to store data for the DATA PORT <code>[dataPort.name/]</code>
@@ -51,7 +51,7 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 	//########## Inherited Methods from [threadImpl.getRealizedClassifier().getClassName()/] ###########
 	[for (dataPort : DataPort | threadImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
 		[if (dataPort.isIncoming())]
-			[if (getInternalOutgoingConnections(dataPort, threadImpl)-> size() > 0)]
+			[if (dataPort.getOutgoingConnections(threadImpl)-> size() > 0)]
 	/**
 	 * This method forwards <code>data</code> on its respective internal connections</br>
 	 * @param data the data that is sent to this thread via its <code>[dataPort.name/]</code> IN DATA PORT 
@@ -64,8 +64,8 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 			[/if]
 	@Override
 	public void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
-			[if (getInternalOutgoingConnections(dataPort, threadImpl)-> size() > 0)]
-				[for (connection : Connection | getInternalOutgoingConnections(dataPort, threadImpl))]
+			[if (getOutgoingConnections(dataPort, threadImpl)-> size() > 0)]
+				[for (connection : Connection | getOutgoingConnections(dataPort, threadImpl))]
 		broker.sendOnConnection("[connection.name/]", data);	
 				[/for]
 			[else]

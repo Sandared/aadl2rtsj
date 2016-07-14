@@ -14,9 +14,11 @@ import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.DataImplementation;
+import org.osate.aadl2.DataPort;
 import org.osate.aadl2.DirectionType;
 import org.osate.aadl2.Element;
 import org.osate.aadl2.EnumerationLiteral;
+import org.osate.aadl2.Feature;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.NamedValue;
 import org.osate.aadl2.PropertyExpression;
@@ -38,7 +40,7 @@ public class ComponentInstanceHelper {
 	
 	private static final Logger log = Logger.getLogger(ComponentInstanceHelper.class.getName());
 	
-	public static List<OffsetTime> getTimes(FeatureInstance feature, ConnectionInstance connection, String IOReferenceTime, Boolean isInput){
+	public static List<OffsetTime> getTimes(Feature feature, Connection connection, String IOReferenceTime, Boolean isInput){
 		OffsetTime time = null;
 		List<OffsetTime> times = new ArrayList<OffsetTime>();
 		
@@ -58,85 +60,60 @@ public class ComponentInstanceHelper {
         
 		if(times.size() == 0){
     	   // if there has been no Input/Output_Time on the feature, check for Input/Output_Time on thread, see AADL Standard 8.3.2 (18)
-    	   ComponentInstance component = feature.getContainingComponentInstance();
+    	   ComponentImplementation component = feature.getContainingComponentImpl();
     	   times = getTimeForReferenceTime(component, IOReferenceTime, false, isInput, connection);
         }
 		
 		if(times.size() == 0)
 			if(isInput){
 				//if time is still null, then default is Dispatch for Input, see AADL Standard 8.3.2 (17)). 
-				OffsetTime ot = UtilFactory.eINSTANCE.createOffsetTime();
-				ot.setMs(0);
-				ot.setNs(0);
-				ot.setUniqueId(System.identityHashCode(feature));
-				ot.setIoTime(Communication_Properties_IO_Reference_Time_Dispatch);
-				ot.setConnection(connection);
+				OffsetTime ot = createOffsetTime(0, 0, System.identityHashCode(feature), Communication_Properties_IO_Reference_Time_Dispatch, connection);
 				times.add(ot);
 			}
 			else{
 				//if time is still null, then default is Completion for Output, see AADL Standard 8.3.2 (25)
-				OffsetTime ot = UtilFactory.eINSTANCE.createOffsetTime();
-				ot.setMs(0);
-				ot.setNs(0);
-				ot.setUniqueId(System.identityHashCode(feature));
-				ot.setIoTime(Communication_Properties_IO_Reference_Time_Completion);
-				ot.setConnection(connection);
+				OffsetTime ot = createOffsetTime(0, 0, System.identityHashCode(feature), Communication_Properties_IO_Reference_Time_Completion, connection);
 				times.add(ot);
 			}
 		return times;
 	}
 	
-	private static OffsetTime getTimeForConnection(NamedElement element, ConnectionInstance connection, boolean isInput){
+	private static OffsetTime getTimeForConnection(NamedElement element, Connection connection, boolean isInput){
 		OffsetTime time = null;
 		String timing = PropertyHelper.getTiming(connection); // sampled, immediate, delayed
 		if(timing.equals(Communication_Properties_Timing_Immediate))
 			if(isInput){
 				// see AADL Standard 9.2.5 (50)
-				time = UtilFactory.eINSTANCE.createOffsetTime();
-				time.setMs(0);
-				time.setNs(0);
-				time.setUniqueId(System.identityHashCode(connection));
-				time.setIoTime(Communication_Properties_IO_Reference_Time_Start);
-				time.setConnection(connection);
+				time = createOffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Start, connection);
 			}
 			else{
 				// if there is a single valued Output_Time, then take it, otherwise the time is assumed to be Completion, 
 				// see AADL Standard 9.2.5 (50)
 				List<OffsetTime> times = getTimeForReferenceTime(element, null, true, false, connection);
 				if(times.size() == 0){
-					time = UtilFactory.eINSTANCE.createOffsetTime();
-					time.setMs(0);
-					time.setNs(0);
-					time.setUniqueId(System.identityHashCode(connection));
-					time.setIoTime(Communication_Properties_IO_Reference_Time_Completion);
-					time.setConnection(connection);
+					time = createOffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Completion, connection);
 				}
 			}
 		if(timing.equals(Communication_Properties_Timing_Delayed))
 			if(isInput){
 				// see AADL Standard 9.2.5 (51)
-				time = UtilFactory.eINSTANCE.createOffsetTime();
-				time.setMs(0);
-				time.setNs(0);
-				time.setUniqueId(System.identityHashCode(connection));
-				time.setIoTime(Communication_Properties_IO_Reference_Time_Dispatch);
-				time.setConnection(connection);
+				time = createOffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Dispatch, connection);
 			}
 			else{
 				// see AADL Standard 9.2.5 (51)
-				time = UtilFactory.eINSTANCE.createOffsetTime();
-				time.setMs(0);
-				time.setNs(0);
-				time.setUniqueId(System.identityHashCode(connection));
-				time.setIoTime(Communication_Properties_IO_Reference_Time_Deadline);
-				time.setConnection(connection);
+				time = createOffsetTime(0, 0, System.identityHashCode(connection), Communication_Properties_IO_Reference_Time_Deadline, connection);
 			}
 		// sampled has no special semantic meaning for input and output timing
 		return time;
 	}
 	
-	private static List<OffsetTime> getTimeForReferenceTime(NamedElement element, final String IOReferenceTime, boolean forceSingleValued, boolean isInput, ConnectionInstance connection){
+	private static List<OffsetTime> getTimeForReferenceTime(NamedElement element, final String IOReferenceTime, boolean forceSingleValued, boolean isInput, Connection connection){
 		ArrayList<OffsetTime> times = new ArrayList<OffsetTime>();
+		//TODO: because of an OSATE Error? element can be null if the connection is from a subcomponent to the component itself and the element is a port of the component itself
+		if(element == null){
+			log.severe("The port for which we should find the OffsetTimes was null!!!");
+			return times;
+		}
 		List<PropertyExpression> timeProperties = null;
 		if(isInput)
 			timeProperties = element.getPropertyValues(Communication_Properties, Communication_Properties_Input_Time);
@@ -157,12 +134,7 @@ public class ComponentInstanceHelper {
      		   RangeValue offsetPart = (RangeValue)((RecordValue)timeProperty).getOwnedFieldValues().get(1).getOwnedValue();
      		   long minimumMs = (long) offsetPart.getMinimumValue().getScaledValue(AADL_Project_Time_Units_Milli_Seconds);
      		   long minimumNs = (long) offsetPart.getMinimumValue().getScaledValue(AADL_Project_Time_Units_Nano_Seconds) % 1000000;
-     		   time = UtilFactory.eINSTANCE.createOffsetTime();
-			   time.setMs(minimumMs);
-			   time.setNs(minimumNs);
-			   time.setUniqueId(System.identityHashCode(timeProperty));
-			   time.setIoTime(ioTime);
-			   time.setConnection(connection);
+     		   time = createOffsetTime(minimumMs, minimumNs, System.identityHashCode(timeProperty), ioTime, connection);
      		   
      		   if(IOReferenceTime == null || time.getIoTime().equals(IOReferenceTime)){
      			  times.add(time);
@@ -172,6 +144,17 @@ public class ComponentInstanceHelper {
         return times;
 	}
 	
+	private static OffsetTime createOffsetTime(long minimumMs, long minimumNs, int uniqueID, String ioTime, Connection connection){
+		OffsetTime time = UtilFactory.eINSTANCE.createOffsetTime();
+		time.setMs(minimumMs);
+		time.setNs(minimumNs);
+		time.setUniqueId(uniqueID);
+		time.setIoTime(ioTime);
+		time.setConnection(connection);
+		return time;
+	}
+	
+	// TODO: was ist mit In Out Ports???
 	public static ConnectionInstance getImmediateConnection(ComponentInstance component){
 		List<FeatureInstance> features = component.getAllFeatureInstances();
 		for (FeatureInstance feature : features) {
@@ -190,24 +173,26 @@ public class ComponentInstanceHelper {
 		return null;
 	}
 	
-	public static List<OffsetTime> getTimes(FeatureInstance feature){
-		EList<OffsetTime> times = new BasicEList<OffsetTime>();
-		EList<ConnectionInstance> connections = null;
+	// TODO: was ist mit In Out Ports???
+	public static List<OffsetTime> getTimes(DataPort feature, ComponentImplementation parent){
+		List<OffsetTime> times = new BasicEList<OffsetTime>();
+		List<Connection> connections = null;
 		boolean isInput = false;
-		DirectionType direction = feature.getDirection();
-		if(direction.incoming() && !direction.outgoing()){
-			connections = feature.getDstConnectionInstances();
+		if(ComponentClassifierHelper.isIncoming(feature) && !ComponentClassifierHelper.isOutgoing(feature)){
+			connections = ComponentClassifierHelper.getIncomingConnections(feature, parent);
 			isInput = true;
 		}
-		if(direction.outgoing() && !direction.incoming()){
-			connections = feature.getSrcConnectionInstances();
+		if(ComponentClassifierHelper.isOutgoing(feature) && !ComponentClassifierHelper.isIncoming(feature)){
+			connections = ComponentClassifierHelper.getOutgoingConnections(feature, parent);
 			isInput = false;
 		}
 		if (connections == null) {
-			System.out.println("no connections");
+			log.severe("no connections found for " + feature);
 		}
-		for (ConnectionInstance connection : connections) {
-			times.addAll(getTimes(feature, connection, null, isInput)); // no referencetime is needed if we want all times for one feature
+		else{
+			for (Connection connection : connections) {
+				times.addAll(getTimes(feature, connection, null, isInput)); // no referencetime is needed if we want all times for one feature
+			}
 		}
 		return times;
 	}
@@ -320,5 +305,13 @@ public class ComponentInstanceHelper {
 	 */
 	public static List<Element> getChildren(ComponentInstance ci){
 		return ci.getChildren();
+	}
+	
+	/**
+	 * @param ci the ComponentInstance one wants the parent for
+	 * @return the parent ComponentInstnace if there is any, <code>null</code> otherwise.
+	 */
+	public static ComponentInstance getParent(ComponentInstance ci){
+		return ci.getContainingComponentInstance();
 	}
 }

@@ -1,0 +1,15 @@
+[comment encoding = UTF-8 /]
+[module LogHelper('http://aadl.info/AADL/2.0/instance')/]
+
+[query public info(arg0 : String) : OclVoid
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.LogHelper', 'info(java.lang.String)', Sequence{arg0})
+/]
+
+[query public warning(arg0 : String) : OclVoid
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.LogHelper', 'warning(java.lang.String)', Sequence{arg0})
+/]
+
+[query public severe(arg0 : String) : OclVoid
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.LogHelper', 'severe(java.lang.String)', Sequence{arg0})
+/]
+

@@ -39,8 +39,10 @@ public class AADL2RTSJGenerationListener extends AbstractAcceleoTextGenerationLi
 	@Override
 	public void fileGenerated(AcceleoTextGenerationEvent event) {
 		try {
-			String sourceCode = new String(Files.readAllBytes(Paths.get(event.getText())));
-			srcFiles.put(event.getText(), sourceCode);
+			if(event.getText().endsWith(".java")){
+				String sourceCode = new String(Files.readAllBytes(Paths.get(event.getText())));
+				srcFiles.put(event.getText(), sourceCode);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

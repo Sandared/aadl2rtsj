@@ -143,12 +143,12 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 			[let sourceComp : ComponentImplementation = subcomponent.getClassifier()]
 				[let dataPort : DataPort = connection.getSourceFeature()]
 					[comment its a data port, so it should have at most one incoming connection on which we are asking for the syncObject /]
-					[if (dataPort.getInternalIncomingConnections(sourceComp) -> size() = 1)]
+					[if (dataPort.getIncomingConnections(sourceComp) -> size() = 1)]
 			// ask the childBroker for a syncObject, as [dataPort.name/] which is the source feature of [connection.name/] 
 			// has ingoing connections within [subcomponent.name/] (determined during generation)
-			return childBrokers.get("[subcomponent.name/]").getSynchronisationObjectForConnection("[dataPort.getInternalIncomingConnections(sourceComp)-> first().name/]");
+			return childBrokers.get("[subcomponent.name/]").getSynchronisationObjectForConnection("[dataPort.getIncomingConnections(sourceComp)-> first().name/]");
 					[comment if there's no connection, we look up the sync Object and if there's none, we create a new syncObject and save it for this connection /]
-					[elseif (dataPort.getInternalIncomingConnections(sourceComp) -> size() = 0)]
+					[elseif (dataPort.getIncomingConnections(sourceComp) -> size() = 0)]
 			// Look up the syncObject, as [dataPort.name/] which is the source feature of [connection.name/] 
 			// has no ingoing connections within [subcomponent.name/] (determined during generation).
 			// If no syncObject is found, a new one is created and stored for later reuse.

@@ -4,53 +4,9 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::PropertyHelper /]
 
-[template public generateInputHandler(component : ComponentInstance, feature : FeatureInstance, time : OffsetTime)]
-[file(getPackageName(component,false).substitute('.', '/').concat('/').concat(getHandlerClassName(time)).concat('.java') , false, 'UTF-8')]
-package [getPackageName(component, false)/];
-
-import javax.realtime.Timer;
-import javax.realtime.OneShotTimer;
-import javax.realtime.RelativeTime;
-import javax.realtime.PriorityParameters;
-import javax.realtime.BoundAsyncEventHandler;
-import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
-[if (not feature.getClassifier().isBaseType())]
-import [feature.getClassifier().getPackageName()/].[feature.getClassifier().getClassName()/];
-[/if]
-
-/**
- * Standard input handler for asynchronously receiving data on IN DATA PORTs
- * @author thomas.driessen@informatik.uni-augsburg.de
- */
-public class [getHandlerClassName(time)/] extends BoundAsyncEventHandler{
-	
-	/**
-	 * The data port to receive data on
-	 */
-	private DataPort<[feature.getClassifier().getClassName()/]> port;
-	
-	public [getHandlerClassName(time)/](DataPort<[feature.getClassifier().getClassName()/]> port){
-		this.port =  port;
-		// set the priority of this handler to the same value as of [component.getClassName()/] 
-		// for which it handles the asynchronous input
-		setSchedulingParameters(new PriorityParameters([component.getPriority()/]));
-		// Set the timer to the given offset of [time.ms.toString()/]ms and [time.ns.toString()/]ns
-		Timer timerFor[getHandlerClassName(time)/] = new OneShotTimer(new RelativeTime([time.ms.toString()/], [time.ns.toString()/]), this);
-		timerFor[getHandlerClassName(time)/].start();
-	}
-	
-	@Override
-	public void handleAsyncEvent() {
-		// Freeze the the data on the given port
-		port.receiveInput();
-	}
-}
-[/file]
-[/template]
-
-[template public generateOutputHandler(component : ComponentInstance, feature : FeatureInstance, time : OffsetTime)]
-[file(getPackageName(component, false).substitute('.', '/').concat('/').concat(getHandlerClassName(time)).concat('.java') , false, 'UTF-8')]
-package [getPackageName(component, false)/];
+[template public generateOutputHandler(thread : ComponentInstance, featureClassifier : ComponentClassifier, time : OffsetTime)]
+[file(thread.getPackageName(false).substitute('.', '/').concat('/').concat(time.getHandlerClassName()).concat('.java') , false, 'UTF-8')]
+package [thread.getPackageName(false)/];
 
 import javax.realtime.Timer;
 import javax.realtime.OneShotTimer;
@@ -59,20 +15,20 @@ import javax.realtime.PriorityParameters;
 import javax.realtime.BoundAsyncEventHandler;
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
-[if (not feature.getClassifier().isBaseType())]
-import [feature.getClassifier().getPackageName()/].[feature.getClassifier().getClassName()/];
+[if (not featureClassifier.isBaseType())]
+import [featureClassifier.getPackageName()/].[featureClassifier.getClassName()/];
 [/if]
 
 /**
  * Standard output handler for asynchronously sending data over OUT DATA PORTs
  * @author thomas.driessen@informatik.uni-augsburg.de
  */
-public class [getHandlerClassName(time)/] extends BoundAsyncEventHandler{
+public class [time.getHandlerClassName()/] extends BoundAsyncEventHandler{
 	
 	/**
 	 * The out port to send data from
 	 */
-	private DataPort<[feature.getClassifier().getClassName()/]> port;
+	private DataPort<[featureClassifier.getClassName()/]> port;
 
 	/**
 	 * The ConnectionBroker to use for sending data
@@ -84,24 +40,68 @@ public class [getHandlerClassName(time)/] extends BoundAsyncEventHandler{
 	 */
 	private String connectionName;
 	
-	public [getHandlerClassName(time)/](DataPort<[feature.getClassifier().getClassName()/]> port,  ConnectionBroker broker, String connectionName){
+	public [time.getHandlerClassName()/](DataPort<[featureClassifier.getClassName()/]> port,  ConnectionBroker broker, String connectionName){
 		this.port = port;
 		this.broker = broker;
 		this.connectionName = connectionName;
-		// set the priority of this handler to the same value as of [component.getClassName()/] 
+		// set the priority of this handler to the same value as of [thread.getClassName()/] 
 		// for which it handles the asynchronous output
-		setSchedulingParameters(new PriorityParameters([component.getPriority()/]));
+		setSchedulingParameters(new PriorityParameters([thread.getPriority()/]));
 		// Set the timer to the given offset of [time.ms.toString()/]ms and [time.ns.toString()/]ns
-		Timer timerFor[getHandlerClassName(time)/] = new OneShotTimer(new RelativeTime([time.ms.toString()/], [time.ns.toString()/]), this);
-		timerFor[getHandlerClassName(time)/].start();
+		Timer timerFor[time.getHandlerClassName()/] = new OneShotTimer(new RelativeTime([time.ms.toString()/], [time.ns.toString()/]), this);
+		timerFor[time.getHandlerClassName()/].start();
 	}
 	
 	@Override
 	public void handleAsyncEvent() {
 		// request the FW data for the given port and send it over the given connection
+		// TODO notify if immediate?
 		broker.sendOnConnection(connectionName, port.getFWData());
 	}
 }
 [/file]
 [/template]
 
+[template public generateInputHandler(thread : ComponentInstance, featureClassifier : ComponentClassifier, time : OffsetTime)]
+	[file(thread.getPackageName(false).substitute('.', '/').concat('/').concat(time.getHandlerClassName()).concat('.java') , false, 'UTF-8')]
+package [thread.getPackageName(false)/];
+
+import javax.realtime.Timer;
+import javax.realtime.OneShotTimer;
+import javax.realtime.RelativeTime;
+import javax.realtime.PriorityParameters;
+import javax.realtime.BoundAsyncEventHandler;
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
+[if (not featureClassifier.isBaseType())]
+import [featureClassifier.getPackageName()/].[featureClassifier.getClassName()/];
+[/if]
+
+/**
+ * Standard input handler for asynchronously receiving data on IN DATA PORTs
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ */
+public class [time.getHandlerClassName()/] extends BoundAsyncEventHandler{
+	
+	/**
+	 * The data port to receive data on
+	 */
+	private DataPort<[featureClassifier.getClassName()/]> port;
+	
+	public [time.getHandlerClassName()/](DataPort<[featureClassifier.getClassName()/]> port){
+		this.port =  port;
+		// set the priority of this handler to the same value as of [thread.getClassName()/] 
+		// for which it handles the asynchronous input
+		setSchedulingParameters(new PriorityParameters([thread.getPriority()/]));
+		// Set the timer to the given offset of [time.ms.toString()/]ms and [time.ns.toString()/]ns
+		Timer timerFor[time.getHandlerClassName()/] = new OneShotTimer(new RelativeTime([time.ms.toString()/], [time.ns.toString()/]), this);
+		timerFor[time.getHandlerClassName()/].start();
+	}
+	
+	@Override
+	public void handleAsyncEvent() {
+		// Freeze the the data on the given port
+		port.receiveInput();
+	}
+}
+[/file]
+[/template]

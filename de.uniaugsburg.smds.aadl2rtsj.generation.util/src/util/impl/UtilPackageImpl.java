@@ -9,6 +9,7 @@ import org.eclipse.emf.ecore.EReference;
 
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 
+import org.osate.aadl2.Aadl2Package;
 import org.osate.aadl2.instance.InstancePackage;
 
 import util.OffsetTime;
@@ -207,7 +208,7 @@ public class UtilPackageImpl extends EPackageImpl implements UtilPackage {
 		setNsURI(eNS_URI);
 
 		// Obtain other dependent packages
-		InstancePackage theInstancePackage = (InstancePackage)EPackage.Registry.INSTANCE.getEPackage(InstancePackage.eNS_URI);
+		Aadl2Package theAadl2Package = (Aadl2Package)EPackage.Registry.INSTANCE.getEPackage(Aadl2Package.eNS_URI);
 
 		// Create type parameters
 
@@ -221,7 +222,7 @@ public class UtilPackageImpl extends EPackageImpl implements UtilPackage {
 		initEAttribute(getOffsetTime_Ns(), ecorePackage.getELong(), "ns", null, 0, 1, OffsetTime.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getOffsetTime_UniqueId(), ecorePackage.getEInt(), "uniqueId", null, 0, 1, OffsetTime.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getOffsetTime_IoTime(), ecorePackage.getEString(), "ioTime", null, 0, 1, OffsetTime.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getOffsetTime_Connection(), theInstancePackage.getConnectionInstance(), null, "connection", null, 0, 1, OffsetTime.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getOffsetTime_Connection(), theAadl2Package.getConnection(), null, "connection", null, 0, 1, OffsetTime.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Create resource
 		createResource(eNS_URI);
