@@ -210,7 +210,8 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 
 	@Override
 	public String caseSystemInstance(SystemInstance object) {
-//		System.out.println("AADL2RTSJInstanceSwitch.caseSystemInstance()" + object);
+		System.out.println("AADL2RTSJInstanceSwitch.caseSystemInstance()" + object);
+		addHierarchyClassifers(object.getComponentClassifier());
 		return DONE;
 	}
 

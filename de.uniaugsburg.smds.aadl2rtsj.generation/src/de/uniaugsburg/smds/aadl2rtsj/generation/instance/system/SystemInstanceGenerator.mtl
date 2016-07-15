@@ -1,0 +1,69 @@
+[comment encoding = UTF-8 /]
+[module SystemInstanceGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::util::InnerConnectionBrokerGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::instance::util::InstanceHelper /]
+
+[template public generateSystemInstance(system : ComponentInstance)? (system.category = ComponentCategory::system) { classifier : ComponentClassifier = system.getClassifier(); }]
+[file(system.getPackageName(false).substitute('.', '/').concat('/').concat(system.getClassName()).concat('.java') , false, 'UTF-8')]
+package [system.getPackageName(false)/];
+
+//########## Classifier Imports ##########
+	[comment import all classifiers of this ThreadImplementation, but only once for each classifier/]
+	[for (classifier : ComponentClassifier | system.getClassifier().oclAsType(ComponentImplementation).getAllClassifiersForInstance())]
+import [classifier.getPackageName()/].[classifier.getClassName()/];
+	[/for]
+
+//########## ConnectionBroker Import ###########
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
+
+//########## Logger Import ##########
+import java.util.logging.Logger;
+
+public class [system.getClassName()/] extends [classifier.getClassName()/]{	
+	private static final Logger log = Logger.getLogger([system.getClassName()/].class.getName());	
+	
+	/**
+	 * ConnectionBroker to send on outgoing connections. Has to be set by the parent component.
+	 */
+	private ConnectionBroker parentBroker;
+
+	/**
+	 * ConnectionBroker for the connections within this Thread
+	 */
+	private ConnectionBroker broker;
+
+	public [system.getClassName()/]([classifier.getConstructorParameter()/]){
+		[comment for each subcomponent we have to create an Assignment Statement/]
+		[for (subcomponent : Subcomponent | classifier.oclAsType(ComponentImplementation).getAllSubComponents())]
+		this.[subcomponent.name/] = [subcomponent.name/];
+		[/for]
+	}
+
+	//########## Inherited Methods from ConnectionBrokerable ##########
+	@Override
+	public void setParentConnectionBroker(ConnectionBroker parentBroker){
+		[getSetParentConnectionBrokerStatements(system)/]
+	}
+
+	@Override
+	public ConnectionBroker getConnectionBroker(){
+		return broker;
+	}
+
+	[comment we have to implement the outPort wtihin the instance, becaus we only know within an instance, which name this component got as subcompnent /]
+	[for (dataPort : DataPort | classifier.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
+		[if (dataPort.isOutgoing())]
+	@Override
+	public void out[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
+		[comment broadcast über den parentBroker /]
+		parentBroker.sendOnPort("[system.name/].[dataPort.name/]", data);
+	}
+		[/if]
+	[/for]
+}
+[/file]
+
+[system.generateInnerConnectionBroker()/]
+[/template]

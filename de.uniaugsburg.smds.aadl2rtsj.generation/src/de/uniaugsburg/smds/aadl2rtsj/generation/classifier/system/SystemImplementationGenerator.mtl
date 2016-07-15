@@ -1,0 +1,59 @@
+[comment encoding = UTF-8 /]
+[module SystemImplementationGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+
+[template public generateSystemImplementation(system : ComponentClassifier)]
+[let systemImpl : SystemImplementation = system]
+[file(systemImpl.getPackageName().substitute('.', '/').concat('/').concat(systemImpl.getClassName()).concat('.java') , false, 'UTF-8')]
+package [systemImpl.getPackageName()/];
+
+//########## Classifier Imports ##########
+	[comment import all classifiers of this ThreadImplementation, but only once for each classifier/]
+	[for (classifier : ComponentClassifier | systemImpl.getAllClassifiersForImplementation())]
+import [classifier.getPackageName()/].[classifier.getClassName()/];
+	[/for]
+
+//########## Port Variable Import ##########
+	[comment if this component has in, out or in/out ports we have to import DataPort/]
+	[if (systemImpl.getAllFeatures()->select(oclIsTypeOf(DataPort))->size() > 0)]
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
+	[/if]
+
+public abstract class [systemImpl.getClassName()/][if (systemImpl.getExtendedClassifier() <> null)] extends [systemImpl.getExtendedClassifier().getClassName()/][/if] implements [systemImpl.getRealizedClassifier().getClassName()/]{
+
+	//########## Subcomponent Variables ##########
+	[for (subcomponent : Subcomponent | systemImpl.getOwnSubcomponents())]
+	/**
+	 * A member variable that is used to store the subcomponent <code>[subcomponent.name/]</code>
+	 */
+	protected [subcomponent.getClassifier().getClassName()/] [subcomponent.name/];
+	[/for]
+
+	[comment create a data port variable for each IN DATAPORT that has no connections within this component/]
+	[comment TODO maybe we need the port variable although there is a connection? /]
+	//########## Data Port Variables ###########
+	[for (dataPort : DataPort | systemImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
+		[if (getOutgoingConnections(dataPort, systemImpl)->size() = 0)]
+	protected DataPort<[dataPort.getClassifier().getClassName()/]> [dataPort.name/] = new DataPort<[dataPort.getClassifier().getClassName()/]>();
+		[/if]
+	[/for]
+
+	//########## Inherited Methods from [systemImpl.getRealizedClassifier().getClassName()/] ###########
+	[for (dataPort : DataPort | systemImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
+		[if (dataPort.isIncoming())]
+	@Override
+	public void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
+			[if (getOutgoingConnections(dataPort, systemImpl)->size() > 0)]
+				[for (connection : Connection | getOutgoingConnections(dataPort, systemImpl))]
+		broker.sendOnConnection("[connection.name/]", data);	
+				[/for]
+			[else]
+		this.[dataPort.name/].setFWData(data);
+			[/if]
+	}			
+		[/if]
+	[/for]
+}
+[/file]	
+[/let]
+[/template]

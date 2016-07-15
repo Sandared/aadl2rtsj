@@ -12,6 +12,10 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::instance::process::ProcessInstanceGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::process::ProcessTypeGenerator /]
 
+[import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::system::SystemImplementationGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::instance::system::SystemInstanceGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::system::SystemTypeGenerator /]
+
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::DataPortGenerator /]
@@ -40,13 +44,16 @@
 	[generateConnectionBrokerableInterface()/]
 	[generateInOutPortInterface()/]
 	[generateInPortInterface()/]
-	[generateOutPortInterface()/]
+	[generateOutPortInterface()/]l
 	[generateDeepCopyableInterface()/]
 	
 [/template]
 
 [template public generateClassifier(cc : ComponentClassifier)]
 	[comment generate the component itself. Each Generator decides if the given object is the right one /]
+	[generateSystemImplementation(cc)/]
+	[generateSystemType(cc)/]
+
 	[generateProcessImplementation(cc)/]
 	[generateProcessType(cc)/]
 	
@@ -61,6 +68,7 @@
 	[comment generate the component itself. Each Generator decides if the given object is the right one/ ]
 	[generateProcessInstance(ci)/]
 	[generateThreadInstance(ci)/]
+	[generateSystemInstance(ci)/]
 
 	[comment generate all subcomponents recursively  /]
 	[for (subcomponent : ComponentInstance | getChildren(ci)->select(oclIsTypeOf(ComponentInstance)) )]
