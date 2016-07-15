@@ -6,8 +6,8 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::instance::util::InstanceHelper /]
 
 [template public generateSystemInstance(system : ComponentInstance)? (system.category = ComponentCategory::system) { classifier : ComponentClassifier = system.getClassifier(); }]
-[file(system.getPackageName(false).substitute('.', '/').concat('/').concat(system.getClassName()).concat('.java') , false, 'UTF-8')]
-package [system.getPackageName(false)/];
+[file(system.getPackageName().substitute('.', '/').concat('/').concat(system.getClassName()).concat('.java') , false, 'UTF-8')]
+package [system.getPackageName()/];
 
 //########## Classifier Imports ##########
 	[comment import all classifiers of this ThreadImplementation, but only once for each classifier/]

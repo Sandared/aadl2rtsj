@@ -1,0 +1,11 @@
+[comment encoding = UTF-8 /]
+[module ThreadHelper('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')/]
+
+[query public getTimes(arg0 : Feature, arg1 : Connection, arg2 : String, arg3 : Boolean) : Sequence(OffsetTime)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ThreadHelper', 'getTimes(org.osate.aadl2.Feature, org.osate.aadl2.Connection, java.lang.String, java.lang.Boolean)', Sequence{arg0, arg1, arg2, arg3})
+/]
+
+[query public getTimes(arg0 : DataPort, arg1 : ComponentImplementation) : Sequence(OffsetTime)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ThreadHelper', 'getTimes(org.osate.aadl2.DataPort, org.osate.aadl2.ComponentImplementation)', Sequence{arg0, arg1})
+/]
+

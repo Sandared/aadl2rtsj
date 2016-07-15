@@ -4,8 +4,8 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
 
 [template public generateUserCode(thread : ComponentInstance){ classifier : ComponentClassifier = thread.getClassifier(); }]
-[file(thread.getPackageName(true).substitute('.', '/').concat('/').concat(thread.getClassName().concat('UserCode')).concat('.java') , false, 'UTF-8')]
-package [thread.getPackageName(true)/];
+[file(thread.getUserCodePackageName().substitute('.', '/').concat('/').concat(thread.getClassName().concat('UserCode')).concat('.java') , false, 'UTF-8')]
+package [thread.getUserCodePackageName()/];
 
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.InPort;
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.OutPort;

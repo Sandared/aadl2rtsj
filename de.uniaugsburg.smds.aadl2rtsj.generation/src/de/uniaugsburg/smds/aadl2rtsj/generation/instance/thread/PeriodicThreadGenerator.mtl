@@ -11,6 +11,7 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::instance::util::InstanceHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::LogHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::IOHandlerGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ThreadHelper /]
 
 [template public generatePeriodicThread(thread : ComponentInstance)? (thread.getDispatchProtocol() = getProperty('Thread_Properties_Dispatch_Protocol_Periodic')) { classifier : ComponentClassifier = thread.getClassifier(); parentClassifier : ComponentImplementation = thread.getParent().getClassifier().oclAsType(ComponentImplementation) ;}]
 
@@ -43,8 +44,8 @@
 [comment generate Usercode class for this thread /]
 [generateUserCode(thread)/]
 
-[file(thread.getPackageName(false).substitute('.', '/').concat('/').concat(thread.getClassName()).concat('.java') , false, 'UTF-8')]
-package [thread.getPackageName(false)/];
+[file(thread.getPackageName().substitute('.', '/').concat('/').concat(thread.getClassName()).concat('.java') , false, 'UTF-8')]
+package [thread.getPackageName()/];
 
 import javax.realtime.Timer;
 import javax.realtime.OneShotTimer;
@@ -67,7 +68,7 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
 import java.util.logging.Logger;
 
 //########## Usercode Import ##########
-import [thread.getPackageName(true)/].[thread.getUserCodeClassName()/];
+import [thread.getUserCodePackageName()/].[thread.getUserCodeClassName()/];
 
 public class [thread.getClassName()/] extends [classifier.getClassName()/]{	
 	private static final Logger log = Logger.getLogger([thread.getClassName()/].class.getName());	
@@ -141,7 +142,7 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 	}
 	
 	private final void compute() {
-		System.out.println("[thread.getPackageName(false)/].[thread.getClassName()/].compute()");
+		System.out.println("[thread.getPackageName()/].[thread.getClassName()/].compute()");
 		//Execute User Code
 		userCode.compute();
 	}
@@ -187,8 +188,8 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 [/for]
 [/template]
 
-[template private getHandlerClass(thread : ComponentInstance) post (trim()) {connection : ConnectionInstance = getImmediateConnection(thread);}]
-class InnerAsyncEventHandler extends [if ((connection <> null) and (connection.getConnectionDestination().getComponentInstance() = thread))]Bound[/if]AsyncEventHandler{
+[template private getHandlerClass(thread : ComponentInstance) post (trim()) {connection : ConnectionInstance = thread.getImmediateConnection();}]
+class InnerAsyncEventHandler extends [if ((connection <> null) )]Bound[/if]AsyncEventHandler{
 	public InnerAsyncEventHandler(){
 		setDaemon(false);
 		setSchedulingParameters(new PriorityParameters([thread.getPriority()/]));
@@ -196,7 +197,7 @@ class InnerAsyncEventHandler extends [if ((connection <> null) and (connection.g
 
 	@Override
 	public void handleAsyncEvent() {
-	[if ((connection <> null) and (connection.getConnectionDestination().getComponentInstance() = thread))]
+	[if ((connection <> null))]
 		synchronized(parentBroker.getSynchronisationObjectForConnection([connection.name/])){
 			try{
 				while(![connection.getConnectionDestination().name/].isDirty()){
@@ -215,8 +216,8 @@ class InnerAsyncEventHandler extends [if ((connection <> null) and (connection.g
 }
 [/template]
 
-[template private getHandlerType(thread : ComponentInstance) post (trim()) {connection : ConnectionInstance = getImmediateConnection(thread);}]
-	[if ((connection <> null) and (connection.getConnectionDestination().getComponentInstance() = thread))]
+[template private getHandlerType(thread : ComponentInstance) post (trim()) {connection : ConnectionInstance = thread.getImmediateConnection();}]
+	[if ((connection <> null))]
 		BoundAsyncEventHandler
 	[else]
 		AsyncEventHandler

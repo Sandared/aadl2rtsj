@@ -33,56 +33,59 @@ public class ComponentClassifierHelper {
 	
 	private static final Logger log = Logger.getLogger(ComponentClassifierHelper.class.getName());
 	
-	//TODO: do we need this? check can be done in mtl file via oclIsTypeOf
-	public static boolean isData(ComponentClassifier c){
-		return c instanceof DataImplementation; // we only consider dataImplementation at the moment as classifiers
-	}
-	
-	public static boolean isPeriodic(ComponentClassifier ti){
-		return PropertyHelper.getDispatchProtocol(ti).equals(Thread_Properties_Dispatch_Protocol_Periodic);
-	}
-	
+	/**
+	 * @param cc the ComponentClassifier one wants all Features for
+	 * @return all Features of the given ComponentClassifier, this includes inherited Features
+	 */
 	public static List<Feature> getAllFeatures(ComponentClassifier cc){
-		EList<Feature> result = cc.getAllFeatures();
 		return cc.getAllFeatures();
 	}
 	
+	/**
+	 * @param ci the ComopnentImplementation one wants all Subcomponents for
+	 * @return all Subcomponents of the given ComponentImplementation, as well as all Subcomponents that might be inherited by extended ComponentImplementations
+	 */
 	public static List<Subcomponent> getAllSubComponents(ComponentImplementation ci){
 		return ci.getAllSubcomponents();
 	}
 	
+	/**
+	 * @param ci the ComponentImplementation one wants its own Subcomponents for
+	 * @return all Subcomponents that are defined within this ComponentImplmentation. This method doesn't take into account the Subcomponents that might be inherited from an extended ComponentImplementation
+	 */
 	public static List<Subcomponent> getOwnSubcomponents(ComponentImplementation ci){
 		EList<Subcomponent> subcomponents = ci.getOwnedSubcomponents();
 		return ci.getOwnedSubcomponents();
 	}
 	
+	/**
+	 * @param classifier the ComponentClassifier to test for being a Basetype
+	 * @return true if the NameSpace of the classifier starts with 'Base_Type' (OSATE package for predefined Basetypes), false otherwise.
+	 */
 	public static boolean isBaseType(ComponentClassifier classifier){
-		return getNameSpace(classifier).equals("Base_Types");
+		return classifier.getNamespace().getFullName().startsWith("Base_Types");
 	}	
 	
-	//TODO: kann man bestimmt weglassen
-	private static String getNameSpace(ComponentClassifier classifier){
-		StringBuffer namespace = new StringBuffer(classifier.getNamespace().getFullName());
-		int visibilityPos;
-		if((visibilityPos = namespace.indexOf("_public")) != -1)
-			namespace.delete(visibilityPos, visibilityPos + "_public".length());
-		else{
-			if((visibilityPos = namespace.indexOf("_private")) != -1)
-				namespace.delete(visibilityPos, visibilityPos + "_private".length());
-		}
-		return namespace.toString();
-	}
-	
+	/**
+	 * @param f the Feature to check if it is refined
+	 * @return true if f is refined, false otherwise
+	 */
 	public static boolean isRefined(Feature f){
 		return f.getRefined() != null;
 	}
 	
+	/**
+	 * @param sc the Subcomponent one wants the ComponentClassifier for
+	 * @return the ComponentClassifier for the given Subcomponent, or <code>null</code> if none was specified
+	 */
 	public static ComponentClassifier getClassifier(Subcomponent sc){
 		return sc.getClassifier();
 	}
 	
-
-	
+	/**
+	 * @param ci the ComponentImplementation one wants all inner connections for
+	 * @return a List of Connections for the given ComponentImplementation
+	 */
 	public static List<Connection> getAllConnections(ComponentImplementation ci){
 		return ci.getAllConnections();
 	}
@@ -154,10 +157,6 @@ public class ComponentClassifierHelper {
 		}
 		return incoming;
 	}
-	
-	// ##############################################################
-	// DEFINITLY NEEDED
-	// ##############################################################
 	
 	/**
 	 * Retrieves a Set of unique classifiers for the given ComponentType, encompassing:</br>
@@ -461,6 +460,10 @@ public class ComponentClassifierHelper {
 		return sb.toString().toLowerCase();
 	}
 	
+	/**
+	 * @param f the Feature to check for being 'incoming'
+	 * @return true if Feature is a DirectedFeature and its direction is incoming
+	 */
 	public static boolean isIncoming(Feature f){
 		if(f instanceof DirectedFeature)
 			return ((DirectedFeature) f).getDirection().incoming();
@@ -468,6 +471,10 @@ public class ComponentClassifierHelper {
 		return true;// Default
 	}
 	
+	/**
+	 * @param f the Feature to check for being 'outgoing'
+	 * @return true if Feature is a DirectedFeature and its direction is outgoing
+	 */
 	public static boolean isOutgoing(Feature f){
 		if(f instanceof DirectedFeature)
 			return ((DirectedFeature) f).getDirection().outgoing();
