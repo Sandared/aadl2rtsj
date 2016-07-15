@@ -19,6 +19,11 @@ import [classifier.getPackageName()/].[classifier.getClassName()/];
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBrokerable;
 	[/if]
 
+/**
+ * This interface represents the model element [systemType.name/]</br>
+ * Each DATA PORT of [systemType.name/] is represented by a correspong in'dataPortName' or out'dataPortName' method.
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ */
 public interface [systemType.getClassName()/] extends [if (systemType.getExtendedClassifier() <> null)][systemType.getExtendedClassifier().getClassName()/][else]ConnectionBrokerable[/if]{
 	[for (feature : Feature | systemType.getAllFeatures())]
 		[let dataPort : DataPort = feature]

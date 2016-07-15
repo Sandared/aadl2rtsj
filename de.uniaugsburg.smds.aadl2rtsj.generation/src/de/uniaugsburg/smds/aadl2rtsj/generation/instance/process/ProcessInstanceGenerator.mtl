@@ -21,6 +21,12 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
 //########## Logger Import ##########
 import java.util.logging.Logger;
 
+/**
+ * This class represents the instance model element [process.name/].</br>
+ * It defines a ConnectionBroker for the handling of connections defined within [process.name/] and a parent ConnectionBroker to forward or initiate data transfer into 'higher' nested components.</br>
+ * It defines am out'dataPortName' method for each OUT DATA PORT, which brodcasts the given data over the parentBroker on all outgoing connections.
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ */
 public class [process.getClassName()/] extends [classifier.getClassName()/]{	
 	private static final Logger log = Logger.getLogger([process.getClassName()/].class.getName());	
 	
@@ -60,6 +66,7 @@ public class [process.getClassName()/] extends [classifier.getClassName()/]{
 		[comment broadcast über den parentBroker /]
 		parentBroker.sendOnPort("[process.name/].[dataPort.name/]", data);
 	}
+
 		[/if]
 	[/for]
 }

@@ -19,6 +19,14 @@ import [classifier.getPackageName()/].[classifier.getClassName()/];
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
 	[/if]
 
+/**
+ * This class represents the model element [processImpl.name/].</br>
+ * For each defined subcomponent it defines a member variable, which is visible to extending classes.</br>
+ * For each DATA PORT that has no connections defined within [processImpl.name/], a member variable is defined, that can store incoming or outgoing values</br>
+ * For each IN DATA PORT a method is defined, that handles the incoming data.
+ * 
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ */
 public abstract class [processImpl.getClassName()/][if (processImpl.getExtendedClassifier() <> null)] extends [processImpl.getExtendedClassifier().getClassName()/][/if] implements [processImpl.getRealizedClassifier().getClassName()/]{
 
 	//########## Subcomponent Variables ##########
@@ -27,6 +35,7 @@ public abstract class [processImpl.getClassName()/][if (processImpl.getExtendedC
 	 * A member variable that is used to store the subcomponent <code>[subcomponent.name/]</code>
 	 */
 	protected [subcomponent.getClassifier().getClassName()/] [subcomponent.name/];
+
 	[/for]
 
 	[comment create a data port variable for each IN DATAPORT that has no connections within this component/]
@@ -34,13 +43,29 @@ public abstract class [processImpl.getClassName()/][if (processImpl.getExtendedC
 	//########## Data Port Variables ###########
 	[for (dataPort : DataPort | processImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
 		[if (getOutgoingConnections(dataPort, processImpl)->size() = 0)]
+	/**
+	 * A DataPort<[dataPort.getClassifier().getClassName()/]> member variable that is</br> 
+	 * used to store data for the DATA PORT <code>[dataPort.name/]</code>
+	 */
 	protected DataPort<[dataPort.getClassifier().getClassName()/]> [dataPort.name/] = new DataPort<[dataPort.getClassifier().getClassName()/]>();
+
 		[/if]
 	[/for]
 
 	//########## Inherited Methods from [processImpl.getRealizedClassifier().getClassName()/] ###########
 	[for (dataPort : DataPort | processImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
 		[if (dataPort.isIncoming())]
+			[if (dataPort.getOutgoingConnections(processImpl)-> size() > 0)]
+	/**
+	 * This method forwards <code>data</code> on its respective internal connections</br>
+	 * @param data the data that is sent to this thread via its <code>[dataPort.name/]</code> IN DATA PORT 
+	 */
+			[else]
+	/**
+	 * This method stores <code>data</code> in an internal port variable.</br>
+	 * @param data the data that is sent to this thread via its <code>[dataPort.name/]</code> IN DATA PORT 
+	 */	
+			[/if]
 	@Override
 	public void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
 			[if (getOutgoingConnections(dataPort, processImpl)->size() > 0)]
@@ -50,7 +75,8 @@ public abstract class [processImpl.getClassName()/][if (processImpl.getExtendedC
 			[else]
 		this.[dataPort.name/].setFWData(data);
 			[/if]
-	}			
+	}
+			
 		[/if]
 	[/for]
 }

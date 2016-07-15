@@ -70,9 +70,26 @@ import java.util.logging.Logger;
 //########## Usercode Import ##########
 import [thread.getUserCodePackageName()/].[thread.getUserCodeClassName()/];
 
+/**
+ * This class represents the instance model element [thread.name/].</br>
+ * It defines a ConnectionBroker for the handling of connections defined within [thread.name/] and a parent ConnectionBroker to forward or initiate data transfer into 'higher' nested components.</br>
+ * It defines am out'dataPortName' method for each OUT DATA PORT, which brodcasts the given data over the parentBroker on all outgoing connections.
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ */
 public class [thread.getClassName()/] extends [classifier.getClassName()/]{	
-	private static final Logger log = Logger.getLogger([thread.getClassName()/].class.getName());	
+	/**
+	 * The Logger to log information on
+	 */
+	private static final Logger log = Logger.getLogger([thread.getClassName()/].class.getName());
+
+	/**
+	 * The AsyncEventHandler which makes this class an executable entity
+	 */	
 	private AsyncEventHandler handler = new InnerAsyncEventHandler();
+
+	/**
+	 * The timer, that triggers the AsyncEventHandler in a periodic manner
+	 */ 
 	private Timer timer = new PeriodicTimer(new RelativeTime(), new RelativeTime([thread.getPeriodMilliSeconds()/], [thread.getPeriodNanoSeconds()/]), handler);
 
 	/**
@@ -121,18 +138,24 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 		[/if]
 	[/for]
 	
+	/**
+	 * Method that is called by the AsyncEventHandler in order to map the dispatch event of an AADL thread.
+	 */
 	private final void dispatch() {
 		[comment we need deadline statements at this point, as there is no way to hook into the JVM to listen for a deadline /]
 		[let deadline : String = getProperty('Communication_Properties_IO_Reference_Time_Deadline')]
-			[classifier.getStatementsForReferenceTime(deadline, parentClassifier)/]
+		[classifier.getStatementsForReferenceTime(deadline, parentClassifier)/]
 		[/let]
 		[let dispatch : String = getProperty('Communication_Properties_IO_Reference_Time_Dispatch')]
-			[classifier.getStatementsForReferenceTime(dispatch, parentClassifier)/]
+		[classifier.getStatementsForReferenceTime(dispatch, parentClassifier)/]
 		[/let]
 		//Execute User Code
 		userCode.dispatch();
 	}
 	
+	/**
+	 * Method that is called by the AsyncEventHandler in order to map the start event of an AADL thread.
+	 */
 	private final void start() {
 		[let start : String = getProperty('Communication_Properties_IO_Reference_Time_Start')]
 			[classifier.getStatementsForReferenceTime(start, parentClassifier)/]
@@ -141,12 +164,18 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 		userCode.start();
 	}
 	
+	/**
+	 * Method that is called by the AsyncEventHandler in order to map the compute time of an AADL thread.
+	 */
 	private final void compute() {
 		System.out.println("[thread.getPackageName()/].[thread.getClassName()/].compute()");
 		//Execute User Code
 		userCode.compute();
 	}
 	
+	/**
+	 * Method that is called by the AsyncEventHandler in order to map the completion event of an AADL thread.
+	 */
 	private final void completion() {
 		[let completion : String = getProperty('Communication_Properties_IO_Reference_Time_Completion')]
 			[classifier.getStatementsForReferenceTime(completion, parentClassifier)/]
@@ -198,6 +227,7 @@ class InnerAsyncEventHandler extends [if ((connection <> null) )]Bound[/if]Async
 	@Override
 	public void handleAsyncEvent() {
 	[if ((connection <> null))]
+		// wait for the sending thread to finish its work
 		synchronized(parentBroker.getSynchronisationObjectForConnection([connection.name/])){
 			try{
 				while(![connection.getConnectionDestination().name/].isDirty()){

@@ -14,6 +14,8 @@ import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 
 /**
+ * This interface represents the model element [threadType.name/]</br>
+ * Each DATA PORT of [threadType.name/] is represented by a correspong in'dataPortName' or out'dataPortName' method.
  * @author thomas.driessen@informatik.uni-augsburg.de
  */
 public interface [threadType.getClassName()/][if (threadType.getExtendedClassifier() <> null)] extends [threadType.getExtendedClassifier().getClassName()/][/if]{

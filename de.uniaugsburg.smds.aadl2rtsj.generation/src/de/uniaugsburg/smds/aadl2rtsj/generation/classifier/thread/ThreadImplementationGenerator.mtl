@@ -25,6 +25,14 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
 import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBrokerable;
 	[/if]
 
+/**
+ * This class represents the model element [threadImpl.name/].</br>
+ * For each defined subcomponent it defines a member variable, which is visible to extending classes.</br>
+ * For each DATA PORT that has no connections defined within [threadImpl.name/], a member variable is defined, that can store incoming or outgoing values</br>
+ * For each IN DATA PORT a method is defined, that handles the incoming data.
+ * 
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ */
 public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedClassifier() <> null)] extends [threadImpl.getExtendedClassifier().getClassName()/][/if] implements [threadImpl.getRealizedClassifier().getClassName()/][if (threadImpl.getExtendedClassifier() = null)], ConnectionBrokerable[/if]{
 
 	//########## Subcomponent Variables ##########
@@ -33,6 +41,7 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 	 * A member variable that is used to store the subcomponent <code>[subcomponent.name/]</code>
 	 */
 	protected [subcomponent.getClassifier().getClassName()/] [subcomponent.name/];
+
 	[/for]
 
 	[comment create a data port variable for each IN DATAPORT that has no connections within this component/]
@@ -45,6 +54,7 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 	 * used to store data for the DATA PORT <code>[dataPort.name/]</code>
 	 */
 	protected DataPort<[dataPort.getClassifier().getClassName()/]> [dataPort.name/] = new DataPort<[dataPort.getClassifier().getClassName()/]>();
+
 		[/if]
 	[/for]
 
@@ -65,13 +75,16 @@ public abstract class [threadImpl.getClassName()/][if (threadImpl.getExtendedCla
 	@Override
 	public void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
 			[if (getOutgoingConnections(dataPort, threadImpl)-> size() > 0)]
+		// send on all connections that have [dataPort.name/] as source
 				[for (connection : Connection | getOutgoingConnections(dataPort, threadImpl))]
 		broker.sendOnConnection("[connection.name/]", data);	
 				[/for]
 			[else]
+		// store the data in its corresponding [dataPort.name/] variable
 		this.[dataPort.name/].setFWData(data);
 			[/if]
-	}			
+	}
+			
 		[/if]
 	[/for]
 }
