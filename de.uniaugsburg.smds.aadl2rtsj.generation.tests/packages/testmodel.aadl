@@ -27,22 +27,22 @@ end a_process;
 			mysendreceive: thread b_thread.sendreceive  {Dispatch_Protocol => periodic;};
 			myworker: thread a_extended_thread.worker {Dispatch_Protocol => periodic;};
 		connections
-			new_connection: port myworker.dataout -> mysendreceive.internalin  {Timing => delayed;};
-			new_connection2: port mysendreceive.internalout -> myworker.datain;
-			new_connection3: port datain -> mysendreceive.externalin;
-			new_connection4: port mysendreceive.externalout -> dataout;
+			subcomp_con1: port myworker.workerDataOut -> mysendreceive.internalin  {Timing => delayed;};
+			subcomp_con2: port mysendreceive.internalout -> myworker.workerDataIn;
+			incoming: port datain -> mysendreceive.externalin;
+			outgoing: port mysendreceive.externalout -> dataout;
 end a_process.process1;
 
 	thread a_thread
 		features
-			datain: in data port A {Classifier_Substitution_Rule => Type_Extension;};
-			dataout: out data port A;
+			workerDataIn: in data port A {Classifier_Substitution_Rule => Type_Extension;};
+			workerDataOut: out data port A;
 	
 end a_thread;
 
 thread a_extended_thread extends a_thread
 	features
-		datain: refined to in data port B.impl;
+		workerDataIn: refined to in data port B.impl;
 end a_extended_thread;
 
 

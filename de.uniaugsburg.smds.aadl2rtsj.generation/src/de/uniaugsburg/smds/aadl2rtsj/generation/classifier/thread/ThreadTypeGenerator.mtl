@@ -2,11 +2,10 @@
 [module ThreadTypeGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
 
-[template public generateThreadType(thread : ComponentClassifier)]
+[template public generateThreadType(thread : ComponentClassifier){ fileName : String = getPackageName(thread).substitute('.', '/').concat('/').concat(getClassName(thread)).concat('.java'); }]
 [let threadType : ThreadType = thread]
-[file(getPackageName(threadType).substitute('.', '/').concat('/').concat(getClassName(threadType)).concat('.java') , false, 'UTF-8')]
+[file(threadType.getFileName() , false, 'UTF-8')]
 package [getPackageName(threadType)/];
-
 //########## Classifier Import ##########
 	[comment import all classifiers for this component, but only once for each classifier/]
 	[for (classifier : ComponentClassifier | threadType.getAllClassifiersForType())]

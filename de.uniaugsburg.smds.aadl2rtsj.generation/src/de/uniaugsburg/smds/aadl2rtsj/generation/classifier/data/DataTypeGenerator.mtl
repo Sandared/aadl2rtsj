@@ -5,7 +5,7 @@
 
 [template public generateDataType(data : ComponentClassifier)]
 [let dataType : DataType = data]
-[file(dataType.getPackageName().substitute('.', '/').concat('/').concat(dataType.getClassName()).concat('.java') , false, 'UTF-8')]
+[file(dataType.getFileName() , false, 'UTF-8')]
 package [dataType.getPackageName()/];
 
 	[comment import the extended type if necessary/]

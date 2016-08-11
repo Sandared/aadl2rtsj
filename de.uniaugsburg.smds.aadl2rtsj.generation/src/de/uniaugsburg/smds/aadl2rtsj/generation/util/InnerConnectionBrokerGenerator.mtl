@@ -3,7 +3,7 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 [template public generateInnerConnectionBroker(instance : ComponentInstance)]
-[file(instance.getPackageName().substitute('.', '/').concat('/').concat(instance.getClassName().concat('ConnectionBroker')).concat('.java') , false, 'UTF-8')]
+[file(instance.getConnectionBrokerFileName() , false, 'UTF-8')]
 package [instance.getPackageName()/];
 
 import java.util.Map;

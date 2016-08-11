@@ -4,7 +4,7 @@ s[comment encoding = UTF-8 /]
 
 [template public generateDataImplementation(data : ComponentClassifier)]
 [let dataImpl : DataImplementation = data]
-[file(dataImpl.getPackageName().substitute('.', '/').concat('/').concat(dataImpl.getClassName()).concat('.java') , false, 'UTF-8')]
+[file(dataImpl.getFileName(), false, 'UTF-8')]
 package [dataImpl.getPackageName()/];
 
 //########## Classifier Imports ##########

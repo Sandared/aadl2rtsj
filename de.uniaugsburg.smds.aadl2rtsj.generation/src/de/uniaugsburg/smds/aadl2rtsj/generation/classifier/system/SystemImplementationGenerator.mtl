@@ -4,7 +4,7 @@
 
 [template public generateSystemImplementation(system : ComponentClassifier)]
 [let systemImpl : SystemImplementation = system]
-[file(systemImpl.getPackageName().substitute('.', '/').concat('/').concat(systemImpl.getClassName()).concat('.java') , false, 'UTF-8')]
+[file(systemImpl.getFileName() , false, 'UTF-8')]
 package [systemImpl.getPackageName()/];
 
 //########## Classifier Imports ##########

@@ -4,7 +4,7 @@
 
 [template public generateProcessType(process : ComponentClassifier)]
 [let processType : ProcessType = process]
-[file(processType.getPackageName().substitute('.', '/').concat('/').concat(processType.getClassName()).concat('.java') , false, 'UTF-8')]
+[file(processType.getFileName() , false, 'UTF-8')]
 package [processType.getPackageName()/];
 
 //########## Classifier Import##########

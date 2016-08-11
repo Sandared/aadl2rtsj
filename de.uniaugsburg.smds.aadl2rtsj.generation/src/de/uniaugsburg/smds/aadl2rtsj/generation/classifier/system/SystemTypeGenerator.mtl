@@ -5,7 +5,7 @@
 
 [template public generateSystemType(system : ComponentClassifier)]
 [let systemType : SystemType = system]
-[file(systemType.getPackageName().substitute('.', '/').concat('/').concat(systemType.getClassName()).concat('.java') , false, 'UTF-8')]
+[file(systemType.getFileName() , false, 'UTF-8')]
 package [systemType.getPackageName()/];
 
 //########## Classifier Import##########

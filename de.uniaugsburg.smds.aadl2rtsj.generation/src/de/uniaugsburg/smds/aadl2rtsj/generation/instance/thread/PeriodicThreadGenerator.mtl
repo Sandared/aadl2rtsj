@@ -44,7 +44,7 @@
 [comment generate Usercode class for this thread /]
 [generateUserCode(thread)/]
 
-[file(thread.getPackageName().substitute('.', '/').concat('/').concat(thread.getClassName()).concat('.java') , false, 'UTF-8')]
+[file(thread.getFileName() , false, 'UTF-8')]
 package [thread.getPackageName()/];
 
 import javax.realtime.Timer;

@@ -183,4 +183,37 @@ public class ComponentInstanceHelper {
 	public static ConnectionInstanceEnd getConnectionDestination(ConnectionInstance coni){
 		return coni.getDestination();
 	}
+	
+	/**
+	 * @param ci the ComponentInstance one wants the filename for
+	 * @return the whole path to this file including a valid Java filename ending
+	 */
+	public static String getFileName(ComponentInstance ci){
+		return getPackageName(ci).replace('.', '/').concat("/").concat(getClassName(ci)).concat(".java");
+	}
+	
+	/**
+	 * @param ci the ComponentInstance one wants the usercodefilename for
+	 * @return the whole path to this usercodefile including a valid Java filename ending
+	 */
+	public static String getUserCodeFileName(ComponentInstance ci){
+		return getUserCodePackageName(ci).replace('.', '/').concat("/").concat(getUserCodeClassName(ci)).concat(".java");
+	}
+	
+	
+	/**
+	 * @param ci the ComponentInstance one wants the ConnectionBroker filename for
+	 * @return the whole path to this ConnectionBroker file including a valid Java filename ending
+	 */
+	public static String getConnectionBrokerFileName(ComponentInstance ci){
+		return getPackageName(ci).replace('.', '/').concat("/").concat(getClassName(ci)).concat("ConnectionBroker.java");
+	}
+	
+	/**
+	 * @param ci the ComponentInstance one wants the IOHandler filename for
+	 * @return the whole path to this IOHandler file including a valid Java filename ending
+	 */
+	public static String getIOHandlerFileName(ComponentInstance ci, OffsetTime time){
+		return getPackageName(ci).replace('.', '/').concat("/").concat(getHandlerClassName(time)).concat(".java");
+	}
 }

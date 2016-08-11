@@ -71,7 +71,7 @@
 	[generateSystemInstance(ci)/]
 
 	[comment generate all subcomponents recursively  /]
-	[for (subcomponent : ComponentInstance | getChildren(ci)->select(oclIsTypeOf(ComponentInstance)) )]
+	[for (subcomponent : ComponentInstance | ci.getChildren()->select(oclIsTypeOf(ComponentInstance)) )]
 		[if (subcomponent <> ci)]
 			[generateInstance(subcomponent)/]
 		[/if]

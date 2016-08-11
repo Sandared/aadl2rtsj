@@ -481,4 +481,12 @@ public class ComponentClassifierHelper {
 		log.warning("Feature " + f  + " is not a Directed Feature! Default 'true' is given for outgoing");
 		return true;// Default
 	}
+	
+	/**
+	 * @param cc the ComponentClassifier one wants the filename for
+	 * @return the whole path to this file including a valid Java filename ending
+	 */
+	public static String getFileName(ComponentClassifier cc){
+		return getPackageName(cc).replace('.', '/').concat("/").concat(getClassName(cc)).concat(".java");
+	}
 }

@@ -129,3 +129,7 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'isOutgoing(org.osate.aadl2.Feature)', Sequence{arg0})
 /]
 
+[query public getFileName(arg0 : ComponentClassifier) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper', 'getFileName(org.osate.aadl2.ComponentClassifier)', Sequence{arg0})
+/]
+

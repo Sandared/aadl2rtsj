@@ -4,7 +4,7 @@
 
 [template public generateThreadImplementation(thread : ComponentClassifier)]
 [let threadImpl : ThreadImplementation = thread]
-[file(threadImpl.getPackageName().substitute('.', '/').concat('/').concat(threadImpl.getClassName()).concat('.java') , false, 'UTF-8')]
+[file(threadImpl.getFileName() , false, 'UTF-8')]
 package [threadImpl.getPackageName()/];
 
 //########## Classifier Imports ##########
