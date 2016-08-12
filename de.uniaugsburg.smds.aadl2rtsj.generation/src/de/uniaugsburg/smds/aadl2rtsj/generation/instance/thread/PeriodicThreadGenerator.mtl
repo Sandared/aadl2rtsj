@@ -314,9 +314,9 @@ new [getHandlerClassName(offsetTime)/]([feature.name/]);
 				[if(IOReferenceTime = getProperty('Communication_Properties_IO_Reference_Time_Deadline'))]
 					[comment if it is an immediate connection, the handler must know it has to notify the waiting thread(s) /]
 					[if (connection.getTiming() = getProperty('Communication_Properties_Timing_Immediate'))]
-new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/], true");
+new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/]", true);
 					[else]
-new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/], false");
+new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/]", false);
 					[/if]
 				[elseif ((offsetTime.ms = 0) and (offsetTime.ns = 0))]
 				[comment] 
@@ -335,9 +335,9 @@ synchronized(sync){
 				[else]
 					[comment if it is an immediate connection, the handler must know it has to notify the waiting thread(s) /]
 					[if (connection.getTiming() = getProperty('Communication_Properties_Timing_Immediate'))]
-new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/], true");
+new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/]", true);
 					[else]
-new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/], false");
+new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/]", false);
 					[/if]
 				[/if]
 			[/if]
