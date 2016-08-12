@@ -39,11 +39,17 @@ public class [time.getHandlerClassName()/] extends BoundAsyncEventHandler{
 	 * The name of the connection to send the data on
 	 */
 	private String connectionName;
+
+	/**
+	 * A flag indicating if the connection on which this handler sends is immediate or not
+	 */
+	priate boolean isImmediate
 	
-	public [time.getHandlerClassName()/](DataPort<[featureClassifier.getClassName()/]> port,  ConnectionBroker broker, String connectionName){
+	public [time.getHandlerClassName()/](DataPort<[featureClassifier.getClassName()/]> port,  ConnectionBroker broker, String connectionName, boolean isImmediate){
 		this.port = port;
 		this.broker = broker;
 		this.connectionName = connectionName;
+		this.isImmediate = isImmediate;
 		// set the priority of this handler to the same value as of [thread.getClassName()/] 
 		// for which it handles the asynchronous output
 		setSchedulingParameters(new PriorityParameters([thread.getPriority()/]));
@@ -55,8 +61,13 @@ public class [time.getHandlerClassName()/] extends BoundAsyncEventHandler{
 	@Override
 	public void handleAsyncEvent() {
 		// request the FW data for the given port and send it over the given connection
-		// TODO notify if immediate?
 		broker.sendOnConnection(connectionName, port.getFWData());
+		if(isImmediate){
+			Object sync = parentBroker.getSynchronisationObjectForConnection(connectionName);
+			synchronized(sync){
+				sync.notifyAll();
+			}
+		}
 	}
 }
 [/file]

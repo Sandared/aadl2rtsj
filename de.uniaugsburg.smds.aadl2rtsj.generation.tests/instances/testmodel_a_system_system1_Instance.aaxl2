@@ -78,10 +78,10 @@
         </ownedValue>
         <propertyAssociation href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedThreadSubcomponent.1/@ownedPropertyAssociation.0"/>
       </ownedPropertyAssociation>
-      <featureInstance name="dataout" direction="out">
+      <featureInstance name="workerDataOut" direction="out">
         <feature xsi:type="aadl2:DataPort" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.4/@ownedDataPort.1"/>
       </featureInstance>
-      <featureInstance name="datain">
+      <featureInstance name="workerDataIn">
         <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
           <property href="../../Plugin_Resources/Predeclared_Property_Sets/Modeling_Properties.aadl#Modeling_Properties.Classifier_Substitution_Rule"/>
           <ownedValue>
@@ -96,17 +96,17 @@
       <subcomponent xsi:type="aadl2:ThreadSubcomponent" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedThreadSubcomponent.1"/>
       <index>0</index>
     </componentInstance>
-    <connectionInstance name="mysendreceive.internalout -> myworker.datain" complete="true" kind="portConnection" destination="//@componentInstance.0/@componentInstance.1/@featureInstance.1" source="//@componentInstance.0/@componentInstance.0/@featureInstance.3">
+    <connectionInstance name="mysendreceive.internalout -> myworker.workerDataIn" complete="true" kind="portConnection" destination="//@componentInstance.0/@componentInstance.1/@featureInstance.1" source="//@componentInstance.0/@componentInstance.0/@featureInstance.3">
       <connectionReference context="//@componentInstance.0" source="//@componentInstance.0/@componentInstance.0/@featureInstance.3" destination="//@componentInstance.0/@componentInstance.1/@featureInstance.1">
         <connection xsi:type="aadl2:PortConnection" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedPortConnection.1"/>
       </connectionReference>
     </connectionInstance>
-    <connectionInstance name="myworker.dataout -> mysendreceive.internalin" complete="true" kind="portConnection" destination="//@componentInstance.0/@componentInstance.0/@featureInstance.2" source="//@componentInstance.0/@componentInstance.1/@featureInstance.0">
+    <connectionInstance name="myworker.workerDataOut -> mysendreceive.internalin" complete="true" kind="portConnection" destination="//@componentInstance.0/@componentInstance.0/@featureInstance.2" source="//@componentInstance.0/@componentInstance.1/@featureInstance.0">
       <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
         <property href="../../Plugin_Resources/Predeclared_Property_Sets/Communication_Properties.aadl#Communication_Properties.Timing"/>
         <ownedValue>
           <ownedValue xsi:type="aadl2:NamedValue">
-            <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/Communication_Properties.aadl#/0/@ownedProperty.7/@ownedPropertyType/@ownedLiteral.2"/>
+            <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/Communication_Properties.aadl#/0/@ownedProperty.7/@ownedPropertyType/@ownedLiteral.1"/>
           </ownedValue>
         </ownedValue>
         <propertyAssociation href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedPortConnection.0/@ownedPropertyAssociation.0"/>
@@ -196,10 +196,10 @@
         </ownedValue>
         <propertyAssociation href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedThreadSubcomponent.1/@ownedPropertyAssociation.0"/>
       </ownedPropertyAssociation>
-      <featureInstance name="dataout" direction="out">
+      <featureInstance name="workerDataOut" direction="out">
         <feature xsi:type="aadl2:DataPort" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.4/@ownedDataPort.1"/>
       </featureInstance>
-      <featureInstance name="datain">
+      <featureInstance name="workerDataIn">
         <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
           <property href="../../Plugin_Resources/Predeclared_Property_Sets/Modeling_Properties.aadl#Modeling_Properties.Classifier_Substitution_Rule"/>
           <ownedValue>
@@ -214,17 +214,17 @@
       <subcomponent xsi:type="aadl2:ThreadSubcomponent" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedThreadSubcomponent.1"/>
       <index>0</index>
     </componentInstance>
-    <connectionInstance name="mysendreceive.internalout -> myworker.datain" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.1" source="//@componentInstance.1/@componentInstance.0/@featureInstance.3">
+    <connectionInstance name="mysendreceive.internalout -> myworker.workerDataIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.1" source="//@componentInstance.1/@componentInstance.0/@featureInstance.3">
       <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.0/@featureInstance.3" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.1">
         <connection xsi:type="aadl2:PortConnection" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedPortConnection.1"/>
       </connectionReference>
     </connectionInstance>
-    <connectionInstance name="myworker.dataout -> mysendreceive.internalin" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.0/@featureInstance.2" source="//@componentInstance.1/@componentInstance.1/@featureInstance.0">
+    <connectionInstance name="myworker.workerDataOut -> mysendreceive.internalin" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.0/@featureInstance.2" source="//@componentInstance.1/@componentInstance.1/@featureInstance.0">
       <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
         <property href="../../Plugin_Resources/Predeclared_Property_Sets/Communication_Properties.aadl#Communication_Properties.Timing"/>
         <ownedValue>
           <ownedValue xsi:type="aadl2:NamedValue">
-            <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/Communication_Properties.aadl#/0/@ownedProperty.7/@ownedPropertyType/@ownedLiteral.2"/>
+            <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/Communication_Properties.aadl#/0/@ownedProperty.7/@ownedPropertyType/@ownedLiteral.1"/>
           </ownedValue>
         </ownedValue>
         <propertyAssociation href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedPortConnection.0/@ownedPropertyAssociation.0"/>
@@ -237,15 +237,6 @@
     <index>0</index>
   </componentInstance>
   <connectionInstance name="myprocess1.mysendreceive.externalout -> myprocess2.mysendreceive.externalin" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.0/@featureInstance.0" source="//@componentInstance.0/@componentInstance.0/@featureInstance.1">
-    <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
-      <property href="../../Plugin_Resources/Predeclared_Property_Sets/Communication_Properties.aadl#Communication_Properties.Timing"/>
-      <ownedValue>
-        <ownedValue xsi:type="aadl2:NamedValue">
-          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/Communication_Properties.aadl#/0/@ownedProperty.7/@ownedPropertyType/@ownedLiteral.2"/>
-        </ownedValue>
-      </ownedValue>
-      <propertyAssociation href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.1/@ownedPortConnection.1/@ownedPropertyAssociation.0"/>
-    </ownedPropertyAssociation>
     <connectionReference context="//@componentInstance.0" source="//@componentInstance.0/@componentInstance.0/@featureInstance.1" destination="//@componentInstance.0/@featureInstance.1">
       <connection xsi:type="aadl2:PortConnection" href="../packages/testmodel.aadl#/0/@ownedPublicSection/@ownedClassifier.3/@ownedPortConnection.3"/>
     </connectionReference>

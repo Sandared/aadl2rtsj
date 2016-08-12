@@ -37,7 +37,7 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getClassifier(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
-[query public getImmediateConnection(arg0 : ComponentInstance) : ConnectionInstance
+[query public getImmediateConnection(arg0 : ComponentInstance) : Connection
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getImmediateConnection(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 

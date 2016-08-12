@@ -16,6 +16,7 @@ public class ClassifierComparator implements Comparator<Classifier> {
 			return fullNameO1.compareTo(fullNameO2);
 		} catch (Exception e) {
 			log.severe("An Exception occurred while comparing the classifiers " + o1 + " and " + o2 + "!\nAs Default '-1' was returned!");
+			e.printStackTrace();
 		}
 		return -1;
 	}

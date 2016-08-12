@@ -11,8 +11,7 @@ system a_system
 			myprocess2: process a_process.process1;
 		connections
 			new_connection: port myprocess2.dataout -> myprocess1.datain;
-			new_connection2: port myprocess1.dataout ->
-							myprocess2.datain {Timing => delayed;};
+			new_connection2: port myprocess1.dataout ->	myprocess2.datain;
 	end a_system.system1;
 
 	process a_process
@@ -27,7 +26,7 @@ end a_process;
 			mysendreceive: thread b_thread.sendreceive  {Dispatch_Protocol => periodic;};
 			myworker: thread a_extended_thread.worker {Dispatch_Protocol => periodic;};
 		connections
-			subcomp_con1: port myworker.workerDataOut -> mysendreceive.internalin  {Timing => delayed;};
+			subcomp_con1: port myworker.workerDataOut -> mysendreceive.internalin  {Timing => immediate;};
 			subcomp_con2: port mysendreceive.internalout -> myworker.workerDataIn;
 			incoming: port datain -> mysendreceive.externalin;
 			outgoing: port mysendreceive.externalout -> dataout;

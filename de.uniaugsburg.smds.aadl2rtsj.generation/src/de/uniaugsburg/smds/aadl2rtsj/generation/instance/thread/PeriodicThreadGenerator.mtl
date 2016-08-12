@@ -85,7 +85,7 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 	/**
 	 * The AsyncEventHandler which makes this class an executable entity
 	 */	
-	private AsyncEventHandler handler = new InnerAsyncEventHandler();
+	private InnerAsyncEventHandler handler = new InnerAsyncEventHandler();
 
 	/**
 	 * The timer, that triggers the AsyncEventHandler in a periodic manner
@@ -217,7 +217,7 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 [/for]
 [/template]
 
-[template private getHandlerClass(thread : ComponentInstance) post (trim()) {connection : ConnectionInstance = thread.getImmediateConnection();}]
+[template private getHandlerClass(thread : ComponentInstance) post (trim()) {connection : Connection = thread.getImmediateConnection();}]
 class InnerAsyncEventHandler extends [if ((connection <> null) )]Bound[/if]AsyncEventHandler{
 	public InnerAsyncEventHandler(){
 		setDaemon(false);
@@ -228,10 +228,11 @@ class InnerAsyncEventHandler extends [if ((connection <> null) )]Bound[/if]Async
 	public void handleAsyncEvent() {
 	[if ((connection <> null))]
 		// wait for the sending thread to finish its work
-		synchronized(parentBroker.getSynchronisationObjectForConnection([connection.name/])){
+		Object sync = parentBroker.getSynchronisationObjectForConnection("[connection.name/]");
+		synchronized(sync){
 			try{
-				while(![connection.getConnectionDestination().name/].isDirty()){
-					parentBroker.getSynchronisationObjectForConnection([connection.name/]).wait();
+				while(![connection.getTargetFeature().name/].isFWDirty()){
+					sync.wait();
 				}
 			}catch(InterruptedException e){
 				e.printStackTrace();
@@ -246,7 +247,7 @@ class InnerAsyncEventHandler extends [if ((connection <> null) )]Bound[/if]Async
 }
 [/template]
 
-[template private getHandlerType(thread : ComponentInstance) post (trim()) {connection : ConnectionInstance = thread.getImmediateConnection();}]
+[template private getHandlerType(thread : ComponentInstance) post (trim()) {connection : Connection = thread.getImmediateConnection();}]
 	[if ((connection <> null))]
 		BoundAsyncEventHandler
 	[else]
@@ -311,15 +312,33 @@ new [getHandlerClassName(offsetTime)/]([feature.name/]);
 			[if(offsetTime.ioTime = IOReferenceTime)]
 				[comment deadline must be treated different, as it is always done by a handler/]
 				[if(IOReferenceTime = getProperty('Communication_Properties_IO_Reference_Time_Deadline'))]
-new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/]");
+					[comment if it is an immediate connection, the handler must know it has to notify the waiting thread(s) /]
+					[if (connection.getTiming() = getProperty('Communication_Properties_Timing_Immediate'))]
+new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/], true");
+					[else]
+new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/], false");
+					[/if]
 				[elseif ((offsetTime.ms = 0) and (offsetTime.ns = 0))]
-				[comment send output, but only for this specific connection via simple statement/]
-				[comment see AADL Standard 8.3.2 (29)/]
-				[comment getObjectName(feature)/][ comment .sendOutputOn[getClassName(connection)/][comment ();/]
+				[comment] 
+				send output, but only for this specific connection via simple statement
+ 				see AADL Standard 8.3.2 (29)
+				[/comment]
 parentBroker.sendOnConnection("[connection.name/]", [feature.name/].getFWData());
-				[else]
+					[comment if it is an immediate connection, the handler must know it has to notify the waiting thread(s) /]
+					[if (connection.getTiming() = getProperty('Communication_Properties_Timing_Immediate'))]
+Object sync = parentBroker.getSynchronisationObjectForConnection("[connection.name/]");
+synchronized(sync){
+	sync.notifyAll();
+}
+					[/if]
 				[comment we need to generate a statement for handling via handler/]
-new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/]");
+				[else]
+					[comment if it is an immediate connection, the handler must know it has to notify the waiting thread(s) /]
+					[if (connection.getTiming() = getProperty('Communication_Properties_Timing_Immediate'))]
+new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/], true");
+					[else]
+new [getHandlerClassName(offsetTime)/]([feature.name/], parentBroker, "[connection.name/], false");
+					[/if]
 				[/if]
 			[/if]
 		[/for]

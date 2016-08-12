@@ -13,6 +13,7 @@ import org.osate.aadl2.ComponentCategory;
 import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.Connection;
+import org.osate.aadl2.Context;
 import org.osate.aadl2.DataImplementation;
 import org.osate.aadl2.DataPort;
 import org.osate.aadl2.DirectionType;
@@ -33,6 +34,7 @@ import org.osate.aadl2.instance.FeatureCategory;
 import org.osate.aadl2.instance.FeatureInstance;
 import org.osate.aadl2.instance.InstanceObject;
 
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.Constants;
 import util.OffsetTime;
 import util.UtilFactory;
 
@@ -160,19 +162,40 @@ public class ComponentInstanceHelper {
 	 * @param component the ComponentInstance (usually with ComponentCategory == 'thread') one wants an ingoing, immediate ConnectionInstance for, if any is present
 	 * @return the immediate ConenctionInstance, if any, otherwise <code>null</code>
 	 */
-	//für alle eingeheneden features die connections raussuchen, falls eine davon immediate ist warten wir
-	public static ConnectionInstance getImmediateConnection(ComponentInstance component){
-		List<FeatureInstance> features = component.getAllFeatureInstances();
-		for (FeatureInstance feature : features) {
-			DirectionType direction = feature.getDirection();
-			if(direction.incoming()){
-				for (ConnectionInstance connection : feature.getDstConnectionInstances()) {
-					String timing = PropertyHelper.getTiming(connection);
-					if(timing.equals(Communication_Properties_Timing_Immediate))
+	public static Connection getImmediateConnection(ComponentInstance component){
+		ComponentClassifier cc = component.getComponentClassifier();
+		ComponentInstance parent = component.getContainingComponentInstance();
+		if(parent == null)
+			return null;
+		//we need the ComponentImplementation not just the ComponentClassifier, as we need access to its connections
+		ComponentImplementation pci = (ComponentImplementation)parent.getComponentClassifier();
+		
+		// get the features of the component
+		List<Feature> features = cc.getAllFeatures();
+		for (Feature feature : features) {
+			//check if its incoming
+			if(ComponentClassifierHelper.isIncoming(feature)){
+				// for each connection with this feature as target we check if it is immediate
+				for (Connection connection : ComponentClassifierHelper.getIncomingConnections((Context)feature, pci)) {
+					if(PropertyHelper.getTiming(connection).contentEquals(Constants.Communication_Properties_Timing_Immediate)){
+						// we've found at least one connection so return this one and break
 						return connection;
+					}
 				}
 			}
 		}
+		
+//		List<FeatureInstance> features = component.getAllFeatureInstances();
+//		for (FeatureInstance feature : features) {
+//			DirectionType direction = feature.getDirection();
+//			if(direction.incoming()){
+//				for (ConnectionInstance connection : feature.getDstConnectionInstances()) {
+//					String timing = PropertyHelper.getTiming(connection);
+//					if(timing.equals(Communication_Properties_Timing_Immediate))
+//						return connection;
+//				}
+//			}
+//		}
 		return null;
 	}
 	

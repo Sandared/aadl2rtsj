@@ -146,7 +146,7 @@ public class ComponentClassifierHelper {
 	
 	/**
 	 * @param destination Feature we want the incoming connections for
-	 * @param parent the ComponentImpl which contains the source Feature
+	 * @param component the ComponentImpl which contains the source Feature
 	 * @return A list of connections within t that have destination as their destinationContext
 	 */
 	public static List<Connection> getIncomingConnections(Context destination, ComponentImplementation component){
