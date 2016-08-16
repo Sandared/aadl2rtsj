@@ -66,7 +66,7 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 
 	public static IPackageFragmentRoot root = null;
 	public static IProgressMonitor _monitor = null;
-	private static final String PROJECTNAME = "test" + "-" + "name" + "-rtsj";
+	private static String PROJECTNAME = "test" + "-" + "name" + "-rtsj";
 
 	@Override
 	protected String getActionName() {
@@ -80,8 +80,10 @@ public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 		
 		// Get the system instance (if any)
 		SystemInstance si;
-		if (rootElement instanceof InstanceObject)
+		if (rootElement instanceof InstanceObject){
 			si = ((InstanceObject) rootElement).getSystemInstance();
+			PROJECTNAME = si.getName() + "-rtsj";
+		}
 		else
 			si = null;
 

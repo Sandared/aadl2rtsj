@@ -256,10 +256,12 @@ public class ComponentClassifierHelper {
 		for (Feature feature : cc.getAllFeatures()) {
 			if(isIncoming(feature)){
 				ComponentClassifier classifier = getClassifier(feature);
-				if (isBaseType(classifier)) 
-					classifiers.add(getBaseTypeClassifier(classifier));
-				else
-					classifiers.add(getClassifier(feature));
+				if(classifier != null){
+					if (isBaseType(classifier)) 
+						classifiers.add(getBaseTypeClassifier(classifier));
+					else
+						classifiers.add(getClassifier(feature));
+				}
 			}
 		}
 		return classifiers;
@@ -279,12 +281,14 @@ public class ComponentClassifierHelper {
 		for (Feature feature : cc.getAllFeatures()) {
 			if(isIncoming(feature)){
 				ComponentClassifier classifier = getClassifier(feature);
-				if (isBaseType(classifier)) 
-					classifiers.add(getBaseTypeClassifier(classifier));
-				else{
-					ComponentClassifier refined = getRefinedClassifier(feature);
-					if(refined != null)
-						classifiers.add(refined);
+				if(classifier != null){
+					if (isBaseType(classifier)) 
+						classifiers.add(getBaseTypeClassifier(classifier));
+					else{
+						ComponentClassifier refined = getRefinedClassifier(feature);
+						if(refined != null)
+							classifiers.add(refined);
+					}
 				}
 			}
 		}
@@ -305,10 +309,12 @@ public class ComponentClassifierHelper {
 		for (Feature feature : cc.getAllFeatures()) {
 			if(isOutgoing(feature)){
 				ComponentClassifier classifier = getClassifier(feature);
-				if (isBaseType(classifier)) 
-					classifiers.add(getBaseTypeClassifier(classifier));
-				else					
-					classifiers.add(classifier);
+				if(classifier != null){
+					if (isBaseType(classifier)) 
+						classifiers.add(getBaseTypeClassifier(classifier));
+					else					
+						classifiers.add(classifier);
+				}
 			}
 		}
 		return classifiers;
@@ -357,12 +363,14 @@ public class ComponentClassifierHelper {
 		Set<ComponentClassifier> classifiers = new TreeSet<ComponentClassifier>(new ClassifierComparator());
 		for (Feature feature : cc.getAllFeatures()) {
 			ComponentClassifier classifier = getClassifier(feature);
-			if (isBaseType(classifier)) 
-				classifiers.add(getBaseTypeClassifier(classifier));
-			else{
-				classifiers.add(getClassifier(feature));
-				if(isIncoming(feature) && isRefined(feature))
-					classifiers.add(getRefinedClassifier(feature));
+			if(classifier != null){
+				if (isBaseType(classifier)) 
+					classifiers.add(getBaseTypeClassifier(classifier));
+				else{
+					classifiers.add(getClassifier(feature));
+					if(isIncoming(feature) && isRefined(feature))
+						classifiers.add(getRefinedClassifier(feature));
+				}
 			}
 		}
 		return classifiers;
