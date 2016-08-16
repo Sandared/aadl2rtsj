@@ -1,8 +1,5 @@
 package de.uniaugsburg.smds.aadl2rtsj.generation.services;
 
-import static de.uniaugsburg.smds.aadl2rtsj.generation.util.Constants.Thread_Properties_Dispatch_Protocol_Periodic;
-
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -10,21 +7,24 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import org.eclipse.emf.common.util.EList;
+import org.osate.aadl2.Aadl2Factory;
+import org.osate.aadl2.Aadl2Package;
+import org.osate.aadl2.AadlPackage;
 import org.osate.aadl2.Classifier;
+import org.osate.aadl2.ClassifierType;
 import org.osate.aadl2.ComponentClassifier;
 import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.ComponentType;
-import org.osate.aadl2.ConnectedElement;
 import org.osate.aadl2.Connection;
 import org.osate.aadl2.ConnectionEnd;
 import org.osate.aadl2.Context;
-import org.osate.aadl2.DataImplementation;
-import org.osate.aadl2.DataPort;
+import org.osate.aadl2.DataType;
 import org.osate.aadl2.DirectedFeature;
 import org.osate.aadl2.Feature;
+import org.osate.aadl2.GlobalNamespace;
 import org.osate.aadl2.NamedElement;
-import org.osate.aadl2.Port;
-import org.osate.aadl2.ProcessImplementation;
+import org.osate.aadl2.Namespace;
+import org.osate.aadl2.PublicPackageSection;
 import org.osate.aadl2.Subcomponent;
 
 import de.uniaugsburg.smds.aadl2rtsj.generation.ClassifierComparator;
@@ -54,7 +54,6 @@ public class ComponentClassifierHelper {
 	 * @return all Subcomponents that are defined within this ComponentImplmentation. This method doesn't take into account the Subcomponents that might be inherited from an extended ComponentImplementation
 	 */
 	public static List<Subcomponent> getOwnSubcomponents(ComponentImplementation ci){
-		EList<Subcomponent> subcomponents = ci.getOwnedSubcomponents();
 		return ci.getOwnedSubcomponents();
 	}
 	
@@ -257,9 +256,10 @@ public class ComponentClassifierHelper {
 		for (Feature feature : cc.getAllFeatures()) {
 			if(isIncoming(feature)){
 				ComponentClassifier classifier = getClassifier(feature);
-				if (!isBaseType(classifier)) {
+				if (isBaseType(classifier)) 
+					classifiers.add(getBaseTypeClassifier(classifier));
+				else
 					classifiers.add(getClassifier(feature));
-				}
 			}
 		}
 		return classifiers;
@@ -279,7 +279,9 @@ public class ComponentClassifierHelper {
 		for (Feature feature : cc.getAllFeatures()) {
 			if(isIncoming(feature)){
 				ComponentClassifier classifier = getClassifier(feature);
-				if (!isBaseType(classifier)) {
+				if (isBaseType(classifier)) 
+					classifiers.add(getBaseTypeClassifier(classifier));
+				else{
 					ComponentClassifier refined = getRefinedClassifier(feature);
 					if(refined != null)
 						classifiers.add(refined);
@@ -303,9 +305,10 @@ public class ComponentClassifierHelper {
 		for (Feature feature : cc.getAllFeatures()) {
 			if(isOutgoing(feature)){
 				ComponentClassifier classifier = getClassifier(feature);
-				if (!isBaseType(classifier)) {
-					classifiers.add(getClassifier(feature));
-				}
+				if (isBaseType(classifier)) 
+					classifiers.add(getBaseTypeClassifier(classifier));
+				else					
+					classifiers.add(classifier);
 			}
 		}
 		return classifiers;
@@ -354,7 +357,9 @@ public class ComponentClassifierHelper {
 		Set<ComponentClassifier> classifiers = new TreeSet<ComponentClassifier>(new ClassifierComparator());
 		for (Feature feature : cc.getAllFeatures()) {
 			ComponentClassifier classifier = getClassifier(feature);
-			if (!isBaseType(classifier)) {
+			if (isBaseType(classifier)) 
+				classifiers.add(getBaseTypeClassifier(classifier));
+			else{
 				classifiers.add(getClassifier(feature));
 				if(isIncoming(feature) && isRefined(feature))
 					classifiers.add(getRefinedClassifier(feature));
@@ -375,8 +380,11 @@ public class ComponentClassifierHelper {
 		Set<ComponentClassifier> classifiers = new TreeSet<ComponentClassifier>(new ClassifierComparator());
 		for (Subcomponent subcomponent : getAllSubComponents(ci)) {
 			ComponentClassifier classifier = subcomponent.getClassifier();
-			if(classifier != null && !isBaseType(classifier))
-				classifiers.add(classifier);
+			if(classifier != null)
+				if (isBaseType(classifier)) 
+					classifiers.add(getBaseTypeClassifier(classifier));
+				else
+					classifiers.add(classifier);
 			else
 				log.warning("No classifier was given for subcomponent " + subcomponent);
 		}
@@ -449,6 +457,10 @@ public class ComponentClassifierHelper {
 		
 		String typeName = cc.getQualifiedName();
 		
+		//test
+		if(typeName.endsWith("Boolean"))
+			System.out.println("");
+		
 		int typeIndex = typeName.lastIndexOf("::"); // qualified name always looks like 'some::name::space'::'typeName'
 		typeName = typeName.substring(typeIndex + 2);
 		
@@ -488,5 +500,21 @@ public class ComponentClassifierHelper {
 	 */
 	public static String getFileName(ComponentClassifier cc){
 		return getPackageName(cc).replace('.', '/').concat("/").concat(getClassName(cc)).concat(".java");
+	}
+	
+	
+	/**
+	 * @param cc the BaseType Classifier one wants a generation-conformant replacement for
+	 * @return a DataType with package 'de.uniaugsburg.smds.aadl2rtsj.generation.basetypes' and name as given by cc with 'Data' as suffix
+	 */ 
+	private static ComponentClassifier getBaseTypeClassifier(ComponentClassifier cc){
+		Aadl2Factory factory = Aadl2Package.eINSTANCE.getAadl2Factory();
+		AadlPackage pkg = factory.createAadlPackage();
+		pkg.setName("de::uniaugsburg::smds::aadl2rtsj::generation::basetypes");
+		PublicPackageSection publicPkg = factory.createPublicPackageSection();
+		DataType dt = (DataType) publicPkg.createOwnedClassifier(Aadl2Package.eINSTANCE.getDataType());
+		dt.setName(cc.getName() + "Data");
+		pkg.setOwnedPublicSection(publicPkg);
+		return dt;
 	}
 }

@@ -27,7 +27,7 @@ end a_process;
 			myworker: thread a_extended_thread.worker {Dispatch_Protocol => periodic;};
 		connections
 			subcomp_con1: port myworker.workerDataOut -> mysendreceive.internalin  {Timing => immediate;};
-			subcomp_con2: port mysendreceive.internalout -> myworker.workerDataIn;
+			subcomp_con2: port mysendreceive.internalout -> myworker.workerDataIn {Timing => delayed;};
 			incoming: port datain -> mysendreceive.externalin;
 			outgoing: port mysendreceive.externalout -> dataout;
 end a_process.process1;

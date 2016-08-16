@@ -2,6 +2,7 @@
 [module Main('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance', 'http://www.uniaugsburg.de/smds/aadl2rtsj/generation/util')/]
 
 [import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::data::DataImplementationGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::basetypes::BaseTypesGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::data::DataTypeGenerator /]
 
 [import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::thread::ThreadImplementationGenerator /]
@@ -36,6 +37,9 @@
 
 	[comment generate Instance /]
 	[generateInstance(system)/]
+
+	[comment generate BaseTypes /]
+	[generateBaseTypes()/]
 
 	[comment generate utils /]
 	[generateGenericDataPort()/]
