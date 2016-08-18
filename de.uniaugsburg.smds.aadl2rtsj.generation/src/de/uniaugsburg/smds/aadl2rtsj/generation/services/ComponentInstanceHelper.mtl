@@ -61,3 +61,7 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getIOHandlerFileName(org.osate.aadl2.instance.ComponentInstance, util.OffsetTime)', Sequence{arg0, arg1})
 /]
 
+[query public test(arg0 : ComponentInstance) : Sequence(ConnectionInstance)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'test(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+

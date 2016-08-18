@@ -5,6 +5,7 @@ import static de.uniaugsburg.smds.aadl2rtsj.generation.util.Constants.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
@@ -132,10 +133,13 @@ public class ComponentInstanceHelper {
 	
 	/**
 	 * @param ci the ComponentInstance one wants the parent for
-	 * @return the parent ComponentInstnace if there is any, <code>null</code> otherwise.
+	 * @return the parent ComponentInstnace if there is any, <code>ci</code> otherwise.
 	 */
 	public static ComponentInstance getParent(ComponentInstance ci){
-		return ci.getContainingComponentInstance();
+		ComponentInstance result = ci.getContainingComponentInstance();
+		if(result == null)
+			result = ci;
+		return result;
 	}
 	
 	/**
@@ -238,5 +242,45 @@ public class ComponentInstanceHelper {
 	 */
 	public static String getIOHandlerFileName(ComponentInstance ci, OffsetTime time){
 		return getPackageName(ci).replace('.', '/').concat("/").concat(getHandlerClassName(time)).concat(".java");
+	}
+	
+	
+	
+	public static String test(ComponentInstance ci){
+//		[let classifier : ComponentImplementation = instance.getClassifier()]
+//				[comment for each subcomponent we search for outgoing dataPorts and create a sendOnConnection(...) method for each connection, that has this dataPort as source /]
+//				[for (subcomponent : ComponentInstance | instance.getChildren()->select(oclIsTypeOf(ComponentInstance)))]
+//					[for (dataPort : FeatureInstance | subcomponent.featureInstance)]
+//						[if (dataPort.direction = DirectionType::out or dataPort.direction = DirectionType::inOut)]
+//					[comment we use the port name concatenated with the subcomponent name, because in the contex of the parent object a subcomponents port name might not be unique /]
+//					case "[subcomponent.name/].[dataPort.name/]":
+//						//test
+//							[for (connection : Connection | instance.connectionInstance.connectionReference->select(p|p.source = dataPort).connection)]
+//						sendOnConnection("[connection.name/]", data);
+//							[/for]
+//						break;
+//						[/if]
+//					[/for]
+//				[/for]
+//			[/let]
+		for (Element element : ci.getChildren()) {
+			if(element instanceof ComponentInstance){
+				ComponentInstance subcomponent = (ComponentInstance)element;
+				for (FeatureInstance dataPort : subcomponent.getAllFeatureInstances()) {
+					if(dataPort.getDirection().equals(DirectionType.IN_OUT) || dataPort.getDirection().equals(DirectionType.OUT)){
+						String connectionName = subcomponent.getName() + "." + dataPort.getName();
+						List<Connection> collect = ci.getAllEnclosingConnectionInstances()
+						.stream()
+						.flatMap(coni -> coni.getConnectionReferences().stream())
+						.filter(conr -> conr.getSource() == dataPort)
+						.map(conr -> conr.getConnection())
+						.collect(Collectors.toList());
+						System.out.println(connectionName);
+						System.out.println(collect);
+					}
+				}
+			}
+		}
+		return "";
 	}
 }

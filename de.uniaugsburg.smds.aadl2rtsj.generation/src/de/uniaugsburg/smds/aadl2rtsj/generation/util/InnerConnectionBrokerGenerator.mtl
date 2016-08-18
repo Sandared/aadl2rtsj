@@ -106,20 +106,19 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 	
 	@Override
 	public void sendOnPort(String port, Object data){
+[instance.test()/]
 		switch (port) {
 [let classifier : ComponentImplementation = instance.getClassifier()]
 	[comment for each subcomponent we search for outgoing dataPorts and create a sendOnConnection(...) method for each connection, that has this dataPort as source /]
-	[for (subcomponent : ComponentClassifier | classifier.getAllSubcomponentClassifier())]
-		[for (dataPort : DataPort | subcomponent.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
-			[if (dataPort.isOutgoing())]
+	[for (subcomponent : ComponentInstance | instance.getChildren()->select(oclIsTypeOf(ComponentInstance)))]
+		[for (dataPort : FeatureInstance | subcomponent.featureInstance)]
+			[if (dataPort.direction = DirectionType::out or dataPort.direction = DirectionType::inOut)]
 		[comment we use the port name concatenated with the subcomponent name, because in the contex of the parent object a subcomponents port name might not be unique /]
 		case "[subcomponent.name/].[dataPort.name/]":
-			// send on all connections within [instance.getClassifier().getClassName()/] that have [dataPort.name/] as source
-				[for (connection : Connection | classifier.getAllConnections())]
-					[if (connection.getSourceFeature() = dataPort)]
+			//test
+				[for (connection : Connection | instance.connectionInstance.connectionReference->select(p|p.source = dataPort).connection)]
 			sendOnConnection("[connection.name/]", data);
-					[/if]
-				[/for]	
+				[/for]
 			break;
 			[/if]
 		[/for]
@@ -133,7 +132,6 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 
 	@Override
 	public Object getSynchronisationObjectForConnection(String connection){
-
 		switch (connection) {
 [let classifier : ComponentImplementation = instance.getClassifier()]
 	[for (connection : Connection | classifier.getAllConnections())]

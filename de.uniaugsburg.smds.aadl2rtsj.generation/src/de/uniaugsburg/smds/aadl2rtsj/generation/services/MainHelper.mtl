@@ -1,0 +1,11 @@
+[comment encoding = UTF-8 /]
+[module MainHelper('http://aadl.info/AADL/2.0/instance')/]
+
+[query public getReverseOrderedBFSSystemTree(arg0 : SystemInstance) : Sequence(ComponentInstance)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.MainHelper', 'getReverseOrderedBFSSystemTree(org.osate.aadl2.instance.SystemInstance)', Sequence{arg0})
+/]
+
+[query public getUniqueId(arg0 : ComponentInstance) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.MainHelper', 'getUniqueId(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
+/]
+

@@ -1,0 +1,38 @@
+[comment encoding = UTF-8 /]
+[module MainGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::MainHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
+
+
+[template public generateMain(system : SystemInstance) { components : Sequence(ComponentInstance) = system.getReverseOrderedBFSSystemTree(); }]
+[file ('main/Main.java', false, 'UTF-8')]
+package main;
+
+public class Main{
+	
+	public static void main(String['[]'/] args){
+		//create components
+	[for (component : ComponentInstance | components)]
+		[component.getPackageName()/].[component.getClassName()/] [component.name + '_ID' + component.getUniqueId()/] = new [component.getPackageName()/].[component.getClassName()/]([component.getConstructorParameters()/]);
+	[/for]
+
+		//init brokers
+		[system.name + '_ID' + system.getUniqueId()/].setParentConnectionBroker(null);
+
+		// start threads
+	[for (component : ComponentInstance | components)]
+		[if (component.category = ComponentCategory::thread)]
+		[component.name + '_ID' + component.getUniqueId()/].startExecution();
+		[/if]
+	[/for]
+
+	}
+}
+[/file]
+[/template]
+
+[template private getConstructorParameters(component : ComponentInstance)]
+[for (child : ComponentInstance | component.getChildren()->select(oclIsTypeOf(ComponentInstance)))separator (',')]
+[child.name + '_ID' + child.getUniqueId()/]
+[/for]
+[/template]

@@ -19,6 +19,9 @@
 
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 
+[import de::uniaugsburg::smds::aadl2rtsj::generation::instance::main::MainGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::MainHelper /]
+
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::DataPortGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::IOHandlerGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::util::PortInterfaceGenerator /]
@@ -50,6 +53,9 @@
 	[generateInPortInterface()/]
 	[generateOutPortInterface()/]l
 	[generateDeepCopyableInterface()/]
+
+	[comment generate Main /]
+	[generateMain(system)/]
 	
 [/template]
 
@@ -81,3 +87,4 @@
 		[/if]
 	[/for]
 [/template]
+

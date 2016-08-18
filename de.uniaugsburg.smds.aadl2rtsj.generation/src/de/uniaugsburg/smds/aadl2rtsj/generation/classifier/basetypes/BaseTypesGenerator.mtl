@@ -1,0 +1,34 @@
+[comment encoding = UTF-8 /]
+[module BaseTypesGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+
+
+[template public generateBaseTypes()]
+	[generateBaseType('BooleanData', 'Boolean')/]
+	[generateBaseType('IntegerData', 'Integer')/]
+	[generateBaseType('FloatData', 'Float')/]
+	[generateBaseType('CharacterData', 'Character')/]
+	[generateBaseType('StringData', 'String')/]
+[/template]
+
+[template private generateBaseType(name : String, type : String)]
+[file ('classifier/de/uniaugsburg/smds/aadl2rtsj/generation/basetypes/external/' + name.toLower() + '/' + name + '.java', false, 'UTF-8')]
+package classifier.de.uniaugsburg.smds.aadl2rtsj.generation.basetypes.external.[name.toLower()/];
+
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.DeepCopyable;
+
+public class [name/] implements DeepCopyable<[name/]>{
+	
+	/**
+	 * A member variable to store the [type/] value of this BaseType
+	 */
+	private [type/] value;
+
+	@Override
+	public [name/] deepCopy(){
+		[name/] result = new [name/]();
+		result.value = new [type/](this.value);
+		return result;
+	}
+}
+[/file]
+[/template]
