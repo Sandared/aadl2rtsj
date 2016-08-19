@@ -75,57 +75,50 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 		switch (connection) {
 [let classifier : ComponentImplementation = instance.getClassifier()]
 	[for (connection : Connection | classifier.getAllConnections())]
-		// [connection.name/]
 		case "[connection.name/]":
 		[let port : DataPort = connection.getTargetFeature()]
 			[let target : Subcomponent = connection.getTargetComponent()]
 			[comment if the connection target is a Subcomponent it means we have to use the inPort of this subcomponent, which is declared in it's interface /]
-			// [port.name/] is the target feature of [connection.name/] 
-			// which is a connection between subcomponents of [instance.getClassifier().getClassName()/], 
-			// so call its corresponding in mehtod
+			// "[port.name/]" is the target feature of "[connection.name/]" 
+			// which is a connection between subcomponents of "[instance.getClassName()/]", 
+			// so call its corresponding in method
 			[target.name/].in[port.name.toUpperFirst()/](([port.getClassifier().getClassName()/])data);
 			break;
 			[elselet target : ComponentImplementation = connection.getTargetComponent()]
 			[comment else we send on the outport of this component, which is basically a broadcast/]
-			// [port.name/] is the target feature of [connection.name/] 
-			// which is a connection from a subcomponent of [instance.getClassifier().getClassName()/] to [instance.getClassifier().getClassName()/] itself, 
+			// "[port.name/]" is the target feature of "[connection.name/]" 
+			// which is a connection from a subcomponent of "[instance.getClassName()/]" to "[instance.getClassName()/]" itself, 
 			// so call its corresponding out mehtod
 			component.out[port.name.toUpperFirst()/](([port.getClassifier().getClassName()/])data);
 			break;
-			[else]
-				// Targetcomponent of [connection.name/] is [connection.getTargetComponent()/]
 			[/let]
 		[/let]
 	[/for]
 [/let]
 		default:
-			log.warning("No connection to send on found for: " + connection);
+			log.severe("No connection to send on found for: " + connection);
 			break;
 		}
 	}
 	
 	@Override
 	public void sendOnPort(String port, Object data){
-[instance.test()/]
 		switch (port) {
-[let classifier : ComponentImplementation = instance.getClassifier()]
-	[comment for each subcomponent we search for outgoing dataPorts and create a sendOnConnection(...) method for each connection, that has this dataPort as source /]
-	[for (subcomponent : ComponentInstance | instance.getChildren()->select(oclIsTypeOf(ComponentInstance)))]
-		[for (dataPort : FeatureInstance | subcomponent.featureInstance)]
-			[if (dataPort.direction = DirectionType::out or dataPort.direction = DirectionType::inOut)]
+[comment for each subcomponent we search for outgoing dataPorts and create a sendOnConnection(...) method for each connection, that has this dataPort as source /]
+[for (subcomponent : ComponentInstance | instance.getChildren()->select(oclIsTypeOf(ComponentInstance)))]
+	[for (dataPort : FeatureInstance | subcomponent.featureInstance)]
+		[if (dataPort.direction = DirectionType::out or dataPort.direction = DirectionType::inOut)]
 		[comment we use the port name concatenated with the subcomponent name, because in the contex of the parent object a subcomponents port name might not be unique /]
 		case "[subcomponent.name/].[dataPort.name/]":
-			//test
-				[for (connection : Connection | instance.connectionInstance.connectionReference->select(p|p.source = dataPort).connection)]
+			[for (connection : Connection | instance.getAllEnclosingConnectionInstances().connectionReference->select(p|p.source = dataPort).connection)]
 			sendOnConnection("[connection.name/]", data);
-				[/for]
+			[/for]
 			break;
-			[/if]
-		[/for]
+		[/if]
 	[/for]
-[/let]
+[/for]
 		default:
-			log.warning("No port to send on found for: " + port);
+			log.severe("No port to send on found for: " + port);
 			break;
 		}
 	}
@@ -133,48 +126,43 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 	@Override
 	public Object getSynchronisationObjectForConnection(String connection){
 		switch (connection) {
-[let classifier : ComponentImplementation = instance.getClassifier()]
-	[for (connection : Connection | classifier.getAllConnections())]
-		// [connection.name/]
-		case "[connection.name/]":
-		[comment if the source component of this connection is a subcomponent, wa ask its childbroker for a synchronisation object /]
-		[let subcomponent : Subcomponent = connection.getSourceComponent()]
-			[comment we assume it's an Implementation and not a Type, otherwise we couldn't determine the connection to send on /]
-			[let sourceComp : ComponentImplementation = subcomponent.getClassifier()]
-				[let dataPort : DataPort = connection.getSourceFeature()]
-					[comment its a data port, so it should have at most one incoming connection on which we are asking for the syncObject /]
-					[if (dataPort.getIncomingConnections(sourceComp) -> size() = 1)]
-			// ask the childBroker for a syncObject, as [dataPort.name/] which is the source feature of [connection.name/] 
-			// has ingoing connections within [subcomponent.name/] (determined during generation)
-			return childBrokers.get("[subcomponent.name/]").getSynchronisationObjectForConnection("[dataPort.getIncomingConnections(sourceComp)-> first().name/]");
-					[comment if there's no connection, we look up the sync Object and if there's none, we create a new syncObject and save it for this connection /]
-					[elseif (dataPort.getIncomingConnections(sourceComp) -> size() = 0)]
-			// Look up the syncObject, as [dataPort.name/] which is the source feature of [connection.name/] 
-			// has no ingoing connections within [subcomponent.name/] (determined during generation).
-			// If no syncObject is found, a new one is created and stored for later reuse.
-			Object syncOn[connection.name/] = syncObjects.get("[connection.name/]");
-			if(syncOn[connection.name/] == null){
-				syncOn[connection.name/] = new Object();
-				syncObjects.put("[connection.name/]", syncOn[connection.name/]);	
-			}
-			return syncOn[connection.name/];
-					[/if]
-				[/let]
-			[/let]
-		[comment if the source component of this connection is a ComponentImplmentation, wa ask its parentBroker for a synchronisation object, as it's a port of the component itself /]
-		[elselet sourceComp : ComponentImplementation = connection.getSourceComponent()]
-			[let dataPort : DataPort = connection.getSourceFeature()]
+[comment find all ConnectionRefernces that are within this instance /]
+[for (conRef : ConnectionReference | instance.getAllEnclosingConnectionInstances().connectionReference->select(conr | conr._context = instance))]
+	[let contextComponent : ComponentInstance = conRef.source.getContainingComponentInstance()]
+		case "[conRef.connection.name/]":
+		[comment if the source of this connection is a DataPort of "instance", wa ask its parentBroker for a synchronisation object /]
+		[if (contextComponent = instance)]
 			[comment a data port only has one incoming connection, if no data aggregation is done /]
-			// Ask the parentBroker for the syncObject, as [dataPort.name/] which is the source feature of [connection.name/] 
+			// Ask the parentBroker for the syncObject, as [conRef.source.name/] which is the source feature of [conRef.connection.name/] 
 			// is a port of this component and not of a subcomponent. Thus, we must ask the parent component for a syncObject.
-			return parentBroker.getSynchronisationObjectForPort("[instance.name/].[dataPort.name/]");
+			return parentBroker.getSynchronisationObjectForPort("[instance.name/].[conRef.source.name/]");
+		[comment if the source component of this connection is a subcomponent, we ask its childbroker for a synchronisation object /]
+		[else]
+			[comment retrieve the incoming connections for the source port within the child componentInstance /]
+			[let incomingConnections : Sequence(ConnectionReference) = contextComponent.getAllEnclosingConnectionInstances().connectionReference->select(conr | (conr._context = contextComponent and conr.destination = conRef.source))]
+				[comment its a data port, so it should have at most one incoming connection on which we are asking for the syncObject /]
+				[if (incomingConnections->size() = 1)]
+			// ask the childBroker for a syncObject, as [conRef.source.name/] which is the source feature of [conRef.connection.name/] 
+			// has ingoing connections within [contextComponent.name/] (determined during generation)
+			return childBrokers.get("[contextComponent.name/]").getSynchronisationObjectForConnection("[incomingConnections-> first().connection.name/]");
+				[comment if there's no connection, we look up the sync Object and if there's none, we create a new syncObject and save it for this connection /]
+				[else]
+			// Look up the syncObject, as [conRef.source.name/] which is the source feature of [conRef.connection.name/] 
+			// has no ingoing connections within [contextComponent.name/] (determined during generation).
+			// If no existing syncObject is found, a new one is created and stored for later reuse.
+			Object syncOn[conRef.connection.name/] = syncObjects.get("[conRef.connection.name/]");
+			if(syncOn[conRef.connection.name/] == null){
+				syncOn[conRef.connection.name/] = new Object();
+				syncObjects.put("[conRef.connection.name/]", syncOn[conRef.connection.name/]);	
+			}
+			return syncOn[conRef.connection.name/];
+				[/if]
 			[/let]
-		[/let]		
-	[/for]
-[/let]
+		[/if]
+	[/let]
+[/for]
 		default:
-			log.warning("No sync object found for connectionname: " + connection);
-			//TODO: Exception?
+			log.severe("No sync object found for connectionname: " + connection);
 			return null;
 		}
 	}
@@ -184,6 +172,7 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 		switch (port) {
 [let classifier : ComponentImplementation = instance.getClassifier()]
 	[for (connection : Connection | classifier.getAllConnections())]
+		[comment we only need in ports of subcomponents /]
 		[let subcomponent : Subcomponent = connection.getTargetComponent()]
 			[let dataPort : DataPort = connection.getTargetFeature()]
 		case "[subcomponent.name/].[dataPort.name/]":	
@@ -195,8 +184,7 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 	[/for]
 [/let]
 		default:
-			log.warning("No sync object found for portname: " + port);
-			//TODO: Exception Handling?
+			log.severe("No sync object found for portname: " + port);
 			return null;
 		}
 	}

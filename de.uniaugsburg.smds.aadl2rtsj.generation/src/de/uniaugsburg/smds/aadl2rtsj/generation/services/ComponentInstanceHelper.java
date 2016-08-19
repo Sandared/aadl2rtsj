@@ -26,6 +26,7 @@ import org.osate.aadl2.NamedValue;
 import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.RangeValue;
 import org.osate.aadl2.RecordValue;
+import org.osate.aadl2.Subcomponent;
 import org.osate.aadl2.impl.ComponentImplementationImpl;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.ConnectionInstance;
@@ -42,6 +43,7 @@ import util.UtilFactory;
 public class ComponentInstanceHelper {
 	
 	private static final Logger log = Logger.getLogger(ComponentInstanceHelper.class.getName());
+	private static final String DataPort = null;
 	
 	/**
 	 * In order to create a valid Java package name for the given InstanceObject we take the</br>
@@ -246,41 +248,48 @@ public class ComponentInstanceHelper {
 	
 	
 	
-	public static String test(ComponentInstance ci){
-//		[let classifier : ComponentImplementation = instance.getClassifier()]
-//				[comment for each subcomponent we search for outgoing dataPorts and create a sendOnConnection(...) method for each connection, that has this dataPort as source /]
-//				[for (subcomponent : ComponentInstance | instance.getChildren()->select(oclIsTypeOf(ComponentInstance)))]
-//					[for (dataPort : FeatureInstance | subcomponent.featureInstance)]
-//						[if (dataPort.direction = DirectionType::out or dataPort.direction = DirectionType::inOut)]
-//					[comment we use the port name concatenated with the subcomponent name, because in the contex of the parent object a subcomponents port name might not be unique /]
-//					case "[subcomponent.name/].[dataPort.name/]":
-//						//test
-//							[for (connection : Connection | instance.connectionInstance.connectionReference->select(p|p.source = dataPort).connection)]
-//						sendOnConnection("[connection.name/]", data);
-//							[/for]
-//						break;
-//						[/if]
-//					[/for]
-//				[/for]
-//			[/let]
-		for (Element element : ci.getChildren()) {
-			if(element instanceof ComponentInstance){
-				ComponentInstance subcomponent = (ComponentInstance)element;
-				for (FeatureInstance dataPort : subcomponent.getAllFeatureInstances()) {
-					if(dataPort.getDirection().equals(DirectionType.IN_OUT) || dataPort.getDirection().equals(DirectionType.OUT)){
-						String connectionName = subcomponent.getName() + "." + dataPort.getName();
-						List<Connection> collect = ci.getAllEnclosingConnectionInstances()
-						.stream()
-						.flatMap(coni -> coni.getConnectionReferences().stream())
-						.filter(conr -> conr.getSource() == dataPort)
-						.map(conr -> conr.getConnection())
-						.collect(Collectors.toList());
-						System.out.println(connectionName);
-						System.out.println(collect);
-					}
-				}
-			}
+	/**
+	 * Just a testmethod to compare pure java return results with their ocl counterpart
+	 * @param ci
+	 * @return
+	 */
+	public static String test(Connection c, ComponentInstance instance){
+		
+		//system instance
+		List<ComponentInstance> children = instance.getChildren().stream().filter(elem -> elem instanceof ComponentInstance).map(elem -> (ComponentInstance)elem).collect(Collectors.toList());
+		List<ConnectionReference> connections = instance.getAllEnclosingConnectionInstances()
+				.stream()
+				.flatMap(coni -> coni.getConnectionReferences().stream())
+				.filter(conr -> conr.getContext() == instance)
+				.collect(Collectors.toList());
+		
+		for (ConnectionReference conr : connections) {
+			ConnectionInstanceEnd source = conr.getSource();
+			ComponentInstance childOrThis = source.getContainingComponentInstance();
+			
+			List<ConnectionReference> incoming = childOrThis.getAllEnclosingConnectionInstances().stream()
+			.flatMap(coni -> coni.getConnectionReferences().stream())
+			.filter(conr2 -> conr2.getContext() == childOrThis && conr2.getDestination() == conr.getSource())
+			.collect(Collectors.toList());
+			
+			System.out.println();
 		}
+		
 		return "";
+	}
+	
+	public static ComponentInstance getContainingComponentInstance(ConnectionInstanceEnd cie){
+		return cie.getContainingComponentInstance();
+	}
+	
+	/**
+	 * Calls the helper method <code>getAllEnclosingConnectionInstances</code> on the given ci. </br>
+	 * This is needed, because a call to the connectionInstances property merely returns </br>
+	 * ConnectionInstances that start AND end in ci. This method also returns ConnectionInstances, that only start or only end in ci
+	 * @param ci ComponentInstance one wants ALL enclosing ConnectionInstances for
+	 * @return a List with ALL enclosing ConnectionInstances
+	 */
+	public static List<ConnectionInstance> getAllEnclosingConnectionInstances(ComponentInstance ci){
+		return ci.getAllEnclosingConnectionInstances();
 	}
 }

@@ -177,11 +177,11 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 	 * Method that is called by the AsyncEventHandler in order to map the completion event of an AADL thread.
 	 */
 	private final void completion() {
+		//Execute User Code
+		userCode.completion();
 		[let completion : String = getProperty('Communication_Properties_IO_Reference_Time_Completion')]
 			[classifier.getStatementsForReferenceTime(completion, parentClassifier)/]
 		[/let]
-		//Execute User Code
-		userCode.completion();
 	}
 	
 	/**

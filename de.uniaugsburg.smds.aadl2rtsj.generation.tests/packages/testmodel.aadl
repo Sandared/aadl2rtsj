@@ -7,8 +7,8 @@ system a_system
 
 	system implementation a_system.system1
 		subcomponents
-			myprocess1: process a_process.process1;
-			myprocess2: process a_process.process1;
+			myprocess1: process a_process.impl;
+			myprocess2: process a_process.impl;
 		connections
 			new_connection: port myprocess2.dataout -> myprocess1.datain;
 			new_connection2: port myprocess1.dataout ->	myprocess2.datain;
@@ -21,7 +21,7 @@ system a_system
 			dataout: out data port Base_Types::Boolean;
 end a_process;
 
-	process implementation a_process.process1
+	process implementation a_process.impl
 		subcomponents
 			mysendreceive: thread b_thread.sendreceive  {Dispatch_Protocol => periodic;};
 			myworker: thread a_extended_thread.worker {Dispatch_Protocol => periodic;};
