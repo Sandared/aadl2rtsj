@@ -1,0 +1,68 @@
+[comment encoding = UTF-8 /]
+[module DeviceTypeGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+
+
+[template public generateDeviceType(device : ComponentClassifier)]
+[let deviceType : DeviceType = device]
+[file(deviceType.getFileName() , false, 'UTF-8')]
+package [deviceType.getPackageName()/];
+
+//########## Classifier Import##########
+	[comment import all classifiers for this component, but only once for each classifier/]
+	[for (classifier : ComponentClassifier | deviceType.getAllClassifiersForType())]
+import [classifier.getPackageName()/].[classifier.getClassName()/];
+	[/for]
+
+	[comment import the ConnectionBrokerable Interface if there is no more extended classifier/]
+	[if (deviceType.getExtendedClassifier() = null)]
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBrokerable;
+	[/if]
+
+/**
+ * This interface represents the model element [deviceType.name/]</br>
+ * Each DATA PORT of [deviceType.name/] is represented by a correspong in'dataPortName' or out'dataPortName' method.
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ */
+public interface [deviceType.getClassName()/] extends [if (deviceType.getExtendedClassifier() <> null)][deviceType.getExtendedClassifier().getClassName()/][else]ConnectionBrokerable[/if]{
+	[for (feature : Feature | deviceType.getAllFeatures())]
+		[let dataPort : DataPort = feature]
+			[if (dataPort.isIncoming())]
+				[if (dataPort.isRefined())]
+	/**
+	 * This method is not meant for use, as it got refined by {@link #in[dataPort.name.toUpperFirst()/] in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data)}</br>
+	 * If used nonetheless, this method throws a <tt>UnsupportedOperationException</tt>
+	 * @exception UnsupportedOperationException if used
+	 */
+	@Override
+	default void in[dataPort.name.toUpperFirst()/]([dataPort.getRefinedClassifier().getClassName()/] data){
+		throw new UnsupportedOperationException();
+	}
+				[/if]
+	void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data);
+			[/if]
+			[if (dataPort.isOutgoing())]
+				[if (dataPort.isRefined())]
+	/**
+	 * This method is not meant for use, as it got refined by {@link #out[dataPort.name.toUpperFirst()/] in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data)}</br>
+	 * If used nonetheless, this method throws a <tt>UnsupportedOperationException</tt>
+	 * @exception UnsupportedOperationException if used
+	 */
+	@Override
+	default void out[dataPort.name.toUpperFirst()/]([dataPort.getRefinedClassifier().getClassName()/] data){
+		throw new UnsupportedOperationException();
+	}
+				[/if]
+	/**
+	 * This method broadcasts the given data on all outgoing connections of <code>[dataPort.name/]</code></br>
+	 * via the <code>parentBroker</code> of this thread.
+	 * @param data the data to be broadcasted on the OUT DATA PORT <code>[dataPort.name/]</code>
+	 */
+	void out[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data);
+			[/if]
+		[/let]
+	[/for]
+}
+[/file]
+[/let]
+[/template]

@@ -17,6 +17,10 @@
 [import de::uniaugsburg::smds::aadl2rtsj::generation::instance::system::SystemInstanceGenerator /]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::system::SystemTypeGenerator /]
 
+[import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::device::DeviceImplementationGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::instance::device::DeviceInstanceGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::classifier::device::DeviceTypeGenerator /]
+
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
 
 [import de::uniaugsburg::smds::aadl2rtsj::generation::instance::main::MainGenerator /]
@@ -61,6 +65,9 @@
 
 [template public generateClassifier(cc : ComponentClassifier)]
 	[comment generate the component itself. Each Generator decides if the given object is the right one /]
+	[generateDeviceImplementation(cc)/]
+	[generateDeviceType(cc)/]
+
 	[generateSystemImplementation(cc)/]
 	[generateSystemType(cc)/]
 
@@ -79,6 +86,7 @@
 	[generateProcessInstance(ci)/]
 	[generateThreadInstance(ci)/]
 	[generateSystemInstance(ci)/]
+	[generateDeviceInstance(ci)/]
 
 	[comment generate all subcomponents recursively  /]
 	[for (subcomponent : ComponentInstance | ci.getChildren()->select(oclIsTypeOf(ComponentInstance)) )]

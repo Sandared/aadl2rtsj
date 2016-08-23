@@ -78,7 +78,10 @@ public class ComponentClassifierHelper {
 	 * @return the ComponentClassifier for the given Subcomponent, or <code>null</code> if none was specified
 	 */
 	public static ComponentClassifier getClassifier(Subcomponent sc){
-		return sc.getClassifier();
+		ComponentClassifier cc = sc.getClassifier();
+		if(isBaseType(cc))
+			return getBaseTypeClassifier(cc);
+		return cc;
 	}
 	
 	/**
@@ -257,10 +260,7 @@ public class ComponentClassifierHelper {
 			if(isIncoming(feature)){
 				ComponentClassifier classifier = getClassifier(feature);
 				if(classifier != null){
-					if (isBaseType(classifier)) 
-						classifiers.add(getBaseTypeClassifier(classifier));
-					else
-						classifiers.add(getClassifier(feature));
+					classifiers.add(getClassifier(feature));
 				}
 			}
 		}
@@ -282,13 +282,9 @@ public class ComponentClassifierHelper {
 			if(isIncoming(feature)){
 				ComponentClassifier classifier = getClassifier(feature);
 				if(classifier != null){
-					if (isBaseType(classifier)) 
-						classifiers.add(getBaseTypeClassifier(classifier));
-					else{
-						ComponentClassifier refined = getRefinedClassifier(feature);
-						if(refined != null)
-							classifiers.add(refined);
-					}
+					ComponentClassifier refined = getRefinedClassifier(feature);
+					if(refined != null)
+						classifiers.add(refined);
 				}
 			}
 		}
@@ -310,10 +306,7 @@ public class ComponentClassifierHelper {
 			if(isOutgoing(feature)){
 				ComponentClassifier classifier = getClassifier(feature);
 				if(classifier != null){
-					if (isBaseType(classifier)) 
-						classifiers.add(getBaseTypeClassifier(classifier));
-					else					
-						classifiers.add(classifier);
+					classifiers.add(classifier);
 				}
 			}
 		}
@@ -326,8 +319,12 @@ public class ComponentClassifierHelper {
 	 */
 	public static ComponentClassifier getRefinedClassifier(Feature f){
 		Feature refined = f.getRefined();
-		if (refined != null)
-			return (ComponentClassifier) refined.getClassifier();
+		if (refined != null){
+			ComponentClassifier cc = (ComponentClassifier) refined.getClassifier();
+			if (isBaseType(cc)) 
+				return getBaseTypeClassifier(cc);
+			return cc;
+		}
 		else 
 			return null;
 	}
@@ -339,7 +336,10 @@ public class ComponentClassifierHelper {
 	 * @return the realized classifier for the given ComponentImplementation. 
 	 */
 	public static ComponentClassifier getRealizedClassifier(ComponentImplementation ci){
-		return ci.getType();
+		ComponentClassifier cc = ci.getType();
+		if (isBaseType(cc)) 
+			return getBaseTypeClassifier(cc);
+		return cc;
 	}
 	
 	/**
@@ -347,7 +347,10 @@ public class ComponentClassifierHelper {
 	 * @return the classifier for the given feature or <code>null</code> if no classifier was defined
 	 */
 	public static ComponentClassifier getClassifier(Feature f){
-		return (ComponentClassifier) f.getClassifier();
+		ComponentClassifier cc = (ComponentClassifier) f.getClassifier();
+		if (isBaseType(cc)) 
+			return getBaseTypeClassifier(cc);
+		return cc;
 	}
 	
 	/**
@@ -364,13 +367,9 @@ public class ComponentClassifierHelper {
 		for (Feature feature : cc.getAllFeatures()) {
 			ComponentClassifier classifier = getClassifier(feature);
 			if(classifier != null){
-				if (isBaseType(classifier)) 
-					classifiers.add(getBaseTypeClassifier(classifier));
-				else{
-					classifiers.add(getClassifier(feature));
-					if(isIncoming(feature) && isRefined(feature))
-						classifiers.add(getRefinedClassifier(feature));
-				}
+				classifiers.add(classifier);
+				if(isIncoming(feature) && isRefined(feature))
+					classifiers.add(getRefinedClassifier(feature));
 			}
 		}
 		return classifiers;
@@ -387,12 +386,9 @@ public class ComponentClassifierHelper {
 	public static Set<ComponentClassifier> getAllSubcomponentClassifier(ComponentImplementation ci){
 		Set<ComponentClassifier> classifiers = new TreeSet<ComponentClassifier>(new ClassifierComparator());
 		for (Subcomponent subcomponent : getAllSubComponents(ci)) {
-			ComponentClassifier classifier = subcomponent.getClassifier();
+			ComponentClassifier classifier = getClassifier(subcomponent);
 			if(classifier != null)
-				if (isBaseType(classifier)) 
-					classifiers.add(getBaseTypeClassifier(classifier));
-				else
-					classifiers.add(classifier);
+				classifiers.add(classifier);
 			else
 				log.warning("No classifier was given for subcomponent " + subcomponent);
 		}

@@ -1,0 +1,85 @@
+[comment encoding = UTF-8 /]
+[module DeviceImplementationGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+
+[template public generateDeviceImplementation(device : ComponentClassifier)]
+[let deviceImpl : DeviceImplementation = device]
+[file(deviceImpl.getFileName() , false, 'UTF-8')]
+package [deviceImpl.getPackageName()/];
+
+//########## Classifier Imports ##########
+	[comment import all classifiers of this ThreadImplementation, but only once for each classifier/]
+	[for (classifier : ComponentClassifier | deviceImpl.getAllClassifiersForImplementation())]
+import [classifier.getPackageName()/].[classifier.getClassName()/];
+	[/for]
+
+//########## Port Variable Import ##########
+	[comment if this component has in, out or in/out ports we have to import DataPort/]
+	[if (deviceImpl.getAllFeatures()->select(oclIsTypeOf(DataPort))->size() > 0)]
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.DataPort;
+	[/if]
+
+/**
+ * This class represents the model element [deviceImpl.name/].</br>
+ * For each defined subcomponent it defines a member variable, which is visible to extending classes.</br>
+ * For each DATA PORT that has no connections defined within [deviceImpl.name/], a member variable is defined, that can store incoming or outgoing values</br>
+ * For each IN DATA PORT a method is defined, that handles the incoming data.
+ * 
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ */
+public abstract class [deviceImpl.getClassName()/][if (deviceImpl.getExtendedClassifier() <> null)] extends [deviceImpl.getExtendedClassifier().getClassName()/][/if] implements [deviceImpl.getRealizedClassifier().getClassName()/]{
+
+	//########## Subcomponent Variables ##########
+	[for (subcomponent : Subcomponent | deviceImpl.getOwnSubcomponents())]
+	/**
+	 * A member variable that is used to store the subcomponent <code>[subcomponent.name/]</code>
+	 */
+	protected [subcomponent.getClassifier().getClassName()/] [subcomponent.name/];
+
+	[/for]
+
+	[comment create a data port variable for each IN DATAPORT that has no connections within this component/]
+	[comment TODO maybe we need the port variable although there is a connection? /]
+	//########## Data Port Variables ###########
+	[for (dataPort : DataPort | deviceImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
+		[if (getOutgoingConnections(dataPort, deviceImpl)->size() = 0)]
+	/**
+	 * A DataPort<[dataPort.getClassifier().getClassName()/]> member variable that is</br> 
+	 * used to store data for the DATA PORT <code>[dataPort.name/]</code>
+	 */
+	protected DataPort<[dataPort.getClassifier().getClassName()/]> [dataPort.name/] = new DataPort<[dataPort.getClassifier().getClassName()/]>();
+
+		[/if]
+	[/for]
+
+	//########## Inherited Methods from [deviceImpl.getRealizedClassifier().getClassName()/] ###########
+	[for (dataPort : DataPort | deviceImpl.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
+		[if (dataPort.isIncoming())]
+			[if (dataPort.getOutgoingConnections(deviceImpl)-> size() > 0)]
+	/**
+	 * This method forwards <code>data</code> on its respective internal connections</br>
+	 * @param data the data that is sent to this thread via its <code>[dataPort.name/]</code> IN DATA PORT 
+	 */
+			[else]
+	/**
+	 * This method stores <code>data</code> in an internal port variable.</br>
+	 * @param data the data that is sent to this thread via its <code>[dataPort.name/]</code> IN DATA PORT 
+	 */	
+			[/if]
+	@Override
+	public void in[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
+			[if (getOutgoingConnections(dataPort, deviceImpl)->size() > 0)]
+				[for (connection : Connection | getOutgoingConnections(dataPort, deviceImpl))]
+		broker.sendOnConnection("[connection.name/]", data);	
+				[/for]
+			[else]
+		this.[dataPort.name/].setFWData(data);
+			[/if]
+	}	
+		
+		[/if]
+	[/for]
+}
+[/file]	
+[/let]
+[/template]

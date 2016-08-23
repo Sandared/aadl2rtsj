@@ -1,0 +1,80 @@
+[comment encoding = UTF-8 /]
+[module DeviceInstanceGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentInstanceHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::util::InnerConnectionBrokerGenerator /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::instance::util::InstanceHelper /]
+
+[template public generateDeviceInstance(device : ComponentInstance)? (device.category = ComponentCategory::device) { classifier : ComponentClassifier = device.getClassifier(); }]
+[file(device.getFileName() , false, 'UTF-8')]
+package [device.getPackageName()/];
+
+//########## Classifier Imports ##########
+	[comment import all classifiers of this ThreadImplementation, but only once for each classifier/]
+	[for (classifier : ComponentClassifier | device.getClassifier().oclAsType(ComponentImplementation).getAllClassifiersForInstance())]
+import [classifier.getPackageName()/].[classifier.getClassName()/];
+	[/for]
+
+//########## ConnectionBroker Import ###########
+import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
+
+//########## Logger Import ##########
+import java.util.logging.Logger;
+
+/**
+ * This class represents the instance model element [device.name/].</br>
+ * It defines a ConnectionBroker for the handling of connections defined within [device.name/] and a parent ConnectionBroker to forward or initiate data transfer into 'higher' nested components.</br>
+ * It defines am out'dataPortName' method for each OUT DATA PORT, which brodcasts the given data over the parentBroker on all outgoing connections.
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ */
+public class [device.getClassName()/] extends [classifier.getClassName()/]{	
+	private static final Logger log = Logger.getLogger([device.getClassName()/].class.getName());	
+	
+	/**
+	 * ConnectionBroker to send on outgoing connections. Has to be set by the parent component.
+	 */
+	private ConnectionBroker parentBroker;
+
+	/**
+	 * ConnectionBroker for the connections within this Thread
+	 */
+	private ConnectionBroker broker;
+
+	public [device.getClassName()/]([classifier.getConstructorParameter()/]){
+		[comment for each subcomponent we have to create an Assignment Statement/]
+		[for (subcomponent : Subcomponent | classifier.oclAsType(ComponentImplementation).getAllSubComponents())]
+		this.[subcomponent.name/] = [subcomponent.name/];
+		[/for]
+	}
+
+	//########## Inherited Methods from ConnectionBrokerable ##########
+	@Override
+	public void setParentConnectionBroker(ConnectionBroker parentBroker){
+		[getSetParentConnectionBrokerStatements(device)/]
+	}
+
+	@Override
+	public ConnectionBroker getConnectionBroker(){
+		return broker;
+	}
+
+	[comment we have to implement the outPort wtihin the instance, becaus we only know within an instance, which name this component got as subcompnent /]
+	[for (dataPort : DataPort | classifier.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
+		[if (dataPort.isOutgoing())]
+	@Override
+	public void out[dataPort.name.toUpperFirst()/]([dataPort.getClassifier().getClassName()/] data){
+		[comment broadcast über den parentBroker /]
+		parentBroker.sendOnPort("[device.name/].[dataPort.name/]", data);
+	}
+
+		[/if]
+	[/for]
+
+	// [protected ('device')]
+	// write your code here
+	// [/protected]
+}
+[/file]
+
+[device.generateInnerConnectionBroker()/]
+[/template]
