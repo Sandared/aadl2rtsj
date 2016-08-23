@@ -7,7 +7,7 @@ public
 
 	system implementation autopilot.impl
 		subcomponents
-			simulation: device x_plane;
+			simulation: device x_plane.impl;
 			autopilot: process autopilotProcess.impl;
 		connections
 			throttleCon: port autopilot.throttle -> simulation.throttle;
@@ -19,6 +19,10 @@ public
 			position: out data port BusMessage.Position;
 			throttle: in data port BusMessage.ThrottleCommand;
 	end x_plane;
+	
+	device implementation x_plane.impl
+		
+	end x_plane.impl;
 
 	process AutopilotProcess
 		features
@@ -77,19 +81,12 @@ end autopilotProcess.impl;
 	end RollControl.impl;
 
 	data BusMessage
-		features
-			getMessageType: provides data access BusMessageType;
 	end BusMessage;
 
 	data implementation BusMessage.impl
 		subcomponents
-			messageType: data BusMessageType;
-		connections
-			accessMessageType: data access getMessageType -> messageType;
+			messageType: data Base_Types::String;
 	end BusMessage.impl;
-
-	data BusMessageType extends Base_Types::String
-	end BusMessageType;
 
 	data implementation BusMessage.ThrottleCommand extends BusMessage.impl
 		subcomponents
@@ -115,7 +112,7 @@ end autopilotProcess.impl;
 			heading: data Base_Types::Float;
 			pitch: data Base_Types::Float;
 			roll: data Base_Types::Float;
-			location: data GeoCoordinate;
+			location: data GeoCoordinate.impl;
 	end BusMessage.Position;
 
 	data implementation BusMessage.PositionCommand extends BusMessage.impl
