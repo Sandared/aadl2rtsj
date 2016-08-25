@@ -21,3 +21,7 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.PropertyHelper', 'getPriority(org.osate.aadl2.NamedElement)', Sequence{arg0})
 /]
 
+[query public getAccessRight(arg0 : NamedElement) : String
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.PropertyHelper', 'getAccessRight(org.osate.aadl2.NamedElement)', Sequence{arg0})
+/]
+

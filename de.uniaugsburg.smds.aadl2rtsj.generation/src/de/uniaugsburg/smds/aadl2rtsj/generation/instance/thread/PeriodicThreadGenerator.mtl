@@ -168,7 +168,6 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 	 * Method that is called by the AsyncEventHandler in order to map the compute time of an AADL thread.
 	 */
 	private final void compute() {
-		log.info("[thread.getPackageName()/].[thread.getClassName()/].compute()");
 		//Execute User Code
 		userCode.compute();
 	}

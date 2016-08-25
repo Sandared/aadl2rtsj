@@ -45,11 +45,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
-import org.osate.aadl2.Aadl2Factory;
-import org.osate.aadl2.Aadl2Package;
-import org.osate.aadl2.AadlBoolean;
 import org.osate.aadl2.ComponentClassifier;
-import org.osate.aadl2.DataType;
 import org.osate.aadl2.Element;
 import org.osate.aadl2.instance.InstanceObject;
 import org.osate.aadl2.instance.SystemInstance;
@@ -57,10 +53,6 @@ import org.osate.aadl2.modelsupport.modeltraversal.AadlProcessingSwitchWithProgr
 import org.osate.ui.actions.AaxlReadOnlyActionAsJob;
 
 import de.uniaugsburg.smds.aadl2rtsj.generation.main.Main;
-import de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentClassifierHelper;
-
-//import de.uniaugsburg.smds.aadl2rtsj.converter.MainConverter;
-//import de.uniaugsburg.smds.aadl2rtsj.utils.Utils;
 
 public class DoRTSJGeneration extends AaxlReadOnlyActionAsJob {
 

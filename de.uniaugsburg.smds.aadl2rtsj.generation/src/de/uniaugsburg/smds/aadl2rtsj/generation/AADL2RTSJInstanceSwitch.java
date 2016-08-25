@@ -2,12 +2,15 @@ package de.uniaugsburg.smds.aadl2rtsj.generation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.osate.aadl2.ClassifierFeature;
 import org.osate.aadl2.ComponentClassifier;
+import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.ComponentType;
 import org.osate.aadl2.Element;
 import org.osate.aadl2.Mode;
@@ -16,6 +19,7 @@ import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.PropertyAssociation;
 import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.PropertyValue;
+import org.osate.aadl2.Subcomponent;
 import org.osate.aadl2.impl.ComponentImplementationImpl;
 import org.osate.aadl2.instance.AnnexInstance;
 import org.osate.aadl2.instance.ComponentInstance;
@@ -72,11 +76,11 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	@Override
 	public String caseComponentInstance(ComponentInstance object) {
 		System.out.println("AADL2RTSJInstanceSwitch.caseComponentInstance()" + object);
-		addHierarchyClassifers(object.getComponentClassifier());
+		addHierarchyClassifiers(object.getComponentClassifier());
 		return DONE;
 	}
 	
-	private void addHierarchyClassifers(ComponentClassifier classifier){
+	private void addHierarchyClassifiers(ComponentClassifier classifier){
 		if(classifier != null && !ComponentClassifierHelper.isBaseType(classifier)){
 			EcoreUtil.resolveAll(classifier);// resolve possible proxies
 			usedClassifier.add(classifier);
@@ -88,8 +92,21 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 				//there might still be a hierarchy upwards the realized type
 				if(extension == null)
 					extension = realization;
+				// add subcomponent Classifier
+				List<Subcomponent> allSubcomponents = ((ComponentImplementation) classifier).getAllSubcomponents();
+				while (allSubcomponents.size() > 0) {
+					Subcomponent current = allSubcomponents.remove(0);
+					ComponentClassifier subCompClassifier = current.getClassifier();
+					if(subCompClassifier != null && !ComponentClassifierHelper.isBaseType(subCompClassifier)){
+						addHierarchyClassifiers(subCompClassifier);
+						if (subCompClassifier instanceof ComponentImplementation) {
+							//TODO: possible circular dependencies
+							allSubcomponents.addAll(((ComponentImplementation) subCompClassifier).getAllSubcomponents());
+						}
+					}
+				}
 			}
-			addHierarchyClassifers(extension);
+			addHierarchyClassifiers(extension);
 		}
 	}
 	
@@ -126,7 +143,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	@Override
 	public String caseFeatureInstance(FeatureInstance object) {
 		System.out.println("AADL2RTSJInstanceSwitch.caseFeatureInstance()" + object);
-		addHierarchyClassifers((ComponentClassifier) object.getFeature().getClassifier());
+		addHierarchyClassifiers((ComponentClassifier) object.getFeature().getClassifier());
 		return DONE;
 	}
 
@@ -211,7 +228,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 	@Override
 	public String caseSystemInstance(SystemInstance object) {
 		System.out.println("AADL2RTSJInstanceSwitch.caseSystemInstance()" + object);
-		addHierarchyClassifers(object.getComponentClassifier());
+		addHierarchyClassifiers(object.getComponentClassifier());
 		return DONE;
 	}
 

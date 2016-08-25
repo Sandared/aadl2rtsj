@@ -17,7 +17,15 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.util.InOutPort;
 import [classifier.getPackageName()/].[classifier.getClassName()/];
 	[/for]
 
+//########## Logger Import ##########
+import java.util.logging.Logger;
+
 public class [thread.getUserCodeClassName()/]{
+
+	/**
+	 * The Logger to log information on
+	 */
+	private static final Logger log = Logger.getLogger([thread.getUserCodeClassName()/].class.getName());
 
 	[comment create a member variable for each port /]
 	[for (feature : Feature | classifier.getAllFeatures())]
@@ -59,6 +67,7 @@ public class [thread.getUserCodeClassName()/]{
 	public void compute(){
 		// [protected ('compute')]
 		// TODO: place compute code here
+		log.info("[thread.getUserCodeClassName()/] executing...");
 		// [/protected]
 	}
 }

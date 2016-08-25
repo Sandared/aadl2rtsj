@@ -44,7 +44,11 @@ public class Constants {
 	public static final String Thread_Properties_Dispatch_Protocol_Aperiodic = "Aperiodic";
 	public static final String Thread_Properties_Dispatch_Protocol_Background = "Background";
 	
-	
+	public static final String Memory_Properties = "Memory_Properties";
+	public static final String Memory_Properties_Access_Right = "Access_Right";
+	public static final String Memory_Properties_Access_Right_Read_Write = "read_write";
+	public static final String Memory_Properties_Access_Right_Read_Only = "read_only";
+	public static final String Memory_Properties_Access_Right_Write_Only = "write_only";
 	
 	public static final String Timing_Properties = "Timing_Properties";
 	

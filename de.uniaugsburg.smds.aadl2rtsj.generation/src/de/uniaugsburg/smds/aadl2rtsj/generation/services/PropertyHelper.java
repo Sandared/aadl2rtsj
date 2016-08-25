@@ -41,9 +41,11 @@ public class PropertyHelper {
 				dispatchProtocol = namedValue.getName();// should be "Periodic" or "Aperiodic" or one of the others
 			}
 		}
-		if(dispatchProtocol.equals(""))
+		if(dispatchProtocol.equals("")){
 			log.warning("No Thread_Properties::Dispatch_Protocol was given for " + ne.getName() + ". Default is periodic");
-		return Thread_Properties_Dispatch_Protocol_Periodic;
+			return Thread_Properties_Dispatch_Protocol_Periodic;
+		}
+		return dispatchProtocol;
 	}
 	
 	public static String getPeriodMilliSeconds(NamedElement ne){
@@ -84,5 +86,24 @@ public class PropertyHelper {
 		}
 		log.warning("No Thread_Properties::Priority was given for " + ne.getName() + ". Default is 5");
 		return "5";
+	}
+	
+	public static String getAccessRight(NamedElement ne){
+		String accessRight = "";
+		// get Thread Type: Periodic, Aperiodic, Sporadic, Hybrid, Timed or Background
+		List<PropertyExpression> accessRightPropertyList = ne.getPropertyValues(Memory_Properties, Memory_Properties_Access_Right);
+		// only do something if the type of thread was defined
+		if(accessRightPropertyList.size() > 0){
+			PropertyExpression accessRightProperty = accessRightPropertyList.get(0); //TODO we don't consider modes at the moment
+			if(accessRightProperty instanceof NamedValue){
+				EnumerationLiteral namedValue = (EnumerationLiteral)((NamedValue)accessRightProperty).getNamedValue();
+				accessRight = namedValue.getName();// should be "Periodic" or "Aperiodic" or one of the others
+			}
+		}
+		if(accessRight.equals("")){
+			log.warning("No Memory_Properties::Access_Right was given for " + ne.getName() + ". Default is read_write");
+			return Memory_Properties_Access_Right_Read_Write;
+		}
+		return accessRight;
 	}
 }

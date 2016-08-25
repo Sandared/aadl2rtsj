@@ -1,6 +1,7 @@
 s[comment encoding = UTF-8 /]
 [module DataImplementationGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
 [import de::uniaugsburg::smds::aadl2rtsj::generation::services::ComponentClassifierHelper /]
+[import de::uniaugsburg::smds::aadl2rtsj::generation::services::PropertyHelper /]
 
 [template public generateDataImplementation(data : ComponentClassifier)]
 [let dataImpl : DataImplementation = data]
@@ -28,14 +29,40 @@ public class [dataImpl.getClassName()/][if (dataImpl.getExtendedClassifier() <> 
 	//########### Subcomponents ###########
 	[for (subcomponent : Subcomponent | dataImpl.getAllSubComponents()->select(oclIsTypeOf(DataSubcomponent)))]
 	[comment create a member statement for each subcomponent /]
+	/**
+	 * A member variable to store the value for subcomponent "[subcomponent.name/]"
+	 */
 	private [subcomponent.getClassifier().getClassName()/] [subcomponent.name/] = new [subcomponent.getClassifier().getClassName()/]();
-	[/for]
 
+	[/for]
+	//########### Getter/Setter ###########
+	[comment create a getter/setter statement for each subcomponent depending on the Access_Right property of each/]
+	[for (subcomponent : Subcomponent | dataImpl.getAllSubComponents()->select(oclIsTypeOf(DataSubcomponent)))]
+		[let accessRight : String = subcomponent.getAccessRight()]
+			[if (accessRight = getProperty('Memory_Properties_Access_Right_Read_Write') or accessRight = getProperty('Memory_Properties_Access_Right_Read_Only'))]
+	/**
+	 * 
+	 */
+	public [subcomponent.getClassifier().getClassName()/] get[subcomponent.name.toUpperFirst()/](){
+		return [subcomponent.name/];
+	}
+
+			[/if]
+			[if (accessRight = getProperty('Memory_Properties_Access_Right_Read_Write') or accessRight = getProperty('Memory_Properties_Access_Right_Write_Only'))]
+	/**
+	 * 
+	 */
+	public void set[subcomponent.name.toUpperFirst()/]([subcomponent.getClassifier().getClassName()/] [subcomponent.name/]){
+		this.[subcomponent.name/] = [subcomponent.name/];
+	}
+
+			[/if]
+		[/let]
+	[/for]
 	[if (dataImpl.getExtendedClassifier() = null)]
 	@Override
 	public [dataImpl.getClassName()/] deepCopy(){
 		[dataImpl.getClassName()/] result = new [dataImpl.getClassName()/]();
-		//TODO: copy all internal values (only for primitives?)
 		[for (subcomponent : Subcomponent | dataImpl.getAllSubComponents()->select(oclIsTypeOf(DataSubcomponent)))]
 		result.[subcomponent.name/] = [subcomponent.name/].deepCopy();
 		[/for]
