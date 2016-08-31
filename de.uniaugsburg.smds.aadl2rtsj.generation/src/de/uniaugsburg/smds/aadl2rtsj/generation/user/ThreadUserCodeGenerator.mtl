@@ -20,6 +20,10 @@ import [classifier.getPackageName()/].[classifier.getClassName()/];
 //########## Logger Import ##########
 import java.util.logging.Logger;
 
+// [protected ('addtionalImports')]
+// TODO: place additionalImports here
+// [/protected]
+
 public class [thread.getUserCodeClassName()/]{
 
 	/**
@@ -70,6 +74,10 @@ public class [thread.getUserCodeClassName()/]{
 		log.info("[thread.getUserCodeClassName()/] executing...");
 		// [/protected]
 	}
+
+	// [protected ('helperstuff')]
+	// TODO: place helperstuff code here
+	// [/protected]
 }
 [/file]
 [/template]

@@ -16,8 +16,8 @@ public
 
 	device x_plane
 		features
-			position: out data port BusMessage.Position;
-			throttle: in data port BusMessage.ThrottleCommand;
+			position: out data port Information.PositionInformation;
+			throttle: in data port Command.ThrottleCommand;
 	end x_plane;
 	
 	device implementation x_plane.impl
@@ -26,8 +26,8 @@ public
 
 	process AutopilotProcess
 		features
-			position: in data port BusMessage.Position;
-			throttle: out data port BusMessage.ThrottleCommand;
+			position: in data port Information.PositionInformation;
+			throttle: out data port Command.ThrottleCommand;
 	end AutopilotProcess;
 
 	process implementation autopilotProcess.impl
@@ -41,29 +41,32 @@ public
 			headingControl: thread HeadingControl.impl;
 		connections
 			con1: port position -> flightMissionExecutionControl.positionIn;
-			con3: port flightMissionExecutionControl.positionCommand -> positionControl.positionCommand;
-			con4: port flightMissionExecutionControl.positionOut -> positionControl.positionIn;
+			con2: port flightMissionExecutionControl.shutdownCommand -> mixThrottlesControl.shutdownCommand;
+			con3: port flightMissionExecutionControl.positionCommand -> positionControl.positionCommandIn;
+			con4: port flightMissionExecutionControl.positionOut -> positionControl.positionInformationIn;
 			con5: port flightMissionExecutionControl.positionOut -> headingControl.position;
 			con6: port flightMissionExecutionControl.headingCommand -> headingControl.command;
-			con7: port positionControl.altitudeCommand -> altitudeControl.command;
-			con8: port positionControl.positionOut -> rollControl.position;
-			con9: port positionControl.positionOut -> pitchControl.position;
-			con10: port positionControl.positionOut -> altitudeControl.position;
+			con7: port positionControl.altitudeCommandOut -> altitudeControl.command;
+			con8: port positionControl.positionInformationOut -> rollControl.position;
+			con9: port positionControl.positionInformationOut -> pitchControl.position;
+			con10: port positionControl.positionInformationOut -> altitudeControl.position;
 			con11: port headingControl.throttleRequest -> mixThrottlesControl.headingThrottleRequest;
 			con12: port altitudeControl.throttleRequest -> mixThrottlesControl.altitudeThrottleRequest;
 			con13: port rollControl.throttleRequest -> mixThrottlesControl.rollThrottleRequest;
 			con14: port pitchControl.throttleRequest -> mixThrottlesControl.pitchThrottleRequest;
-			con15: port positionControl.pitchCommand -> pitchControl.command;
-			con16: port positionControl.rollCommand -> rollControl.command;
+			con15: port positionControl.pitchCommandOut -> pitchControl.command;
+			con16: port positionControl.rollCommandOut -> rollControl.command;
 			con17: port mixThrottlesControl.throttleCommand -> throttle;
-	con2: port flightMissionExecutionControl.shutdownCommand -> mixThrottlesControl.shutdownCommand;
+			con18: port flightMissionExecutionControl.shutdownCommand -> positionControl.shutdownCommandIn;
+			con19: port positionControl.throttleCommandOut -> throttle;
+			con20: port positionControl.headingCommandOut -> headingControl.command;
 end autopilotProcess.impl;
 
 	thread BasicController
 		features
-			position: in data port BusMessage.Position;
-			command: in data port BusMessage {Classifier_Substitution_Rule => Type_Extension;};
-			throttleRequest: out data port BusMessage.ThrottleRequest;
+			position: in data port Information.PositionInformation;
+			command: in data port Command {Classifier_Substitution_Rule => Type_Extension;};
+			throttleRequest: out data port Request.ThrottleRequest;
 		properties
 			Period => 100 ms;
 	end BasicController;
@@ -80,97 +83,104 @@ end autopilotProcess.impl;
 	thread implementation RollControl.impl
 	end RollControl.impl;
 
-	data BusMessage
-	end BusMessage;
+	data Command
+	end Command;
+	
+	data Information
+	end Information;
+	
+	data Request
+	end Request;
 
-	data implementation BusMessage.impl
+	data implementation Command.ThrottleCommand
 		subcomponents
-			messageType: data Base_Types::String;
-	end BusMessage.impl;
+			throttleEngine1: data Base_Types::Float;
+			throttleEngine2: data Base_Types::Float;
+			throttleEngine3: data Base_Types::Float;
+			throttleEngine4: data Base_Types::Float;
+	end Command.ThrottleCommand;
 
-	data implementation BusMessage.ThrottleCommand extends BusMessage.impl
+	data implementation Request.ThrottleRequest
 		subcomponents
-			engineNum: data Base_Types::Integer;
-			throttle: data Base_Types::Float;
-	end BusMessage.ThrottleCommand;
+			throttleRequestEngine1: data Base_Types::Float;
+			throttleRequestEngine2: data Base_Types::Float;
+			throttleRequestEngine3: data Base_Types::Float;
+			throttleRequestEngine4: data Base_Types::Float;
+			controllerType: data Base_Types::String;
+	end Request.ThrottleRequest;
 
-	data implementation BusMessage.ThrottleRequest extends BusMessage.impl
-		subcomponents
-			throttleOneRequest: data Base_Types::Float;
-			throttleTwoRequest: data Base_Types::Float;
-			throttleThreeRequest: data Base_Types::Float;
-			throttleFourRequest: data Base_Types::Float;
-	end BusMessage.ThrottleRequest;
-
-	data implementation BusMessage.ShutdownCommand extends BusMessage.impl
+	data implementation Command.ShutdownCommand
 		subcomponents
 			shutdown: data Base_Types::Boolean;
-	end BusMessage.ShutdownCommand;
+	end Command.ShutdownCommand;
 
-	data implementation BusMessage.Position extends BusMessage.impl
+	data implementation Information.PositionInformation
 		subcomponents
 			heading: data Base_Types::Float;
 			pitch: data Base_Types::Float;
 			roll: data Base_Types::Float;
 			location: data GeoCoordinate.impl;
-	end BusMessage.Position;
+	end Information.PositionInformation;
 
-	data implementation BusMessage.PositionCommand extends BusMessage.impl
+	data implementation Command.PositionCommand
 		subcomponents
 			altitude: data Base_Types::Float;
 			longitude: data Base_Types::Float;
 			latitude: data Base_Types::Float;
 			loiter: data Base_Types::Boolean;
-	end BusMessage.PositionCommand;
+			shutdown: data Base_Types::Boolean;
+	end Command.PositionCommand;
 
-	data implementation BusMessage.AltitudeCommand extends BusMessage.impl
+	data implementation Command.AltitudeCommand
 		subcomponents
 			altitude: data Base_Types::Float;
-	end BusMessage.AltitudeCommand;
+	end Command.AltitudeCommand;
 
-	data implementation BusMessage.HeadingCommand extends BusMessage.impl
+	data implementation Command.HeadingCommand
 		subcomponents
 			heading: data Base_Types::Float;
-	end BusMessage.HeadingCommand;
+			exit: data Base_Types::Boolean;
+			loiter: data Base_Types::Boolean;
+	end Command.HeadingCommand;
 
-	data implementation BusMessage.RollCommand extends BusMessage.impl
+	data implementation Command.RollCommand
 		subcomponents
 			roll: data Base_Types::Float;
-	end BusMessage.RollCommand;
+	end Command.RollCommand;
 
-	data implementation BusMessage.PitchCommand extends BusMessage.impl
+	data implementation Command.PitchCommand
 		subcomponents
 			pitch: data Base_Types::Float;
-	end BusMessage.PitchCommand;
+	end Command.PitchCommand;
 
 	thread HeadingControl extends BasicController
 		features
-			command: refined to in data port BusMessage.HeadingCommand;
+			command: refined to in data port Command.HeadingCommand;
 	end HeadingControl;
 
 	thread RollControl extends BasicController
 		features
-			command: refined to in data port BusMessage.RollCommand;
+			command: refined to in data port Command.RollCommand;
 	end RollControl;
 
 	thread PitchControl extends BasicController
 		features
-			command: refined to in data port BusMessage.PitchCommand;
+			command: refined to in data port Command.PitchCommand;
 	end PitchControl;
 
 	thread AltitudeControl extends BasicController
 		features
-			command: refined to in data port BusMessage.AltitudeCommand;
+			command: refined to in data port Command.AltitudeCommand;
 	end AltitudeControl;
 
 	thread MixThrottlesControl
 		features
-			throttleCommand: out data port BusMessage.ThrottleCommand;
-			rollThrottleRequest: in data port BusMessage.ThrottleRequest;
-			pitchThrottleRequest: in data port BusMessage.ThrottleRequest;
-			headingThrottleRequest: in data port BusMessage.ThrottleRequest;
-			altitudeThrottleRequest: in data port BusMessage.ThrottleRequest;
-			shutdownCommand: in data port BusMessage.ShutdownCommand;
+			throttleCommand: out data port Command.ThrottleCommand;
+			rollThrottleRequest: in data port Request.ThrottleRequest;
+			pitchThrottleRequest: in data port Request.ThrottleRequest;
+			headingThrottleRequest: in data port Request.ThrottleRequest;
+			altitudeThrottleRequest: in data port Request.ThrottleRequest;
+			shutdownCommand: in data port Command.ShutdownCommand;
 		properties
 			Period => 100 ms;
 	end MixThrottlesControl;
@@ -180,11 +190,11 @@ end autopilotProcess.impl;
 
 	thread FlightMissionExecutionControl
 		features
-			positionIn: in data port BusMessage.Position;
-			shutdownCommand: out data port BusMessage.ShutdownCommand;
-			positionCommand: out data port BusMessage.PositionCommand;
-			headingCommand: out data port BusMessage.HeadingCommand;
-			positionOut: out data port BusMessage.Position;
+			positionIn: in data port Information.PositionInformation;
+			shutdownCommand: out data port Command.ShutdownCommand;
+			positionCommand: out data port Command.PositionCommand;
+			headingCommand: out data port Command.HeadingCommand;
+			positionOut: out data port Information.PositionInformation;
 		properties
 			Period => 100 ms;
 	end FlightMissionExecutionControl;
@@ -194,59 +204,22 @@ end autopilotProcess.impl;
 
 	thread PositionControl
 		features
-			positionIn: in data port BusMessage.Position;
-			positionCommand: in data port BusMessage.PositionCommand;
+			positionInformationIn: in data port Information.PositionInformation;
+			positionCommandIn: in data port Command.PositionCommand;
+			shutdownCommandIn: in data port Command.ShutdownCommand;
 			
-			altitudeCommand: out data port BusMessage.AltitudeCommand;
-			pitchCommand: out data port BusMessage.PitchCommand;
-			rollCommand: out data port BusMessage.RollCommand;
-			positionOut: out data port BusMessage.Position;
+			altitudeCommandOut: out data port Command.AltitudeCommand;
+			pitchCommandOut: out data port Command.PitchCommand;
+			rollCommandOut: out data port Command.RollCommand;
+			headingCommandOut: out data port Command.HeadingCommand;
+			positionInformationOut: out data port Information.PositionInformation;
+			throttleCommandOut: out data port Command.ThrottleCommand;
 		properties
 			Period => 100 ms;
 	end PositionControl;
 
 	thread implementation PositionControl.impl
 	end PositionControl.impl;
-
-	thread SimulationBus
-		features
-			throttleCommandMTCIn: in data port BusMessage.ThrottleCommand;
-			altitudeCommandPCIn: in data port BusMessage.AltitudeCommand;
-			pitchCommandPCIn: in data port BusMessage.PitchCommand;
-			rollCommandPCIn: in data port BusMessage.RollCommand;
-			headingCommandPCIn: in data port BusMessage.HeadingCommand;
-			throttleCommandPCIn: in data port BusMessage.ThrottleCommand;
-			throttleRequestRCIn: in data port BusMessage.ThrottleRequest;
-			throttleRequestACIn: in data port BusMessage.ThrottleRequest;
-			throttleRequestPCIn: in data port BusMessage.ThrottleRequest;
-			throttleRequestHCIn: in data port BusMessage.ThrottleRequest;
-			shutdownCommandFMECIn: in data port BusMessage.ShutdownCommand;
-			positionCommandFMECIn: in data port BusMessage.PositionCommand;
-			headingCommandFMECIn: in data port BusMessage.HeadingCommand;
-			positionIn: in data port BusMessage.Position;
-
-			throttleRequestRollOut: out data port BusMessage.ThrottleRequest;
-			throttleRequestAltOut: out data port BusMessage.ThrottleRequest;
-			throttleRequestPitchOut: out data port BusMessage.ThrottleRequest;
-			throttleRequestHeadOut: out data port BusMessage.ThrottleRequest;
-			shutDownCommandMTCOut: out data port BusMessage.ShutdownCommand;
-			positionPoCOut: out data port BusMessage.Position;
-			positionRCOut: out data port BusMessage.Position;
-			positionPiCOut: out data port BusMessage.Position;
-			positionHCOut: out data port BusMessage.Position;
-			positionFMECOut: out data port BusMessage.Position;
-			positionACOut: out data port BusMessage.Position;
-			positionCommandPCOut: out data port BusMessage.Position;
-			shutDownCommandPCOut: out data port BusMessage.ShutdownCommand;
-			rollCommandRCOut: out data port BusMessage.RollCommand;
-			pitchCommandPCOut: out data port BusMessage.PitchCommand;
-			HeadingCommandHCOut: out data port BusMessage.HeadingCommand;
-			altitudeCommandACOut: out data port BusMessage.AltitudeCommand;
-			throttleOut: out data port BusMessage.ThrottleCommand;
-	end SimulationBus;
-
-	thread implementation SimulationBus.impl
-	end SimulationBus.impl;
 
 	data GeoCoordinate
 	end GeoCoordinate;
@@ -255,7 +228,7 @@ end autopilotProcess.impl;
 		subcomponents
 			latitude: data Base_Types::Float;
 			longitude: data Base_Types::Float;
-			altitudeAmsl: data Base_Types::Float;
+			altitudeMsl: data Base_Types::Float;
 			altitudeAgl: data Base_Types::Float;
 	end GeoCoordinate.impl;
 

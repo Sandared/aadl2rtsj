@@ -100,7 +100,7 @@ public class AADL2RTSJInstanceSwitch extends InstanceSwitch<String> {
 					if(subCompClassifier != null && !ComponentClassifierHelper.isBaseType(subCompClassifier)){
 						addHierarchyClassifiers(subCompClassifier);
 						if (subCompClassifier instanceof ComponentImplementation) {
-							//TODO: possible circular dependencies
+							//TODO: possible circular dependencies via classifier (classifier A has subcomponent x with classifier B, wich has a subcomponent y with classifier A)
 							allSubcomponents.addAll(((ComponentImplementation) subCompClassifier).getAllSubcomponents());
 						}
 					}

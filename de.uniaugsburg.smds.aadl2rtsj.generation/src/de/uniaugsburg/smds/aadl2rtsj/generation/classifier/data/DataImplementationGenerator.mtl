@@ -41,7 +41,7 @@ public class [dataImpl.getClassName()/][if (dataImpl.getExtendedClassifier() <> 
 		[let accessRight : String = subcomponent.getAccessRight()]
 			[if (accessRight = getProperty('Memory_Properties_Access_Right_Read_Write') or accessRight = getProperty('Memory_Properties_Access_Right_Read_Only'))]
 	/**
-	 * 
+	 * @return the value of [subcomponent.name/]
 	 */
 	public [subcomponent.getClassifier().getClassName()/] get[subcomponent.name.toUpperFirst()/](){
 		return [subcomponent.name/];
@@ -50,7 +50,7 @@ public class [dataImpl.getClassName()/][if (dataImpl.getExtendedClassifier() <> 
 			[/if]
 			[if (accessRight = getProperty('Memory_Properties_Access_Right_Read_Write') or accessRight = getProperty('Memory_Properties_Access_Right_Write_Only'))]
 	/**
-	 * 
+	 * @param [subcomponent.name/] the new value for [subcomponent.name/]
 	 */
 	public void set[subcomponent.name.toUpperFirst()/]([subcomponent.getClassifier().getClassName()/] [subcomponent.name/]){
 		this.[subcomponent.name/] = [subcomponent.name/];

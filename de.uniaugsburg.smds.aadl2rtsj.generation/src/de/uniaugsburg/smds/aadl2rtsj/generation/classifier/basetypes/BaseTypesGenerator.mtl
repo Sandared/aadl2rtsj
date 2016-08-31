@@ -23,6 +23,20 @@ public class [name/] implements DeepCopyable<[name/]>{
 	 */
 	private [type/] value;
 
+	/**
+	 * @return the [type/] value of this [name/]
+	 */
+	public [type/] getValue(){
+		return value;
+	}
+
+	/**
+	 * @param value the new [type/] value tfor this [name/]
+	 */
+	public void setValue([type/] value){
+		this.value = value;
+	}
+
 	@Override
 	public [name/] deepCopy(){
 		[name/] result = new [name/]();
