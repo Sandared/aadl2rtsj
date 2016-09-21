@@ -1,6 +1,19 @@
 [comment encoding = UTF-8 /]
 [module DataPortGenerator('http://aadl.info/AADL/2.0', 'http://aadl.info/AADL/2.0/instance')]
 [template public generateGenericDataPort()]
+[file ('de/uniaugsburg/smds/aadl2rtsj/generation/util/NoDataException.java', false, 'UTF-8')]
+package de.uniaugsburg.smds.aadl2rtsj.generation.util;
+
+/**
+ * Indicates that there has been no data set yet on a given data port
+ *
+ * @author thomas.driessen@informatik.uni-augsburg.de
+ */
+public class NoDataException extends Exception {
+	private static final long serialVersionUID = -164807672650181730L;
+}
+[/file]
+
 [file ('de/uniaugsburg/smds/aadl2rtsj/generation/util/DataPort.java', false, 'UTF-8')]
 package de.uniaugsburg.smds.aadl2rtsj.generation.util;
 
@@ -76,11 +89,9 @@ public class DataPort<T>{
 	 * The status of this port is set to clean.
 	 */
 	public void receiveInput(){
-		//The data is either a DeepCopyable or a primitve type
-		if(inData instanceof DeepCopyable)
+		//If the data is null do nothing, the value for the user will then be either null or the last value
+		if(inFWData != null)
 			inData = (T)((DeepCopyable)inFWData).deepCopy();
-		else
-			inData = copyPrimitive(inFWData);
 	}
 
 	/**
@@ -118,26 +129,6 @@ public class DataPort<T>{
 		return inOutPort;
 	}
 
-	private T copyPrimitive(T original){
-		if(original instanceof Boolean){
-			return (T) new Boolean(((Boolean) original).booleanValue());
-		}
-		if(original instanceof Float){
-			return (T) new Float(((Float) original).floatValue());
-		}
-		if(original instanceof Integer){
-			return (T) new Integer(((Integer) original).intValue());
-		}
-		if(original instanceof String){
-			return (T) new String((String)original);
-		}
-		if(original instanceof Double){
-			return (T) new Double(((Double) original).doubleValue());
-		}
-		//TODO: Error?
-		return null;
-	}
-	
 	public class InnerOutPort<X extends T> implements OutPort<X>{
 		@Override
 		public boolean isDirty(){
@@ -155,8 +146,9 @@ public class DataPort<T>{
 			return isFWDirty();
 		}
 		@Override
-		public synchronized X getData(){
-			inData = inFWData;
+		public synchronized X getData() throws NoDataException{
+			if(inData == null)
+				throw new NoDataException();
 			return (X)inData;
 		}
 	}
@@ -167,8 +159,10 @@ public class DataPort<T>{
 			return isFWDirty();
 		}
 		@Override
-		public synchronized X getData(){
+		public synchronized X getData() throws NoDataException{
 			inData = inFWData;
+			if(inData == null)
+				throw new NoDataException();
 			return (X)inData;
 		}
 		@Override

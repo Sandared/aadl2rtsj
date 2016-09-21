@@ -2,6 +2,7 @@ package autopilot
 public
 	with Base_Types;
 
+	-- ################### SYSTEM ################### --
 	system Autopilot
 	end Autopilot;
 
@@ -10,8 +11,8 @@ public
 			simulation: device x_plane.impl;
 			autopilot: process autopilotProcess.impl;
 		connections
-			throttleCon: port autopilot.throttle -> simulation.throttle;
-			posCon: port simulation.position -> autopilot.position;
+			throttleCon: port autopilot.throttleOut -> simulation.throttle;
+			posCon: port simulation.position -> autopilot.positionIn;
 	end autopilot.impl;
 
 	device x_plane
@@ -19,15 +20,15 @@ public
 			position: out data port Information.PositionInformation;
 			throttle: in data port Command.ThrottleCommand;
 	end x_plane;
-	
+
 	device implementation x_plane.impl
-		
 	end x_plane.impl;
 
+	-- ################### PROCESS ################### --
 	process AutopilotProcess
 		features
-			position: in data port Information.PositionInformation;
-			throttle: out data port Command.ThrottleCommand;
+			positionIn: in data port Information.PositionInformation;
+			throttleOut: out data port Command.ThrottleCommand;
 	end AutopilotProcess;
 
 	process implementation autopilotProcess.impl
@@ -40,36 +41,62 @@ public
 			altitudeControl: thread AltitudeControl.impl;
 			headingControl: thread HeadingControl.impl;
 		connections
-			con1: port position -> flightMissionExecutionControl.positionIn;
-			con2: port flightMissionExecutionControl.shutdownCommand -> mixThrottlesControl.shutdownCommand;
-			con3: port flightMissionExecutionControl.positionCommand -> positionControl.positionCommandIn;
-			con4: port flightMissionExecutionControl.positionOut -> positionControl.positionInformationIn;
-			con5: port flightMissionExecutionControl.positionOut -> headingControl.position;
-			con6: port flightMissionExecutionControl.headingCommand -> headingControl.command;
-			con7: port positionControl.altitudeCommandOut -> altitudeControl.command;
-			con8: port positionControl.positionInformationOut -> rollControl.position;
-			con9: port positionControl.positionInformationOut -> pitchControl.position;
-			con10: port positionControl.positionInformationOut -> altitudeControl.position;
-			con11: port headingControl.throttleRequest -> mixThrottlesControl.headingThrottleRequest;
-			con12: port altitudeControl.throttleRequest -> mixThrottlesControl.altitudeThrottleRequest;
-			con13: port rollControl.throttleRequest -> mixThrottlesControl.rollThrottleRequest;
-			con14: port pitchControl.throttleRequest -> mixThrottlesControl.pitchThrottleRequest;
-			con15: port positionControl.pitchCommandOut -> pitchControl.command;
-			con16: port positionControl.rollCommandOut -> rollControl.command;
-			con17: port mixThrottlesControl.throttleCommand -> throttle;
-			con18: port flightMissionExecutionControl.shutdownCommand -> positionControl.shutdownCommandIn;
-			con19: port positionControl.throttleCommandOut -> throttle;
-			con20: port positionControl.headingCommandOut -> headingControl.command;
-end autopilotProcess.impl;
+			con_1: port positionIn -> flightMissionExecutionControl.positionInformationIn;
+			con_2: port flightMissionExecutionControl.shutdownCommandOut -> mixThrottlesControl.shutdownCommandIn;
+			con_3: port flightMissionExecutionControl.shutdownCommandOut -> positionControl.shutdownCommandIn;
+			con_4: port flightMissionExecutionControl.positionCommandOut -> positionControl.positionCommandIn;
+			con_5: port flightMissionExecutionControl.positionInformationOut -> positionControl.positionInformationIn;
+			con_6: port positionControl.altitudeCommandOut -> altitudeControl.commandIn;
+			con_7: port positionControl.rollCommandOut -> rollControl.commandIn;
+			con_8: port positionControl.positionInformationOut -> altitudeControl.positionIn;
+			con_9: port positionControl.positionInformationOut -> rollControl.positionIn;
+			con_10: port positionControl.positionInformationOut -> pitchControl.positionIn;
+			con_11: port positionControl.positionInformationOut -> headingControl.positionIn;
+			con_12: port positionControl.shutdownCommandOut -> altitudeControl.shutdownCommandIn;
+			con_13: port positionControl.shutdownCommandOut -> rollControl.shutdownCommandIn;
+			con_14: port positionControl.shutdownCommandOut -> pitchControl.shutdownCommandIn;
+			con_15: port positionControl.shutdownCommandOut -> headingControl.shutdownCommandIn;
+			con_16: port positionControl.pitchCommandOut -> pitchControl.commandIn;
+			con_17: port positionControl.headingCommandOut -> headingControl.commandIn;
+			con_18: port altitudeControl.throttleRequestOut -> mixThrottlesControl.altitudeThrottleRequestIn;
+			con_19: port rollControl.throttleRequestOut -> mixThrottlesControl.rollThrottleRequestIn;
+			con_20: port pitchControl.throttleRequestOut -> mixThrottlesControl.pitchThrottleRequestIn;
+			con_21: port headingControl.throttleRequestOut -> mixThrottlesControl.headingThrottleRequestIn;
+			con_22: port mixThrottlesControl.throttleCommandOut -> throttleOut;
+	end autopilotProcess.impl;
 
+	-- ################### BASIC CONTROLLER ################### --
 	thread BasicController
 		features
-			position: in data port Information.PositionInformation;
-			command: in data port Command {Classifier_Substitution_Rule => Type_Extension;};
-			throttleRequest: out data port Request.ThrottleRequest;
+			positionIn: in data port Information.PositionInformation;
+			commandIn: in data port Command {Classifier_Substitution_Rule => Type_Extension;};
+			throttleRequestOut: out data port Request.ThrottleRequest;
+			shutdownCommandIn: in data port Command.ShutdownCommand;
 		properties
-			Period => 100 ms;
+			Period => 50 ms;
+			Priority => 5;
+			Dispatch_Protocol => Periodic;
 	end BasicController;
+
+	thread HeadingControl extends BasicController
+		features
+			commandIn: refined to in data port Command.HeadingCommand;
+	end HeadingControl;
+
+	thread RollControl extends BasicController
+		features
+			commandIn: refined to in data port Command.RollCommand;
+	end RollControl;
+
+	thread PitchControl extends BasicController
+		features
+			commandIn: refined to in data port Command.PitchCommand;
+	end PitchControl;
+
+	thread AltitudeControl extends BasicController
+		features
+			commandIn: refined to in data port Command.AltitudeCommand;
+	end AltitudeControl;
 
 	thread implementation HeadingControl.impl
 	end HeadingControl.impl;
@@ -83,12 +110,68 @@ end autopilotProcess.impl;
 	thread implementation RollControl.impl
 	end RollControl.impl;
 
+	-- ################### SPECIAL CONTROLLER ################### --
+	thread MixThrottlesControl
+		features
+			throttleCommandOut: out data port Command.ThrottleCommand;
+			rollThrottleRequestIn: in data port Request.ThrottleRequest;
+			pitchThrottleRequestIn: in data port Request.ThrottleRequest;
+			headingThrottleRequestIn: in data port Request.ThrottleRequest;
+			altitudeThrottleRequestIn: in data port Request.ThrottleRequest;
+			shutdownCommandIn: in data port Command.ShutdownCommand;
+		properties
+			Period => 50 ms;
+			Priority => 5;
+			Dispatch_Protocol => Periodic;
+	end MixThrottlesControl;
+
+	thread implementation MixThrottlesControl.impl
+	end MixThrottlesControl.impl;
+
+	thread FlightMissionExecutionControl
+		features
+			positionInformationIn: in data port Information.PositionInformation;
+			shutdownCommandOut: out data port Command.ShutdownCommand;
+			positionCommandOut: out data port Command.PositionCommand;
+			positionInformationOut: out data port Information.PositionInformation;
+		properties
+			Period => 50 ms;
+			Priority => 5;
+			Dispatch_Protocol => Periodic;
+	end FlightMissionExecutionControl;
+
+	thread implementation FlightMissionExecutionControl.impl
+	end FlightMissionExecutionControl.impl;
+
+	thread PositionControl
+		features
+			positionInformationIn: in data port Information.PositionInformation;
+			positionCommandIn: in data port Command.PositionCommand;
+			shutdownCommandIn: in data port Command.ShutdownCommand;
+			altitudeCommandOut: out data port Command.AltitudeCommand;
+			pitchCommandOut: out data port Command.PitchCommand;
+			rollCommandOut: out data port Command.RollCommand;
+			headingCommandOut: out data port Command.HeadingCommand;
+			positionInformationOut: out data port Information.PositionInformation;
+			shutdownCommandOut: out data port Command.ShutdownCommand;
+		properties
+			Period => 50 ms;
+			Priority => 5;
+			Dispatch_Protocol => Periodic;
+	end PositionControl;
+
+	thread implementation PositionControl.impl
+	end PositionControl.impl;
+	
+	-- ################### SUPER SPECIAL CONTROLLER ################### --
+
+	-- ################### COMMANDS / INFORMATION / REQUESTS ################### --
 	data Command
 	end Command;
-	
+
 	data Information
 	end Information;
-	
+
 	data Request
 	end Request;
 
@@ -119,6 +202,7 @@ end autopilotProcess.impl;
 			heading: data Base_Types::Float;
 			pitch: data Base_Types::Float;
 			roll: data Base_Types::Float;
+			loiter: data Base_Types::Boolean;
 			location: data GeoCoordinate.impl;
 	end Information.PositionInformation;
 
@@ -128,7 +212,7 @@ end autopilotProcess.impl;
 			longitude: data Base_Types::Float;
 			latitude: data Base_Types::Float;
 			loiter: data Base_Types::Boolean;
-			shutdown: data Base_Types::Boolean;
+			heading: data Base_Types::Float;
 	end Command.PositionCommand;
 
 	data implementation Command.AltitudeCommand
@@ -153,74 +237,7 @@ end autopilotProcess.impl;
 			pitch: data Base_Types::Float;
 	end Command.PitchCommand;
 
-	thread HeadingControl extends BasicController
-		features
-			command: refined to in data port Command.HeadingCommand;
-	end HeadingControl;
-
-	thread RollControl extends BasicController
-		features
-			command: refined to in data port Command.RollCommand;
-	end RollControl;
-
-	thread PitchControl extends BasicController
-		features
-			command: refined to in data port Command.PitchCommand;
-	end PitchControl;
-
-	thread AltitudeControl extends BasicController
-		features
-			command: refined to in data port Command.AltitudeCommand;
-	end AltitudeControl;
-
-	thread MixThrottlesControl
-		features
-			throttleCommand: out data port Command.ThrottleCommand;
-			rollThrottleRequest: in data port Request.ThrottleRequest;
-			pitchThrottleRequest: in data port Request.ThrottleRequest;
-			headingThrottleRequest: in data port Request.ThrottleRequest;
-			altitudeThrottleRequest: in data port Request.ThrottleRequest;
-			shutdownCommand: in data port Command.ShutdownCommand;
-		properties
-			Period => 100 ms;
-	end MixThrottlesControl;
-
-	thread implementation MixThrottlesControl.impl
-	end MixThrottlesControl.impl;
-
-	thread FlightMissionExecutionControl
-		features
-			positionIn: in data port Information.PositionInformation;
-			shutdownCommand: out data port Command.ShutdownCommand;
-			positionCommand: out data port Command.PositionCommand;
-			headingCommand: out data port Command.HeadingCommand;
-			positionOut: out data port Information.PositionInformation;
-		properties
-			Period => 100 ms;
-	end FlightMissionExecutionControl;
-
-	thread implementation FlightMissionExecutionControl.impl
-	end FlightMissionExecutionControl.impl;
-
-	thread PositionControl
-		features
-			positionInformationIn: in data port Information.PositionInformation;
-			positionCommandIn: in data port Command.PositionCommand;
-			shutdownCommandIn: in data port Command.ShutdownCommand;
-			
-			altitudeCommandOut: out data port Command.AltitudeCommand;
-			pitchCommandOut: out data port Command.PitchCommand;
-			rollCommandOut: out data port Command.RollCommand;
-			headingCommandOut: out data port Command.HeadingCommand;
-			positionInformationOut: out data port Information.PositionInformation;
-			throttleCommandOut: out data port Command.ThrottleCommand;
-		properties
-			Period => 100 ms;
-	end PositionControl;
-
-	thread implementation PositionControl.impl
-	end PositionControl.impl;
-
+	-- ################### DATA ################### --
 	data GeoCoordinate
 	end GeoCoordinate;
 

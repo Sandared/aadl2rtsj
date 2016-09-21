@@ -123,11 +123,12 @@ public class [instance.getClassName()/]ConnectionBroker extends BasicConnectionB
 		}
 	}
 
+
 	@Override
 	public Object getSynchronisationObjectForConnection(String connection){
 		switch (connection) {
 [comment find all ConnectionRefernces that are within this instance /]
-[for (conRef : ConnectionReference | instance.getAllEnclosingConnectionInstances().connectionReference->select(conr | conr._context = instance))]
+[for (conRef : ConnectionReference | instance.getAllEnclosingConnectionInstances().connectionReference->select(conr | conr._context = instance)->makeUnique())]
 	[let contextComponent : ComponentInstance = conRef.source.getContainingComponentInstance()]
 		case "[conRef.connection.name/]":
 		[comment if the source of this connection is a DataPort of "instance", wa ask its parentBroker for a synchronisation object /]

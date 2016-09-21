@@ -73,3 +73,11 @@
 	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'getAllEnclosingConnectionInstances(org.osate.aadl2.instance.ComponentInstance)', Sequence{arg0})
 /]
 
+[query public makeUnique(arg0 : Sequence(ConnectionReference)) : Sequence(ConnectionReference)
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'makeUnique(java.util.List)', Sequence{arg0})
+/]
+
+[query public isDataPort(arg0 : FeatureInstance) : Boolean
+	= invoke('de.uniaugsburg.smds.aadl2rtsj.generation.services.ComponentInstanceHelper', 'isDataPort(org.osate.aadl2.instance.FeatureInstance)', Sequence{arg0})
+/]
+

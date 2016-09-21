@@ -18,9 +18,9 @@ public interface InPort<T>{
 	boolean isDirty();
 
 	/**
-	 * @return the latest data stored in this port
+	 * @return the latest data stored in this port or throws an NoDataException if the data would be null
 	 */
-	T getData();
+	T getData() throws NoDataException;
 }
 [/file]
 [/template]
@@ -69,9 +69,9 @@ public interface InOutPort<T>{
 	public void setData(T data);
 
 	/**
-	 * @return the latest data stored in this port
+	 * @return the latest data stored in this port or throws an NoDataException if the data would be null
 	 */
-	T getData();
+	T getData() throws NoDataException;
 }
 [/file]
 [/template]

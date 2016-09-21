@@ -8,24 +8,39 @@
 [file ('main/Main.java', false, 'UTF-8')]
 package main;
 
+// [protected ('main user imports')]
+// TODO
+// [/protected]
+
 public class Main{
 	
 	public static void main(String['[]'/] args){
+
+		// [protected ('main user code start')]
+		// TODO
+		// [/protected]
+
 		//create components
 	[for (component : ComponentInstance | components)]
 		[component.getPackageName()/].[component.getClassName()/] [component.name + '_ID' + component.getUniqueId()/] = new [component.getPackageName()/].[component.getClassName()/]([component.getConstructorParameters()/]);
 	[/for]
 
+		// [protected ('main user code mid')]
+		// TODO
+		// [/protected]
+
 		//init brokers
 		[system.name + '_ID' + system.getUniqueId()/].setParentConnectionBroker(null);
 
-		// start threads
 	[for (component : ComponentInstance | components)]
 		[if (component.category = ComponentCategory::thread)]
 		[component.name + '_ID' + component.getUniqueId()/].startExecution();
 		[/if]
 	[/for]
 
+		// [protected ('main user code end')]
+		// TODO
+		// [/protected]
 	}
 }
 [/file]

@@ -140,7 +140,9 @@ public class ComponentClassifierHelper {
 	public static List<Connection> getOutgoingConnections(Context source, ComponentImplementation component){
 		List<Connection> outgoing = new ArrayList<Connection>();
 		for (Connection connection : getAllConnections(component)) {
-			if(connection.getAllSourceContext() != null && getSourceFeature(connection).equals(source))
+			NamedElement allSourceContext = getSourceComponent(connection);
+			ConnectionEnd sourceFeature = getSourceFeature(connection);
+			if(getSourceComponent(connection) != null && getSourceFeature(connection).equals(source))
 				outgoing.add(connection);
 		}
 		return outgoing;

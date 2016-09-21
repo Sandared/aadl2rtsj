@@ -21,6 +21,9 @@ import de.uniaugsburg.smds.aadl2rtsj.generation.util.ConnectionBroker;
 //########## Logger Import ##########
 import java.util.logging.Logger;
 
+// [protected ('device imports')]
+// TODO
+// [/protected]
 /**
  * This class represents the instance model element [device.name/].</br>
  * It defines a ConnectionBroker for the handling of connections defined within [device.name/] and a parent ConnectionBroker to forward or initiate data transfer into 'higher' nested components.</br>

@@ -73,7 +73,7 @@ import [thread.getUserCodePackageName()/].[thread.getUserCodeClassName()/];
 /**
  * This class represents the instance model element [thread.name/].</br>
  * It defines a ConnectionBroker for the handling of connections defined within [thread.name/] and a parent ConnectionBroker to forward or initiate data transfer into 'higher' nested components.</br>
- * It defines am out'dataPortName' method for each OUT DATA PORT, which brodcasts the given data over the parentBroker on all outgoing connections.
+ * It defines am out'dataPortName' method for each OUT DATA PORT, which broadcasts the given data over the parentBroker on all outgoing connections.
  * @author thomas.driessen@informatik.uni-augsburg.de
  */
 public class [thread.getClassName()/] extends [classifier.getClassName()/]{	
@@ -144,10 +144,10 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 	private final void dispatch() {
 		[comment we need deadline statements at this point, as there is no way to hook into the JVM to listen for a deadline /]
 		[let deadline : String = getProperty('Communication_Properties_IO_Reference_Time_Deadline')]
-		[classifier.getStatementsForReferenceTime(deadline, parentClassifier)/]
+		[thread.getStatementsForReferenceTime(deadline)/]
 		[/let]
 		[let dispatch : String = getProperty('Communication_Properties_IO_Reference_Time_Dispatch')]
-		[classifier.getStatementsForReferenceTime(dispatch, parentClassifier)/]
+		[thread.getStatementsForReferenceTime(dispatch)/]
 		[/let]
 		//Execute User Code
 		userCode.dispatch();
@@ -158,7 +158,7 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 	 */
 	private final void start() {
 		[let start : String = getProperty('Communication_Properties_IO_Reference_Time_Start')]
-			[classifier.getStatementsForReferenceTime(start, parentClassifier)/]
+			[thread.getStatementsForReferenceTime(start)/]
 		[/let]
 		//Execute User Code
 		userCode.start();
@@ -179,7 +179,7 @@ public class [thread.getClassName()/] extends [classifier.getClassName()/]{
 		//Execute User Code
 		userCode.completion();
 		[let completion : String = getProperty('Communication_Properties_IO_Reference_Time_Completion')]
-			[classifier.getStatementsForReferenceTime(completion, parentClassifier)/]
+			[thread.getStatementsForReferenceTime(completion)/]
 		[/let]
 	}
 	
@@ -254,19 +254,19 @@ class InnerAsyncEventHandler extends [if ((connection <> null) )]Bound[/if]Async
 	[/if]
 [/template]
 
-[template public getStatementsForReferenceTime(classifier : ComponentClassifier, IOReferenceTime : String, parent : ComponentImplementation)post (replace('\n\n', '\n').trim())]
-	[for (dataPort : DataPort | classifier.getAllFeatures()->select(oclIsTypeOf(DataPort)))]
-		[if (dataPort.isIncoming())]
+[template public getStatementsForReferenceTime(thread : ComponentInstance, IOReferenceTime : String)post (replace('\n\n', '\n').trim())]
+	[for (dataPort : FeatureInstance | thread.featureInstance->select(fi | fi.isDataPort()))]
+		[if (dataPort.direction = DirectionType::_in or dataPort.direction = DirectionType::inOut)]
 			[comment IGNORE Input_Time == Deadline, it seems to be forbidden by standard 8.3.2 (19) TODO: ask on mailinglist for clarification /]
 			[if (IOReferenceTime <> getProperty('Communication_Properties_IO_Reference_Time_Deadline'))]
-[dataPort.getDataPortInputStatementsForReferenceTime(IOReferenceTime, parent)/]
+[dataPort.getDataPortInputStatementsForReferenceTime(IOReferenceTime)/]
 			[/if]
 		[/if]
-		[if (dataPort.isOutgoing())]
+		[if (dataPort.direction = DirectionType::out or dataPort.direction = DirectionType::inOut)]
 			[comment IGNORE Output_Time == Dispatch, it seems to be forbidden by standard 8.3.2 (27) TODO: ask on mailinglist for clarification/]
 			[if (IOReferenceTime <> getProperty('Communication_Properties_IO_Reference_Time_Dispatch'))]
-[dataPort.getDataPortOutputStatementsForReferenceTime(IOReferenceTime, parent)/]
-			[/if]
+[dataPort.getDataPortOutputStatementsForReferenceTime(IOReferenceTime)/]
+			[/if]		
 		[/if]
 	[/for]
 [/template]
@@ -274,13 +274,13 @@ class InnerAsyncEventHandler extends [if ((connection <> null) )]Bound[/if]Async
 [comment ASSUMPTIONS/] 
 [comment (1) IGNORE Input_Rate/]
 [comment (2) IGNORE negative Offset part of Timing/]
-[template private getDataPortInputStatementsForReferenceTime(feature : DataPort, IOReferenceTime : String, parent : ComponentImplementation)]
+[template private getDataPortInputStatementsForReferenceTime(feature : FeatureInstance, IOReferenceTime : String)]
 	[comment get all connections, where this feature is the destination/]
 	[comment if immediate/delayed connections are present, then ignore Input_Time/]
-	[for (connection : Connection | feature.getIncomingConnections(parent))]
+	[for (connection : Connection | feature.dstConnectionInstance.connectionReference->select(cr | cr._context = feature.getContainingComponentInstance().getParent()).connection)]
 		[comment in DataPorts may have only one connection per mode. We don't consider modes at the moment, so there may only be one connection/]
 		[comment determine actual timing for this feature-connection-combination/] 
-		[for (offsetTime : OffsetTime | feature.getTimes(connection, IOReferenceTime, true))]
+		[for (offsetTime : OffsetTime | feature.feature.getTimes(connection, IOReferenceTime, true))]
 			[comment as we don't consider modes, we could only take the first one/]
 			[comment if outputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)/]
 			[if(offsetTime.ioTime = IOReferenceTime)]
@@ -299,14 +299,14 @@ new [getHandlerClassName(offsetTime)/]([feature.name/]);
 [comment ASSUMPTIONS/]
 [comment (1) IGNORE Output_Rate/]
 [comment (2) IGNORE negative Offset part of Timing/]
-[template private getDataPortOutputStatementsForReferenceTime(feature : DataPort, IOReferenceTime : String, parent : ComponentImplementation)]
+[template private getDataPortOutputStatementsForReferenceTime(feature : FeatureInstance, IOReferenceTime : String)]
 	[comment get all connections, where this feature is the source/]
 	[comment if immediate/delayed connections are present, then partially ignore Output_Time/]
-	[for (connection : Connection | feature.getOutgoingConnections(parent))]
+	[for (connection : Connection | feature.srcConnectionInstance.connectionReference->select(cr | cr._context = feature.getContainingComponentInstance().getParent()).connection)]
 		[comment out DataPorts may have multiple connections per mode/] 
 		[comment those might have different timings/]
 		[comment determine actual timing for this feature-connection-combination/] 
-		[for (offsetTime : OffsetTime | feature.getTimes(connection, IOReferenceTime, false))]
+		[for (offsetTime : OffsetTime | feature.feature.getTimes(connection, IOReferenceTime, false))]
 			[comment if outputAt is NoIO, then nothing happens, see AADL Standard 8.3.2 (19)/]
 			[if(offsetTime.ioTime = IOReferenceTime)]
 				[comment deadline must be treated different, as it is always done by a handler/]

@@ -40,7 +40,9 @@ public class [name/] implements DeepCopyable<[name/]>{
 	@Override
 	public [name/] deepCopy(){
 		[name/] result = new [name/]();
-		result.value = new [type/](this.value);
+		if(this.value != null){
+			result.value = new [type/](this.value);
+		}
 		return result;
 	}
 }

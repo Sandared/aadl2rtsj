@@ -292,4 +292,38 @@ public class ComponentInstanceHelper {
 	public static List<ConnectionInstance> getAllEnclosingConnectionInstances(ComponentInstance ci){
 		return ci.getAllEnclosingConnectionInstances();
 	}
+	
+	/**
+	 * There might be the case where a semantic connection has different starting or endpoints in subcomponents.</br>
+	 * This leads to multiple ConnectionInstances in the super component, which are logically the same connection within the super component </br>
+	 * This method takes the ConnectionReferences within a specific ComponentInstance and compares the Connections they reference. </br>
+	 * If those are the not Unique, they are only added once to the resulting list of ConnectionReferences
+	 * @param conRs the ConnectionReferences of a specific ComponentInstance (they must all have the same "context")
+	 * @return a list with only one ConnectionReference per connection defined in the "context" ComponentInstance
+	 */
+	public List<ConnectionReference> makeUnique(List<ConnectionReference> conRs){
+		List<ConnectionReference> result = new ArrayList<ConnectionReference>();
+		for (ConnectionReference conr : conRs) {
+			boolean isFirst = true;
+			for (ConnectionReference resConr : result) {
+				if(resConr.getConnection() == conr.getConnection()){
+					isFirst = false;
+					break;
+				}
+			}
+			if(isFirst)
+				result.add(conr);
+		}
+		return result;
+	}
+	
+	/**
+	 * This helper method is needed, as if we call FeatureCategory::dataPort from within Acceleo it returns null
+	 * @param fi
+	 * @return true if the given FeatureInstance is a data port
+	 */
+	public static Boolean isDataPort(FeatureInstance fi){
+		return fi.getCategory() == FeatureCategory.DATA_PORT;
+	}
+	
 }

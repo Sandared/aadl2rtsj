@@ -44,10 +44,17 @@ public class [thread.getUserCodeClassName()/]{
 		[/if]
 	[/for]
 
+	// [protected ('additionalVariables')]
+	// TODO: place additional variables here
+	// [/protected]
+
 	public [thread.getClassName()/]UserCode([classifier.getConstructorParameters()/]){
 	[for (feature : Feature | classifier.getAllFeatures())]
 		this.[feature.name/] = [feature.name/];
 	[/for]	
+		// [protected ('initialization')]
+		// TODO: place your own initialization code here
+		// [/protected]
 	}
 
 	public void dispatch(){
