@@ -40,6 +40,7 @@ public
 			positionControl: thread PositionControl.impl;
 			altitudeControl: thread AltitudeControl.impl;
 			headingControl: thread HeadingControl.impl;
+			dataLogger: thread DataLogger.impl;
 		connections
 			con_1: port positionIn -> flightMissionExecutionControl.positionInformationIn;
 			con_2: port flightMissionExecutionControl.shutdownCommandOut -> mixThrottlesControl.shutdownCommandIn;
@@ -63,8 +64,25 @@ public
 			con_20: port pitchControl.throttleRequestOut -> mixThrottlesControl.pitchThrottleRequestIn;
 			con_21: port headingControl.throttleRequestOut -> mixThrottlesControl.headingThrottleRequestIn;
 			con_22: port mixThrottlesControl.throttleCommandOut -> throttleOut;
+			specialCon1: port positionIn -> dataLogger.positionIn;
+			specialCon2: port mixThrottlesControl.throttleCommandOut -> dataLogger.throttleIn;
 	end autopilotProcess.impl;
-
+	
+	-- ################### SUPER SPECIAL CONTROLLER ################### --
+	thread DataLogger
+		features
+			throttleIn: in data port Command.ThrottleCommand;
+			positionIn: in data port Information.PositionInformation;
+		properties
+			Period => 50 ms;
+			Priority => 5;
+			Dispatch_Protocol => Periodic;
+	end DataLogger;
+	
+	thread implementation DataLogger.impl
+	end DataLogger.impl;
+	
+	
 	-- ################### BASIC CONTROLLER ################### --
 	thread BasicController
 		features
@@ -163,8 +181,6 @@ public
 	thread implementation PositionControl.impl
 	end PositionControl.impl;
 	
-	-- ################### SUPER SPECIAL CONTROLLER ################### --
-
 	-- ################### COMMANDS / INFORMATION / REQUESTS ################### --
 	data Command
 	end Command;
