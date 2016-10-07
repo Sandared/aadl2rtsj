@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="ASCII"?>
+<instance:SystemInstance xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aadl2="http://aadl.info/AADL/2.0" xmlns:instance="http://aadl.info/AADL/2.0/instance" name="autopilot_impl_Instance" category="system">
+  <componentInstance name="simulation" category="device">
+    <featureInstance name="position" direction="out">
+      <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.2/@ownedDataPort.0"/>
+    </featureInstance>
+    <featureInstance name="throttle">
+      <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.2/@ownedDataPort.1"/>
+    </featureInstance>
+    <subcomponent xsi:type="aadl2:DeviceSubcomponent" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.1/@ownedDeviceSubcomponent.0"/>
+    <index>0</index>
+  </componentInstance>
+  <componentInstance name="autopilot" category="process">
+    <featureInstance name="positionIn">
+      <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.4/@ownedDataPort.0"/>
+    </featureInstance>
+    <featureInstance name="throttleOut" direction="out">
+      <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.4/@ownedDataPort.1"/>
+    </featureInstance>
+    <componentInstance name="rollControl" category="thread">
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Timing_Properties.aadl#Timing_Properties.Period"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="50">
+            <unit href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.16/@ownedLiteral.3"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedPropertyAssociation.0"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Priority"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="5"/>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedPropertyAssociation.1"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Dispatch_Protocol"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:NamedValue">
+            <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.3/@ownedLiteral.0"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedPropertyAssociation.2"/>
+      </ownedPropertyAssociation>
+      <featureInstance name="positionIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.0"/>
+      </featureInstance>
+      <featureInstance name="throttleRequestOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.2"/>
+      </featureInstance>
+      <featureInstance name="shutdownCommandIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.3"/>
+      </featureInstance>
+      <featureInstance name="commandIn">
+        <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+          <property href="../../Plugin_Resources/Predeclared_Property_Sets/Modeling_Properties.aadl#Modeling_Properties.Classifier_Substitution_Rule"/>
+          <ownedValue>
+            <ownedValue xsi:type="aadl2:NamedValue">
+              <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/Modeling_Properties.aadl#/0/@ownedProperty.2/@ownedPropertyType/@ownedLiteral.1"/>
+            </ownedValue>
+          </ownedValue>
+          <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.1/@ownedPropertyAssociation.0"/>
+        </ownedPropertyAssociation>
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.10/@ownedDataPort.0"/>
+      </featureInstance>
+      <subcomponent xsi:type="aadl2:ThreadSubcomponent" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedThreadSubcomponent.0"/>
+      <index>0</index>
+    </componentInstance>
+    <componentInstance name="mixThrottlesControl" category="thread">
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Timing_Properties.aadl#Timing_Properties.Period"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="50">
+            <unit href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.16/@ownedLiteral.3"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.17/@ownedPropertyAssociation.0"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Priority"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="5"/>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.17/@ownedPropertyAssociation.1"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Dispatch_Protocol"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:NamedValue">
+            <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.3/@ownedLiteral.0"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.17/@ownedPropertyAssociation.2"/>
+      </ownedPropertyAssociation>
+      <featureInstance name="throttleCommandOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.17/@ownedDataPort.0"/>
+      </featureInstance>
+      <featureInstance name="rollThrottleRequestIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.17/@ownedDataPort.1"/>
+      </featureInstance>
+      <featureInstance name="pitchThrottleRequestIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.17/@ownedDataPort.2"/>
+      </featureInstance>
+      <featureInstance name="headingThrottleRequestIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.17/@ownedDataPort.3"/>
+      </featureInstance>
+      <featureInstance name="altitudeThrottleRequestIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.17/@ownedDataPort.4"/>
+      </featureInstance>
+      <featureInstance name="shutdownCommandIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.17/@ownedDataPort.5"/>
+      </featureInstance>
+      <subcomponent xsi:type="aadl2:ThreadSubcomponent" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedThreadSubcomponent.1"/>
+      <index>0</index>
+    </componentInstance>
+    <componentInstance name="pitchControl" category="thread">
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Timing_Properties.aadl#Timing_Properties.Period"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="50">
+            <unit href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.16/@ownedLiteral.3"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedPropertyAssociation.0"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Priority"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="5"/>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedPropertyAssociation.1"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Dispatch_Protocol"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:NamedValue">
+            <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.3/@ownedLiteral.0"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedPropertyAssociation.2"/>
+      </ownedPropertyAssociation>
+      <featureInstance name="positionIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.0"/>
+      </featureInstance>
+      <featureInstance name="throttleRequestOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.2"/>
+      </featureInstance>
+      <featureInstance name="shutdownCommandIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.3"/>
+      </featureInstance>
+      <featureInstance name="commandIn">
+        <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+          <property href="../../Plugin_Resources/Predeclared_Property_Sets/Modeling_Properties.aadl#Modeling_Properties.Classifier_Substitution_Rule"/>
+          <ownedValue>
+            <ownedValue xsi:type="aadl2:NamedValue">
+              <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/Modeling_Properties.aadl#/0/@ownedProperty.2/@ownedPropertyType/@ownedLiteral.1"/>
+            </ownedValue>
+          </ownedValue>
+          <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.1/@ownedPropertyAssociation.0"/>
+        </ownedPropertyAssociation>
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.11/@ownedDataPort.0"/>
+      </featureInstance>
+      <subcomponent xsi:type="aadl2:ThreadSubcomponent" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedThreadSubcomponent.2"/>
+      <index>0</index>
+    </componentInstance>
+    <componentInstance name="flightMissionExecutionControl" category="thread">
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Timing_Properties.aadl#Timing_Properties.Period"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="50">
+            <unit href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.16/@ownedLiteral.3"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.19/@ownedPropertyAssociation.0"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Priority"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="5"/>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.19/@ownedPropertyAssociation.1"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Dispatch_Protocol"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:NamedValue">
+            <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.3/@ownedLiteral.0"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.19/@ownedPropertyAssociation.2"/>
+      </ownedPropertyAssociation>
+      <featureInstance name="positionInformationIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.19/@ownedDataPort.0"/>
+      </featureInstance>
+      <featureInstance name="shutdownCommandOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.19/@ownedDataPort.1"/>
+      </featureInstance>
+      <featureInstance name="positionCommandOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.19/@ownedDataPort.2"/>
+      </featureInstance>
+      <featureInstance name="positionInformationOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.19/@ownedDataPort.3"/>
+      </featureInstance>
+      <subcomponent xsi:type="aadl2:ThreadSubcomponent" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedThreadSubcomponent.3"/>
+      <index>0</index>
+    </componentInstance>
+    <componentInstance name="positionControl" category="thread">
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Timing_Properties.aadl#Timing_Properties.Period"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="50">
+            <unit href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.16/@ownedLiteral.3"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.21/@ownedPropertyAssociation.0"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Priority"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="5"/>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.21/@ownedPropertyAssociation.1"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Dispatch_Protocol"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:NamedValue">
+            <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.3/@ownedLiteral.0"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.21/@ownedPropertyAssociation.2"/>
+      </ownedPropertyAssociation>
+      <featureInstance name="positionInformationIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.21/@ownedDataPort.0"/>
+      </featureInstance>
+      <featureInstance name="positionCommandIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.21/@ownedDataPort.1"/>
+      </featureInstance>
+      <featureInstance name="shutdownCommandIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.21/@ownedDataPort.2"/>
+      </featureInstance>
+      <featureInstance name="altitudeCommandOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.21/@ownedDataPort.3"/>
+      </featureInstance>
+      <featureInstance name="pitchCommandOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.21/@ownedDataPort.4"/>
+      </featureInstance>
+      <featureInstance name="rollCommandOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.21/@ownedDataPort.5"/>
+      </featureInstance>
+      <featureInstance name="headingCommandOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.21/@ownedDataPort.6"/>
+      </featureInstance>
+      <featureInstance name="positionInformationOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.21/@ownedDataPort.7"/>
+      </featureInstance>
+      <featureInstance name="shutdownCommandOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.21/@ownedDataPort.8"/>
+      </featureInstance>
+      <subcomponent xsi:type="aadl2:ThreadSubcomponent" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedThreadSubcomponent.4"/>
+      <index>0</index>
+    </componentInstance>
+    <componentInstance name="altitudeControl" category="thread">
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Timing_Properties.aadl#Timing_Properties.Period"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="50">
+            <unit href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.16/@ownedLiteral.3"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedPropertyAssociation.0"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Priority"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="5"/>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedPropertyAssociation.1"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Dispatch_Protocol"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:NamedValue">
+            <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.3/@ownedLiteral.0"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedPropertyAssociation.2"/>
+      </ownedPropertyAssociation>
+      <featureInstance name="positionIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.0"/>
+      </featureInstance>
+      <featureInstance name="throttleRequestOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.2"/>
+      </featureInstance>
+      <featureInstance name="shutdownCommandIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.3"/>
+      </featureInstance>
+      <featureInstance name="commandIn">
+        <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+          <property href="../../Plugin_Resources/Predeclared_Property_Sets/Modeling_Properties.aadl#Modeling_Properties.Classifier_Substitution_Rule"/>
+          <ownedValue>
+            <ownedValue xsi:type="aadl2:NamedValue">
+              <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/Modeling_Properties.aadl#/0/@ownedProperty.2/@ownedPropertyType/@ownedLiteral.1"/>
+            </ownedValue>
+          </ownedValue>
+          <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.1/@ownedPropertyAssociation.0"/>
+        </ownedPropertyAssociation>
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.12/@ownedDataPort.0"/>
+      </featureInstance>
+      <subcomponent xsi:type="aadl2:ThreadSubcomponent" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedThreadSubcomponent.5"/>
+      <index>0</index>
+    </componentInstance>
+    <componentInstance name="headingControl" category="thread">
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Timing_Properties.aadl#Timing_Properties.Period"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="50">
+            <unit href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.16/@ownedLiteral.3"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedPropertyAssociation.0"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Priority"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="5"/>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedPropertyAssociation.1"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Dispatch_Protocol"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:NamedValue">
+            <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.3/@ownedLiteral.0"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedPropertyAssociation.2"/>
+      </ownedPropertyAssociation>
+      <featureInstance name="positionIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.0"/>
+      </featureInstance>
+      <featureInstance name="throttleRequestOut" direction="out">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.2"/>
+      </featureInstance>
+      <featureInstance name="shutdownCommandIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.3"/>
+      </featureInstance>
+      <featureInstance name="commandIn">
+        <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+          <property href="../../Plugin_Resources/Predeclared_Property_Sets/Modeling_Properties.aadl#Modeling_Properties.Classifier_Substitution_Rule"/>
+          <ownedValue>
+            <ownedValue xsi:type="aadl2:NamedValue">
+              <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/Modeling_Properties.aadl#/0/@ownedProperty.2/@ownedPropertyType/@ownedLiteral.1"/>
+            </ownedValue>
+          </ownedValue>
+          <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.8/@ownedDataPort.1/@ownedPropertyAssociation.0"/>
+        </ownedPropertyAssociation>
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.9/@ownedDataPort.0"/>
+      </featureInstance>
+      <subcomponent xsi:type="aadl2:ThreadSubcomponent" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedThreadSubcomponent.6"/>
+      <index>0</index>
+    </componentInstance>
+    <componentInstance name="dataLogger" category="thread">
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Timing_Properties.aadl#Timing_Properties.Period"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="50">
+            <unit href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.16/@ownedLiteral.3"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.6/@ownedPropertyAssociation.0"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Priority"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:IntegerLiteral" value="5"/>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.6/@ownedPropertyAssociation.1"/>
+      </ownedPropertyAssociation>
+      <ownedPropertyAssociation xsi:type="instance:PropertyAssociationInstance">
+        <property href="../../Plugin_Resources/Predeclared_Property_Sets/Thread_Properties.aadl#Thread_Properties.Dispatch_Protocol"/>
+        <ownedValue>
+          <ownedValue xsi:type="aadl2:NamedValue">
+            <namedValue xsi:type="aadl2:EnumerationLiteral" href="../../Plugin_Resources/Predeclared_Property_Sets/AADL_Project.aadl#/0/@ownedPropertyType.3/@ownedLiteral.0"/>
+          </ownedValue>
+        </ownedValue>
+        <propertyAssociation href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.6/@ownedPropertyAssociation.2"/>
+      </ownedPropertyAssociation>
+      <featureInstance name="throttleIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.6/@ownedDataPort.0"/>
+      </featureInstance>
+      <featureInstance name="positionIn">
+        <feature xsi:type="aadl2:DataPort" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.6/@ownedDataPort.1"/>
+      </featureInstance>
+      <subcomponent xsi:type="aadl2:ThreadSubcomponent" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedThreadSubcomponent.7"/>
+      <index>0</index>
+    </componentInstance>
+    <connectionInstance name="rollControl.throttleRequestOut -> mixThrottlesControl.rollThrottleRequestIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.1" source="//@componentInstance.1/@componentInstance.0/@featureInstance.1">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.0/@featureInstance.1" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.1">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.18"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="mixThrottlesControl.throttleCommandOut -> dataLogger.throttleIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.7/@featureInstance.0" source="//@componentInstance.1/@componentInstance.1/@featureInstance.0">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.1/@featureInstance.0" destination="//@componentInstance.1/@componentInstance.7/@featureInstance.0">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.23"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="pitchControl.throttleRequestOut -> mixThrottlesControl.pitchThrottleRequestIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.2" source="//@componentInstance.1/@componentInstance.2/@featureInstance.1">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.2/@featureInstance.1" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.2">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.19"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="flightMissionExecutionControl.shutdownCommandOut -> mixThrottlesControl.shutdownCommandIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.5" source="//@componentInstance.1/@componentInstance.3/@featureInstance.1">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.3/@featureInstance.1" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.5">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.1"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="flightMissionExecutionControl.shutdownCommandOut -> positionControl.shutdownCommandIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.4/@featureInstance.2" source="//@componentInstance.1/@componentInstance.3/@featureInstance.1">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.3/@featureInstance.1" destination="//@componentInstance.1/@componentInstance.4/@featureInstance.2">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.2"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="flightMissionExecutionControl.positionCommandOut -> positionControl.positionCommandIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.4/@featureInstance.1" source="//@componentInstance.1/@componentInstance.3/@featureInstance.2">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.3/@featureInstance.2" destination="//@componentInstance.1/@componentInstance.4/@featureInstance.1">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.3"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="flightMissionExecutionControl.positionInformationOut -> positionControl.positionInformationIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.4/@featureInstance.0" source="//@componentInstance.1/@componentInstance.3/@featureInstance.3">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.3/@featureInstance.3" destination="//@componentInstance.1/@componentInstance.4/@featureInstance.0">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.4"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="positionControl.altitudeCommandOut -> altitudeControl.commandIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.5/@featureInstance.3" source="//@componentInstance.1/@componentInstance.4/@featureInstance.3">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.4/@featureInstance.3" destination="//@componentInstance.1/@componentInstance.5/@featureInstance.3">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.5"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="positionControl.pitchCommandOut -> pitchControl.commandIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.2/@featureInstance.3" source="//@componentInstance.1/@componentInstance.4/@featureInstance.4">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.4/@featureInstance.4" destination="//@componentInstance.1/@componentInstance.2/@featureInstance.3">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.15"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="positionControl.rollCommandOut -> rollControl.commandIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.0/@featureInstance.3" source="//@componentInstance.1/@componentInstance.4/@featureInstance.5">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.4/@featureInstance.5" destination="//@componentInstance.1/@componentInstance.0/@featureInstance.3">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.6"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="positionControl.headingCommandOut -> headingControl.commandIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.6/@featureInstance.3" source="//@componentInstance.1/@componentInstance.4/@featureInstance.6">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.4/@featureInstance.6" destination="//@componentInstance.1/@componentInstance.6/@featureInstance.3">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.16"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="positionControl.positionInformationOut -> altitudeControl.positionIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.5/@featureInstance.0" source="//@componentInstance.1/@componentInstance.4/@featureInstance.7">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.4/@featureInstance.7" destination="//@componentInstance.1/@componentInstance.5/@featureInstance.0">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.7"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="positionControl.positionInformationOut -> rollControl.positionIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.0/@featureInstance.0" source="//@componentInstance.1/@componentInstance.4/@featureInstance.7">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.4/@featureInstance.7" destination="//@componentInstance.1/@componentInstance.0/@featureInstance.0">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.8"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="positionControl.positionInformationOut -> pitchControl.positionIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.2/@featureInstance.0" source="//@componentInstance.1/@componentInstance.4/@featureInstance.7">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.4/@featureInstance.7" destination="//@componentInstance.1/@componentInstance.2/@featureInstance.0">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.9"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="positionControl.positionInformationOut -> headingControl.positionIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.6/@featureInstance.0" source="//@componentInstance.1/@componentInstance.4/@featureInstance.7">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.4/@featureInstance.7" destination="//@componentInstance.1/@componentInstance.6/@featureInstance.0">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.10"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="positionControl.shutdownCommandOut -> altitudeControl.shutdownCommandIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.5/@featureInstance.2" source="//@componentInstance.1/@componentInstance.4/@featureInstance.8">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.4/@featureInstance.8" destination="//@componentInstance.1/@componentInstance.5/@featureInstance.2">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.11"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="positionControl.shutdownCommandOut -> rollControl.shutdownCommandIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.0/@featureInstance.2" source="//@componentInstance.1/@componentInstance.4/@featureInstance.8">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.4/@featureInstance.8" destination="//@componentInstance.1/@componentInstance.0/@featureInstance.2">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.12"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="positionControl.shutdownCommandOut -> pitchControl.shutdownCommandIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.2/@featureInstance.2" source="//@componentInstance.1/@componentInstance.4/@featureInstance.8">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.4/@featureInstance.8" destination="//@componentInstance.1/@componentInstance.2/@featureInstance.2">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.13"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="positionControl.shutdownCommandOut -> headingControl.shutdownCommandIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.6/@featureInstance.2" source="//@componentInstance.1/@componentInstance.4/@featureInstance.8">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.4/@featureInstance.8" destination="//@componentInstance.1/@componentInstance.6/@featureInstance.2">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.14"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="altitudeControl.throttleRequestOut -> mixThrottlesControl.altitudeThrottleRequestIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.4" source="//@componentInstance.1/@componentInstance.5/@featureInstance.1">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.5/@featureInstance.1" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.4">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.17"/>
+      </connectionReference>
+    </connectionInstance>
+    <connectionInstance name="headingControl.throttleRequestOut -> mixThrottlesControl.headingThrottleRequestIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.3" source="//@componentInstance.1/@componentInstance.6/@featureInstance.1">
+      <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.6/@featureInstance.1" destination="//@componentInstance.1/@componentInstance.1/@featureInstance.3">
+        <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.20"/>
+      </connectionReference>
+    </connectionInstance>
+    <subcomponent xsi:type="aadl2:ProcessSubcomponent" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.1/@ownedProcessSubcomponent.0"/>
+    <index>0</index>
+  </componentInstance>
+  <connectionInstance name="simulation.position -> autopilot.flightMissionExecutionControl.positionInformationIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.3/@featureInstance.0" source="//@componentInstance.0/@featureInstance.0">
+    <connectionReference context="/" source="//@componentInstance.0/@featureInstance.0" destination="//@componentInstance.1/@featureInstance.0">
+      <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.1/@ownedPortConnection.1"/>
+    </connectionReference>
+    <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@featureInstance.0" destination="//@componentInstance.1/@componentInstance.3/@featureInstance.0">
+      <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.0"/>
+    </connectionReference>
+  </connectionInstance>
+  <connectionInstance name="simulation.position -> autopilot.dataLogger.positionIn" complete="true" kind="portConnection" destination="//@componentInstance.1/@componentInstance.7/@featureInstance.1" source="//@componentInstance.0/@featureInstance.0">
+    <connectionReference context="/" source="//@componentInstance.0/@featureInstance.0" destination="//@componentInstance.1/@featureInstance.0">
+      <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.1/@ownedPortConnection.1"/>
+    </connectionReference>
+    <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@featureInstance.0" destination="//@componentInstance.1/@componentInstance.7/@featureInstance.1">
+      <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.22"/>
+    </connectionReference>
+  </connectionInstance>
+  <connectionInstance name="autopilot.mixThrottlesControl.throttleCommandOut -> simulation.throttle" complete="true" kind="portConnection" destination="//@componentInstance.0/@featureInstance.1" source="//@componentInstance.1/@componentInstance.1/@featureInstance.0">
+    <connectionReference context="//@componentInstance.1" source="//@componentInstance.1/@componentInstance.1/@featureInstance.0" destination="//@componentInstance.1/@featureInstance.1">
+      <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.5/@ownedPortConnection.21"/>
+    </connectionReference>
+    <connectionReference context="/" source="//@componentInstance.1/@featureInstance.1" destination="//@componentInstance.0/@featureInstance.1">
+      <connection xsi:type="aadl2:PortConnection" href="../packages/autopilot.aadl#/0/@ownedPublicSection/@ownedClassifier.1/@ownedPortConnection.0"/>
+    </connectionReference>
+  </connectionInstance>
+  <systemOperationMode name="No Modes"/>
+  <componentImplementation xsi:type="aadl2:SystemImplementation" href="../packages/autopilot.aadl#autopilot.autopilot.impl"/>
+</instance:SystemInstance>
