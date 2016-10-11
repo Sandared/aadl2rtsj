@@ -4,8 +4,8 @@
 A transformation of detailed AADL (Architecture Analysis and Design Language) software models to RTSJ (Real-Time Specification for Java) code. 
 
 ---
-## Showcase
-The autopilot project we presented at <a href="http://2016.dasconline.org/">DASC 2016</a> is contained in the sources as *autopilot_impl_Instance-rtsj* project.
+## DEMO
+The autopilot project we presented at <a href="http://2016.dasconline.org/">DASC 2016</a> is contained in the sources as *autopilot_impl_Instance-rtsj* project. A video of this project and our setup can be seen [here](https://www.researchgate.net/project/MBE-for-Autonomous-Vehicles-with-Real-Time-Java-and-AADL)
 
 ---
 ## Setup
@@ -40,6 +40,11 @@ In order to achieve this setup you have to do the following:
   5. In your OSATE2 instance 
     1. Install the [JamaicaVM Plugin for Eclipse](https://www.aicas.com/cms/en/eclipse-plugin)
     2. Check out the projects *de.uniaugsburg.smds.aadl2rtsj.generation.tests* and *autopilot_impl_Instance-rtsj*
+    
+---
+##Example
+
+Currently our approach only supports automted addition of components, but not removal. So the easiest way to test the setup is to create something like a new thread within the autopilot process, connect it via a port connection and some data ports to other threads and fill out the generated *"newThread"UserCode* class with your own implementation.
 
 
 
