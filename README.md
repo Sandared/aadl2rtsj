@@ -40,6 +40,8 @@ In order to achieve this setup you have to do the following:
   5. In your OSATE2 instance 
     1. Install the [JamaicaVM Plugin for Eclipse](https://www.aicas.com/cms/en/eclipse-plugin)
     2. Check out the projects *de.uniaugsburg.smds.aadl2rtsj.generation.tests* and *autopilot_impl_Instance-rtsj*
+    3. Within *autopilot_impl_Instance-rtsj/nongenerated/common/Configuration.java* set *xplaneHost* to *IPv4 Host Address*
+6. There you go :)
     
 ---
 ##Example
